@@ -1,0 +1,2080 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script>
+  /* Safari / every iPhone browser (WebKit) drops SVG shapes that use the hand-drawn
+     filter inside the page-turn layers, leaving only the labels. */
+  if ("GestureEvent" in window || /iP(hone|ad|od)/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
+    document.documentElement.classList.add("no-rough");
+  }
+</script>
+<title>Project Management — Exam Prep Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Patrick+Hand&display=swap" rel="stylesheet" />
+<link rel="icon" type="image/webp" href="assets/img/RonitLogodark.webp" />
+<link rel="stylesheet" href="assets/css/style.css?v=23" />
+</head>
+<body>
+
+<div class="loader" id="loader">binding pages…</div>
+<div class="progress" id="progress"></div>
+
+<header class="nav">
+  <div class="nav-left">
+    <a class="brand" href="index.html" title="All exam books">
+      <img class="brand-logo" src="assets/img/RonitLogodark.webp" alt="Ronit Kaushal" width="58" height="24" />
+      <span class="brand-div"></span>
+      PM Exam Book
+    </a>
+    <span class="slash">/</span>
+    <span class="pill hide-sm">5 marks each</span>
+    <span class="slash s2">/</span>
+    <span class="crumb" id="crumb">Cover</span>
+  </div>
+  <div class="nav-right">
+    <a class="btn hide-sm" href="index.html" title="Choose another exam book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>All books</a>
+    <button class="btn hide-sm" id="printBtn" title="Print / Save as PDF">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+      Print
+    </button>
+    <button class="btn primary" id="tocBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      Contents <kbd style="border-color:#bbb;color:#555">T</kbd>
+    </button>
+  </div>
+</header>
+
+<main class="stage">
+  <div class="book-wrap" id="bookWrap">
+    <div class="book" id="book"></div>
+  </div>
+</main>
+
+<div class="controls">
+  <button class="ctl" id="firstBtn" title="Cover (Home)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button>
+  <button class="ctl" id="prevBtn" title="Previous page (←)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="counter" id="counter">—</div>
+  <button class="ctl" id="nextBtn" title="Next page (→)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+  <button class="ctl" id="lastBtn" title="Last page (End)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg></button>
+  <button class="ctl" id="zoomBtn" title="Zoom (for small screens)"><span class="zoom-lbl" id="zoomLbl">1×</span></button>
+  <button class="ctl" id="tocBtn2" title="Contents (T)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
+</div>
+
+<div class="hint"><kbd>←</kbd><kbd>→</kbd> flip · click page · swipe</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3>Contents <button class="btn" id="closeDrawer" style="height:28px;padding:0 10px">Esc</button></h3>
+    <input class="search" id="search" placeholder="Search questions…" autocomplete="off" />
+  </div>
+  <nav class="toc" id="toc"></nav>
+</aside>
+
+<div id="measure"></div>
+
+<svg class="defs-svg" aria-hidden="true">
+  <defs>
+    <filter id="rough" filterUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+      <path d="M1 1 L9 5 L1 9" fill="none" stroke="#141414" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrL" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="12" markerHeight="12" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+      <path d="M1 1 L9 5 L1 9" fill="none" stroke="#141414" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+</svg>
+
+<!-- =====================================================================
+     BOOK CONTENT — every <section> is flowed onto A4 pages by book.js
+     ===================================================================== -->
+<div id="src">
+
+<!-- ============================ COVER ============================ -->
+<section data-kind="raw" data-title="Cover">
+<div class="page cover">
+  <div class="cover-inner">
+    <div class="eyebrow">Unit I &amp; II · Exam Preparation</div>
+    <h1><span>Project</span><span>Management</span></h1>
+    <div class="sub">25 questions. 5 marks each. Written from my class notes.</div>
+
+    <img class="csk csk-f1" alt="" />
+    <img class="csk csk-f2" alt="" />
+    <img class="csk csk-f3" alt="" />
+    <img class="csk csk-f4" alt="" />
+    <img class="csk csk-f5" alt="" />
+
+    <div class="brand"><span class="by">Created by</span><span class="name">Ronit Kaushal</span><img class="cover-logo" src="assets/img/RonitLogodark.webp" alt="Ronit Kaushal logo" width="112" height="46" /></div>
+  </div>
+</div>
+</section>
+
+<!-- ============================ CONTENTS ============================ -->
+<section data-kind="toc" data-title="Contents"></section>
+
+<!-- ============================ HOW TO USE ============================ -->
+<section data-kind="flow" data-tag="✎" data-title="How to use this book">
+  <h2 class="q-title">How to write a 5-mark answer</h2>
+  <p class="q-meta">Read this once before you start. It takes 1 minute.</p>
+  <p>A 5-mark answer needs around <span class="hl">1.5 to 2 pages</span> in the exam. Examiners give marks for <b>structure</b>, not just length. Every answer in this book follows the same pattern, so you can copy the style straight into your answer sheet:</p>
+  <figure class="fig">
+    <svg viewBox="0 0 600 120">
+      <rect class="sk" x="6" y="30" width="100" height="56" rx="10"/><text x="56" y="56" text-anchor="middle" class="t-b">Define</text><text x="56" y="76" text-anchor="middle" class="t-xs">1 mark</text>
+      <rect class="sk" x="128" y="30" width="110" height="56" rx="10"/><text x="183" y="56" text-anchor="middle" class="t-b">Explain</text><text x="183" y="76" text-anchor="middle" class="t-xs">points + headings</text>
+      <rect class="sk" x="260" y="30" width="100" height="56" rx="10"/><text x="310" y="56" text-anchor="middle" class="t-b">Draw</text><text x="310" y="76" text-anchor="middle" class="t-xs">diagram / table</text>
+      <rect class="sk" x="382" y="30" width="100" height="56" rx="10"/><text x="432" y="56" text-anchor="middle" class="t-b">Example</text><text x="432" y="76" text-anchor="middle" class="t-xs">real-life case</text>
+      <rect class="sk-shade" x="504" y="30" width="90" height="56" rx="10"/><text x="549" y="56" text-anchor="middle" class="t-b">Conclude</text><text x="549" y="76" text-anchor="middle" class="t-xs">1–2 lines</text>
+      <path class="sk" d="M106 58 H124" marker-end="url(#arr)"/><path class="sk" d="M238 58 H256" marker-end="url(#arr)"/><path class="sk" d="M360 58 H378" marker-end="url(#arr)"/><path class="sk" d="M482 58 H500" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption data-n="0.1">The 5-step answer pattern used on every page</figcaption>
+  </figure>
+  <h3>Symbols used in this book</h3>
+  <table class="hand">
+    <tr><th>Symbol</th><th>Meaning</th></tr>
+    <tr><td>Boxed definition</td><td>Write this <b>word-for-word</b> as your first line.</td></tr>
+    <tr><td>✎ Exam tip</td><td>A small trick to get extra marks.</td></tr>
+    <tr><td>★ Remember</td><td>A one-line memory hook.</td></tr>
+    <tr><td><span class="hl">Highlighted</span></td><td>Keywords the examiner looks for.</td></tr>
+    <tr><td><span class="answer-box">Boxed answer</span></td><td>Final answer of a numerical. Always box it in the exam!</td></tr>
+  </table>
+  <h3>For numericals, always write…</h3>
+  <ol>
+    <li><b>Given</b> data (list it neatly).</li>
+    <li>The <b>formula</b> in words first.</li>
+    <li>Step-by-step working, with units (₹, days, weeks, %).</li>
+    <li>The <b>boxed</b> final answer.</li>
+    <li>One line of <b>interpretation</b> or decision (accept / reject, good / bad).</li>
+  </ol>
+  <div class="remember">Formula + steps + box + one-line meaning = full marks in numericals.</div>
+  <p class="small">All content in this book comes from the class notes: <i>Project, Project Life Cycle, Project vs Programme, Exploring Opportunities in PM, Types of Cost, Waterfall Method, Agile/Sprint Planning, Unit II (Business Case)</i> and the <i>Assignment</i> practical questions.</p>
+</section>
+
+<!-- =====================================================================
+     MAIN QUESTIONS
+     ===================================================================== -->
+
+<!-- ============================ Q1 ============================ -->
+<section data-tag="Q1" data-title="What is a Project?" data-group="Main Questions" data-src="Project.pdf (pp. 1–5); Difference between Project and Programme.pdf (pp. 1, 4); Project life cycle.pdf (pp. 1–3); Exploring opportinities in PM.pdf (p. 1)">
+  <h2 class="q-title"><span class="qn">Q1</span>What is a Project?</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit I · Basics</span></div>
+
+  <div class="def" data-label="Definition">
+    A <span class="hl">project</span> is a <b>temporary</b>, <b>planned</b> piece of work with a clear <b>start and end date</b>, created to make a <b>unique product, service or result</b>.
+  </div>
+
+  <p><span class="ans">Ans.</span> In simple words, a project is a <span class="hl">one-time job</span> that is done to create something new. It begins on a fixed date, it finishes on a fixed date, and once its work is delivered the project closes down.</p>
+
+  <h3>PMBOK® Guide definition</h3>
+  <div class="box">According to the <b>PMBOK® Guide (PMI, 2008)</b>, a project is <i>"a temporary endeavor undertaken to create a unique product, service or result."</i></div>
+  <p>Projects are temporary and <b>close down on the completion of the work</b> they were chartered (approved) to deliver.</p>
+
+  <h3>Another way to define it</h3>
+  <p>A project is a <span class="hl">set of tasks</span> that must be completed within a <b>defined timeline</b> to accomplish a <b>specific set of goals</b>. These tasks are completed by a group of people called the <b>project team</b>, which is led by a <b>project manager</b>. The project manager oversees the planning, scheduling, tracking and successful completion of the project.</p>
+  <p>More specifically, a project is a <b>series of structured tasks, activities and deliverables</b> that are carefully executed to achieve a desired outcome.</p>
+
+  <h3>Key parts of a project</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 235">
+      <ellipse class="sk" cx="100" cy="58" rx="92" ry="42"/>
+      <text x="100" y="54" text-anchor="middle" class="t-b">Temporary</text>
+      <text x="100" y="78" text-anchor="middle" class="t-s">fixed start + finish</text>
+      <ellipse class="sk" cx="300" cy="50" rx="92" ry="42"/>
+      <text x="300" y="46" text-anchor="middle" class="t-b">Unique Goal</text>
+      <text x="300" y="70" text-anchor="middle" class="t-s">something new</text>
+      <ellipse class="sk" cx="500" cy="58" rx="92" ry="42"/>
+      <text x="500" y="54" text-anchor="middle" class="t-b">Limits</text>
+      <text x="500" y="78" text-anchor="middle" class="t-s">time · money · supplies</text>
+      <path class="sk" d="M130 100 Q170 150 215 172" marker-end="url(#arrL)"/>
+      <path class="sk" d="M300 94 L300 160" marker-end="url(#arrL)"/>
+      <path class="sk" d="M470 100 Q430 150 385 172" marker-end="url(#arrL)"/>
+      <rect class="sk-shade" x="200" y="165" width="200" height="58" rx="12"/>
+      <text x="300" y="203" text-anchor="middle" class="t-b" style="font-size:32px">PROJECT</text>
+    </svg>
+    <figcaption data-n="1.1">Temporary + Unique + Limited = a Project</figcaption>
+  </figure>
+  <ol>
+    <li><b>Temporary:</b> It has a fixed start date and a set finish date.</li>
+    <li><b>Unique goal:</b> It creates something new or different, unlike regular daily work.</li>
+    <li><b>Limits:</b> It must follow rules for <span class="hl">time, money and supplies</span> (resources).</li>
+  </ol>
+
+  <h3>Project vs Regular work</h3>
+  <table class="hand">
+    <tr><th>Basis</th><th>Project</th><th>Regular work (operations)</th></tr>
+    <tr><td>Nature</td><td>One-time, temporary</td><td>Ongoing, repeated every day</td></tr>
+    <tr><td>Output</td><td>Something new and unique</td><td>Same routine output</td></tr>
+    <tr><td>End date</td><td>Fixed finish date</td><td>No fixed end</td></tr>
+    <tr><td>Example</td><td>Building a brand new mobile app</td><td>Fixing bugs on that app every day after it is launched</td></tr>
+  </table>
+
+  <h3>Examples of projects</h3>
+  <div class="grid2">
+    <ul>
+      <li>Video game development</li>
+      <li>Building construction</li>
+      <li>Natural disaster relief efforts</li>
+      <li>Promo campaigns for musicians</li>
+    </ul>
+    <ul>
+      <li>Events like Fashion Week</li>
+      <li>Humanitarian aid efforts overseas</li>
+      <li>A bank's mobile banking app in 12 months</li>
+      <li>Construction of a new hospital (₹50 crore, 2 years)</li>
+    </ul>
+  </div>
+
+  <h3>Every project has a life cycle</h3>
+  <p>Every project moves through the <b>project life cycle</b>, a basic framework that project managers use to structure projects and set them up for success.</p>
+  <figure class="fig">
+    <svg viewBox="0 0 600 90">
+      <rect class="sk" x="2" y="18" width="100" height="54" rx="8"/><text x="52" y="51" text-anchor="middle">Initiation</text>
+      <rect class="sk" x="124" y="18" width="100" height="54" rx="8"/><text x="174" y="51" text-anchor="middle">Planning</text>
+      <rect class="sk" x="246" y="18" width="100" height="54" rx="8"/><text x="296" y="51" text-anchor="middle">Execution</text>
+      <rect class="sk" x="368" y="18" width="110" height="54" rx="8"/><text x="423" y="42" text-anchor="middle">Monitoring &amp;</text><text x="423" y="63" text-anchor="middle">Controlling</text>
+      <rect class="sk-shade" x="500" y="18" width="96" height="54" rx="8"/><text x="548" y="51" text-anchor="middle">Closure</text>
+      <path class="sk" d="M102 45 H120" marker-end="url(#arr)"/><path class="sk" d="M224 45 H242" marker-end="url(#arr)"/><path class="sk" d="M346 45 H364" marker-end="url(#arr)"/><path class="sk" d="M478 45 H496" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption data-n="1.2">The five phases every project passes through</figcaption>
+  </figure>
+  <figure class="fig note-img">
+    <img src="assets/img/lifecycle-3.png" width="640" height="509" alt="Project life cycle: 1 Initiation, 2 Planning, 3 Execution, 4 Monitoring, 5 Closing" />
+    <figcaption data-n="1.3">Project life cycle diagram, from <i>Project life cycle.pdf</i> (p. 2)</figcaption>
+  </figure>
+
+  <div class="tip">Start with the PMBOK definition in quotes, then draw Fig 1.1. The words "temporary" and "unique" must appear in your answer.</div>
+  <div class="conclusion">A project is a temporary, goal-oriented effort with a definite beginning and end. It is carried out by a team under a project manager, within limits of time, cost and resources, to create a unique product, service or result.</div>
+</section>
+
+<!-- ============================ Q2 ============================ -->
+<section data-tag="Q2" data-title="What is Project Management?" data-group="Main Questions" data-src="Exploring opportinities in PM.pdf (pp. 1, 10–12); Project life cycle.pdf (pp. 1–6, 10); Project.pdf (p. 3); Difference between Project and Programme.pdf (p. 3)">
+  <h2 class="q-title"><span class="qn">Q2</span>What is Project Management?</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit I · Basics</span></div>
+
+  <div class="def" data-label="Definition">
+    <span class="hl">Project Management</span> is the process of <b>planning, executing, monitoring and successfully completing</b> a project <b>within time, cost and quality constraints</b>, so that the project achieves its goals.
+  </div>
+
+  <p><span class="ans">Ans.</span> A project does not complete itself. Someone has to plan the work, divide it among people, track progress and solve problems. This whole job is called <b>project management</b>, and the person who leads it is the <b>project manager</b>.</p>
+  <p>The project manager oversees the <span class="hl">planning, scheduling, tracking and successful completion</span> of the project and leads the project team.</p>
+  <p>Project management <b>integrates planning, leadership, communication, resource management and risk control</b> to achieve strategic organizational goals.</p>
+
+  <h3>The three constraints of a project</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 260">
+      <path class="sk" d="M300 30 L480 230 L120 230 Z"/>
+      <text x="300" y="20" text-anchor="middle" class="t-b">TIME</text>
+      <text x="96" y="252" text-anchor="middle" class="t-b">COST</text>
+      <text x="508" y="252" text-anchor="middle" class="t-b">QUALITY</text>
+      <ellipse class="sk-shade" cx="300" cy="165" rx="70" ry="34"/>
+      <text x="300" y="162" text-anchor="middle" class="t-b">SCOPE</text>
+      <text x="300" y="184" text-anchor="middle" class="t-xs">what we deliver</text>
+      <text x="80" y="110" class="t-s">on schedule</text>
+      <text x="430" y="110" class="t-s">required standard</text>
+      <path class="sk-thin" d="M150 115 Q190 120 205 140" marker-end="url(#arr)"/>
+      <path class="sk-thin" d="M470 118 Q430 122 400 145" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption data-n="2.1">A project is successful when it is delivered on time, within cost and at the required quality</figcaption>
+  </figure>
+
+  <h3>Process of project management (5 phases)</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 350">
+      <circle class="sk-dash" cx="300" cy="185" r="135"/>
+      <path class="sk" d="M375 55.1 A150 150 0 0 1 400.4 73.5" marker-end="url(#arrL)"/>
+      <path class="sk" d="M446.7 216.2 A150 150 0 0 1 437 246" marker-end="url(#arrL)"/>
+      <path class="sk" d="M315.7 334.2 A150 150 0 0 1 284.3 334.2" marker-end="url(#arrL)"/>
+      <path class="sk" d="M163 246 A150 150 0 0 1 153.3 216.2" marker-end="url(#arrL)"/>
+      <path class="sk" d="M199.6 73.5 A150 150 0 0 1 225 55.1" marker-end="url(#arrL)"/>
+      <rect class="sk" x="235" y="27" width="130" height="46" rx="10" style="fill:var(--paper)"/><text x="300" y="57" text-anchor="middle">1. Initiation</text>
+      <rect class="sk" x="363" y="120" width="130" height="46" rx="10" style="fill:var(--paper)"/><text x="428" y="150" text-anchor="middle">2. Planning</text>
+      <rect class="sk" x="314" y="271" width="130" height="46" rx="10" style="fill:var(--paper)"/><text x="379" y="301" text-anchor="middle">3. Execution</text>
+      <rect class="sk" x="146" y="271" width="150" height="46" rx="10" style="fill:var(--paper)"/><text x="221" y="292" text-anchor="middle">4. Monitoring &amp;</text><text x="221" y="311" text-anchor="middle">Controlling</text>
+      <rect class="sk" x="107" y="120" width="130" height="46" rx="10" style="fill:var(--paper)"/><text x="172" y="150" text-anchor="middle">5. Closure</text>
+      <text x="300" y="180" text-anchor="middle" class="t-b">Project</text>
+      <text x="300" y="205" text-anchor="middle" class="t-b">Life Cycle</text>
+    </svg>
+    <figcaption data-n="2.2">The 5 phases of project management</figcaption>
+  </figure>
+  <ol>
+    <li><b>Initiation:</b> The project's feasibility and value are assessed. Objectives, scope, purpose and stakeholders are defined. Activities: develop a <span class="hl">business case</span>, conduct a feasibility study, identify stakeholders, create a <b>project charter</b> that formally authorizes the project.</li>
+    <li><b>Planning:</b> A roadmap is made to finish on time and within budget. The project is broken into smaller tasks with milestones. Plans made: project management plan (WBS + Gantt chart), risk plan, financial plan, resource plan, communication plan and quality plan (KPIs).</li>
+    <li><b>Execution:</b> The plan is put into action and deliverables are completed. The PM assigns tasks, clarifies roles, answers questions, oversees work, facilitates communication and supports the team.</li>
+    <li><b>Monitoring &amp; Controlling:</b> Progress is tracked using timesheets, reports, Gantt charts or Kanban boards. The PM controls timelines, cost, team, quality and risk.</li>
+    <li><b>Closure:</b> The project is closed, knowledge and artifacts are archived, team members are released, contracts are closed and <b>lessons learned</b> are reviewed.</li>
+  </ol>
+
+  <h3>What the project manager controls</h3>
+  <table class="hand">
+    <tr><th>Area</th><th>Example of control action</th></tr>
+    <tr><td>Timelines</td><td>If a team member can't finish a task on time, assign it to someone else.</td></tr>
+    <tr><td>Cost</td><td>If a vendor costs more than expected, reduce the project scope.</td></tr>
+    <tr><td>Team</td><td>If two members disagree, the PM has the last word.</td></tr>
+    <tr><td>Quality</td><td>If a part is substandard, find a different approach to build it.</td></tr>
+    <tr><td>Risk</td><td>If a new risk appears, mitigate it before it affects the team.</td></tr>
+  </table>
+
+  <h3>Skills needed in project management</h3>
+  <table class="hand">
+    <tr><th>Technical skills</th><th>Soft skills</th></tr>
+    <tr><td>Project planning, Scheduling, Budgeting</td><td>Leadership, Communication, Negotiation</td></tr>
+    <tr><td>Risk &amp; Quality management</td><td>Decision making, Team building</td></tr>
+    <tr><td>MS Project, Primavera, Agile &amp; Scrum</td><td>Problem solving, Conflict management, Critical thinking</td></tr>
+  </table>
+
+  <h3>Example: a new Business School</h3>
+  <p>A university plans to set up a new Business School within <b>two years</b>. The project manager:</p>
+  <ul>
+    <li>Prepares the project plan and <b>work breakdown structure (WBS)</b>.</li>
+    <li>Monitors budget, schedule and quality.</li>
+    <li>Coordinates architects, contractors, academic experts and regulators.</li>
+    <li>Identifies and mitigates project risks, and ensures a successful launch.</li>
+  </ul>
+
+  <h3>Importance of project management</h3>
+  <ul class="dots">
+    <li><b>Structure &amp; clarity:</b> breaks complex projects into manageable phases.</li>
+    <li><b>Better planning &amp; control:</b> each phase has clear objectives and review points.</li>
+    <li><b>Communication:</b> stakeholders know what to expect at each stage.</li>
+    <li><b>Progress tracking:</b> progress is measured against milestones.</li>
+    <li><b>Quality assurance:</b> regular reviews catch errors early.</li>
+  </ul>
+  <p class="small">Popular methodologies: Waterfall, Agile, Scrum, Kanban, Lean, Six Sigma, PRINCE2, PMBOK, CPM, PERT.</p>
+
+  <div class="conclusion">Project management is the art of planning, executing, monitoring and closing a project so that it is delivered on time, within budget and at the required quality. It turns an idea into a successful result.</div>
+</section>
+
+<!-- ============================ Q3 ============================ -->
+<section data-tag="Q3" data-title="Characteristics of a Project" data-group="Main Questions" data-src="Project.pdf (pp. 1–4); Difference between Project and Programme.pdf (pp. 1, 3, 9); Different Types of Cost in Project Management.pdf (pp. 2–5); Project life cycle.pdf (p. 1); Exploring opportinities in PM.pdf (p. 1)">
+  <h2 class="q-title"><span class="qn">Q3</span>Characteristics of a Project</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit I · Basics</span></div>
+
+  <p><span class="ans">Ans.</span> A <span class="hl">project</span> is "a temporary endeavor undertaken to create a unique product, service or result" (PMBOK®). The features that make a project different from routine work are called its <b>characteristics</b>.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 330">
+      <ellipse class="sk-shade" cx="300" cy="165" rx="110" ry="52"/>
+      <text x="300" y="160" text-anchor="middle" class="t-b">Characteristics</text>
+      <text x="300" y="186" text-anchor="middle" class="t-b">of a Project</text>
+      <g>
+        <rect class="sk" x="10" y="22" width="150" height="40" rx="10"/><text x="85" y="48" text-anchor="middle">Temporary</text>
+        <rect class="sk" x="10" y="102" width="150" height="40" rx="10"/><text x="85" y="128" text-anchor="middle">Unique output</text>
+        <rect class="sk" x="10" y="188" width="150" height="40" rx="10"/><text x="85" y="214" text-anchor="middle">Specific goal</text>
+        <rect class="sk" x="10" y="268" width="150" height="40" rx="10"/><text x="85" y="294" text-anchor="middle">Constraints</text>
+        <rect class="sk" x="440" y="22" width="150" height="40" rx="10"/><text x="515" y="48" text-anchor="middle">Life cycle</text>
+        <rect class="sk" x="440" y="102" width="150" height="40" rx="10"/><text x="515" y="128" text-anchor="middle">Team + PM</text>
+        <rect class="sk" x="440" y="188" width="150" height="40" rx="10"/><text x="515" y="214" text-anchor="middle">Risk</text>
+        <rect class="sk" x="440" y="268" width="150" height="40" rx="10"/><text x="515" y="294" text-anchor="middle">Costs &amp; resources</text>
+      </g>
+      <path class="sk-thin" d="M160 42 Q220 60 228 128"/>
+      <path class="sk-thin" d="M160 122 L192 140"/>
+      <path class="sk-thin" d="M160 208 L195 192"/>
+      <path class="sk-thin" d="M160 288 Q222 270 232 205"/>
+      <path class="sk-thin" d="M440 42 Q380 60 372 128"/>
+      <path class="sk-thin" d="M440 122 L408 140"/>
+      <path class="sk-thin" d="M440 208 L405 192"/>
+      <path class="sk-thin" d="M440 288 Q378 270 368 205"/>
+    </svg>
+    <figcaption data-n="3.1">Mind-map of project characteristics</figcaption>
+  </figure>
+
+  <h3><span class="num">1</span>Temporary nature</h3>
+  <p>Every project has a <b>fixed start date and a set finish date</b>. Projects close down once the work they were chartered to deliver is complete. <i>Example: a hospital construction project of 2 years.</i></p>
+
+  <h3><span class="num">2</span>Unique output</h3>
+  <p>A project creates a <b>unique product, service or result</b>: something new or different, unlike regular daily work. Building a new app is a project; fixing bugs every day after launch is regular work.</p>
+
+  <h3><span class="num">3</span>Specific objectives</h3>
+  <p>A project is a set of tasks done to accomplish a <b>specific set of goals</b>. Its <span class="hl">scope is narrow and clearly defined</span>, for example "one completed hospital".</p>
+
+  <h3><span class="num">4</span>Constraints (limits)</h3>
+  <p>A project must follow limits of <b>time, money and supplies</b>. It is judged a success only if it is delivered <span class="hl">on time, within cost and at the required quality</span>.</p>
+
+  <h3><span class="num">5</span>Life cycle</h3>
+  <p>Every project moves through phases: <b>Initiation → Planning → Execution → Monitoring &amp; Controlling → Closure</b>. Each phase ends with one or more deliverables.</p>
+
+  <h3><span class="num">6</span>Project team and project manager</h3>
+  <p>Work is done by a <b>project team</b> led by a <b>project manager</b>, who oversees planning, scheduling, tracking and completion.</p>
+
+  <h3><span class="num">7</span>Structured tasks and deliverables</h3>
+  <p>A project is a series of <b>structured tasks, activities and deliverables</b> carried out in a planned order. It can be broken down using a WBS and a Gantt chart.</p>
+
+  <h3><span class="num">8</span>Risk and uncertainty</h3>
+  <p>Since the work is new, there are <b>project-specific risks</b> such as cost overruns, technology failure or low customer adoption. These are identified and mitigated.</p>
+
+  <h3><span class="num">9</span>Requires costs and resources</h3>
+  <p>A project uses money, people and materials. Its total cost is made up of:</p>
+  <table class="hand">
+    <tr><th>Cost type</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td>Direct</td><td>Directly linked to project work</td><td>Contractors, software licences</td></tr>
+    <tr><td>Indirect</td><td>Cost of doing business overall</td><td>Heating, lighting, office rent</td></tr>
+    <tr><td>Fixed</td><td>One-off charge, not linked to duration</td><td>One-time advertisement, 1-day Agile consultancy</td></tr>
+    <tr><td>Variable</td><td>Changes with the project's length</td><td>Staff salaries, machine hire</td></tr>
+    <tr><td>Sunk</td><td>Already spent, cannot be recovered</td><td>Money already gone (ignore in decisions)</td></tr>
+  </table>
+  <figure class="fig note-img">
+    <img src="assets/img/cost-1.png" width="571" height="321" alt="Project cost = Direct + Indirect + Fixed + Variable + Sunk cost" />
+    <figcaption data-n="3.2">Project cost breakdown, from <i>Different Types of Cost in Project Management.pdf</i> (p. 2)</figcaption>
+  </figure>
+
+  <h3><span class="num">10</span>Measurable success</h3>
+  <p>Success is measured by <b>time, cost, quality and scope</b>: "Did we deliver the required output?"</p>
+
+  <h3>Example: launching a mobile banking app</h3>
+  <table class="hand">
+    <tr><th>Characteristic</th><th>In the bank's app project</th></tr>
+    <tr><td>Temporary</td><td>Must launch within 12 months</td></tr>
+    <tr><td>Unique</td><td>A brand-new mobile banking application</td></tr>
+    <tr><td>Constraints</td><td>Fixed budget allocated</td></tr>
+    <tr><td>Team</td><td>PM coordinates software developers and testers</td></tr>
+    <tr><td>Risk</td><td>PM manages risks and ensures timely delivery</td></tr>
+  </table>
+
+  <div class="remember">T-U-G-C-L-T-R = Temporary, Unique, Goal, Constraints, Life cycle, Team, Risk.</div>
+  <div class="conclusion">A project is temporary, unique, goal-oriented and limited by time, cost and quality. It follows a life cycle and is carried out by a team led by a project manager. These characteristics separate projects from routine operations.</div>
+</section>
+
+<!-- ============================ Q4 ============================ -->
+<section data-tag="Q4" data-title="Project vs Program(me)" data-group="Main Questions" data-src="Difference between Project and Programme.pdf (pp. 1–12)">
+  <h2 class="q-title"><span class="qn">Q4</span>Difference between a Project and a Program</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit I · Concepts</span></div>
+
+  <p><span class="ans">Ans.</span> Both words sound similar, but a <b>programme is much bigger</b>. It is a <span class="hl">group of related projects</span>.</p>
+
+  <div class="def" data-label="Project">
+    According to the <b>PMBOK® Guide (PMI, 2008)</b>, a project is <i>"a temporary endeavor undertaken to create a unique product, service or result."</i> Projects close down on completion of the work they were chartered to deliver.
+  </div>
+  <div class="def" data-label="Programme">
+    According to <b>The Standard for Program Management (PMI, 2008)</b>, a programme is <i>"a group of related projects managed in a coordinated way to obtain benefits and control not available from managing them individually."</i> Programmes may also contain work outside the scope of the individual projects.
+  </div>
+  <p><b>OGC view:</b> PRINCE2 defines the management of projects, and the <b>Managing Successful Programmes (MSP)</b> methodology defines a programme as <i>"a portfolio of projects and activities that are coordinated and managed as a unit such that they achieve outcomes and realise benefits"</i> (OGC, 2003).</p>
+
+  <h3>Difference table</h3>
+  <table class="hand">
+    <tr><th>Basis</th><th>Project</th><th>Programme</th></tr>
+    <tr><td>Meaning</td><td>Temporary effort to produce a specific output</td><td>Coordinated group of related projects</td></tr>
+    <tr><td>Objective</td><td>Achieve a specific deliverable</td><td>Achieve broader strategic benefits</td></tr>
+    <tr><td>Scope</td><td>Narrow and clearly defined</td><td>Wider, may evolve</td></tr>
+    <tr><td>Duration</td><td>Usually shorter</td><td>Usually longer</td></tr>
+    <tr><td>Managed by</td><td>Project Manager</td><td>Programme Manager</td></tr>
+    <tr><td>Focus</td><td>Outputs / deliverables</td><td>Outcomes and benefits</td></tr>
+    <tr><td>Interdependency</td><td>Generally limited</td><td>Projects are often interdependent</td></tr>
+    <tr><td>Risk</td><td>Project-specific risks</td><td>Programme-level + project-level risks</td></tr>
+    <tr><td>Success</td><td>On time, within cost, required quality</td><td>Strategic benefits achieved across projects</td></tr>
+    <tr><td>Main question</td><td>"Did we deliver the required output?"</td><td>"Did the combined projects deliver the strategic benefits?"</td></tr>
+    <tr><td>Example</td><td>Construction of one hospital</td><td>Govt. healthcare improvement programme with many hospital projects</td></tr>
+  </table>
+
+  <h3>Example: Gandhinagar</h3>
+  <p><b>Project:</b> Construction of a new hospital in Gandhinagar. Cost ₹50 crore, duration 2 years, output = one completed hospital. The project manager handles construction, budget, quality and schedule.</p>
+  <p><b>Programme:</b> Gandhinagar District Healthcare Development Programme. The programme manager coordinates all of these projects to improve healthcare services in the district:</p>
+  <figure class="fig">
+    <svg viewBox="0 0 600 205">
+      <rect class="sk-shade" x="130" y="6" width="340" height="56" rx="12"/>
+      <text x="300" y="31" text-anchor="middle" class="t-b">Gandhinagar Healthcare</text>
+      <text x="300" y="54" text-anchor="middle" class="t-b">Development Programme</text>
+      <path class="sk-thin" d="M300 62 V88 M58 88 H542 M58 88 V112 M179 88 V112 M300 88 V112 M421 88 V112 M542 88 V112"/>
+      <rect class="sk" x="4" y="112" width="108" height="84" rx="10"/><text x="58" y="140" text-anchor="middle" class="t-s">Hospital</text><text x="58" y="160" text-anchor="middle" class="t-s">construction</text><text x="58" y="182" text-anchor="middle" class="t-xs">project</text>
+      <rect class="sk" x="125" y="112" width="108" height="84" rx="10"/><text x="179" y="140" text-anchor="middle" class="t-s">Medical</text><text x="179" y="160" text-anchor="middle" class="t-s">equipment</text><text x="179" y="182" text-anchor="middle" class="t-xs">procurement</text>
+      <rect class="sk" x="246" y="112" width="108" height="84" rx="10"/><text x="300" y="140" text-anchor="middle" class="t-s">Doctor &amp;</text><text x="300" y="160" text-anchor="middle" class="t-s">nurse</text><text x="300" y="182" text-anchor="middle" class="t-xs">training</text>
+      <rect class="sk" x="367" y="112" width="108" height="84" rx="10"/><text x="421" y="140" text-anchor="middle" class="t-s">Digital</text><text x="421" y="160" text-anchor="middle" class="t-s">health</text><text x="421" y="182" text-anchor="middle" class="t-xs">records</text>
+      <rect class="sk" x="488" y="112" width="108" height="84" rx="10"/><text x="542" y="140" text-anchor="middle" class="t-s">Ambulance</text><text x="542" y="160" text-anchor="middle" class="t-s">service</text><text x="542" y="182" text-anchor="middle" class="t-xs">improvement</text>
+    </svg>
+    <figcaption data-n="4.1">One programme = many related projects</figcaption>
+  </figure>
+
+  <h3>Numerical illustration</h3>
+  <div class="grid2">
+    <div class="box">
+      <b class="nu"><u>Project</u></b> (activities in sequence)<br/>
+      A Design: 3 m, ₹5 L<br/>B Foundation: 4 m, ₹10 L<br/>C Construction: 6 m, ₹25 L<br/>D Finishing: 2 m, ₹8 L<br/>
+      Duration = 3+4+6+2 = <span class="answer-box">15 months</span><br/>
+      Cost = 5+10+25+8 = <span class="answer-box">₹48 lakh</span>
+    </div>
+    <div class="box">
+      <b class="nu"><u>Programme</u></b> (Digital Education, run in parallel)<br/>
+      A Smart classrooms: ₹20 cr, 12 m<br/>B Teacher training: ₹5 cr, 8 m<br/>C Digital platform: ₹10 cr, 10 m<br/>
+      Budget = 20+5+10 = <span class="answer-box">₹35 crore</span><br/>
+      Duration = max(12, 8, 10) = <span class="answer-box">12 months</span>
+    </div>
+  </div>
+  <p class="small">A programme is not simply "one big project". It has multiple related projects designed to produce a larger benefit.</p>
+
+  <h3>Extending it: Portfolio</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 200">
+      <rect class="sk-shade" x="200" y="6" width="200" height="44" rx="10"/><text x="300" y="35" text-anchor="middle" class="t-b">PORTFOLIO</text>
+      <path class="sk-thin" d="M300 50 V70 M100 70 H500 M100 70 V88 M300 70 V88 M500 70 V88"/>
+      <rect class="sk" x="20" y="88" width="160" height="40" rx="10"/><text x="100" y="114" text-anchor="middle">Programme A</text>
+      <rect class="sk" x="220" y="88" width="160" height="40" rx="10"/><text x="300" y="114" text-anchor="middle">Programme B</text>
+      <rect class="sk" x="420" y="88" width="160" height="40" rx="10"/><text x="500" y="114" text-anchor="middle">Independent project</text>
+      <path class="sk-thin" d="M100 128 V146 M40 146 H160 M40 146 V160 M100 146 V160 M160 146 V160"/>
+      <rect class="sk" x="14" y="160" width="52" height="32" rx="8"/><text x="40" y="182" text-anchor="middle" class="t-xs">P1</text>
+      <rect class="sk" x="74" y="160" width="52" height="32" rx="8"/><text x="100" y="182" text-anchor="middle" class="t-xs">P2</text>
+      <rect class="sk" x="134" y="160" width="52" height="32" rx="8"/><text x="160" y="182" text-anchor="middle" class="t-xs">P3</text>
+      <text x="330" y="175" class="t-s">Project → Product</text>
+      <text x="330" y="195" class="t-s">Programme → Benefits · Portfolio → Strategy</text>
+    </svg>
+    <figcaption data-n="4.2">Project ⊂ Programme ⊂ Portfolio</figcaption>
+  </figure>
+  <p><b>Portfolio</b> = all projects and programmes managed together to achieve organizational strategy. Its main question is <i>"Are we investing in the right work?"</i> <i>Example:</i> a company's portfolio has the Digital Transformation Programme (₹50 cr, 3 projects), the Market Expansion Programme (₹80 cr), a New Factory Project (₹40 cr) and an R&amp;D Project (₹20 cr). Portfolio value = 50+80+40+20 = <b>₹190 crore</b>.</p>
+
+  <div class="remember">Project = one specific deliverable. Programme = multiple related projects + strategic benefits. "Build one college building" is a project; "improve the entire education system" is a programme.</div>
+  <div class="conclusion">A project is a temporary undertaking to achieve a specific output, whereas a programme is a group of related projects managed together to achieve broader strategic benefits.</div>
+</section>
+
+<!-- ============================ Q5 ============================ -->
+<section data-tag="Q5" data-title="Different Types of Projects" data-group="Main Questions" data-src="Types and Classification of Projects (Scribd: scribd.com/document/568015013/categories-of-projects); Exploring opportinities in PM.pdf (pp. 1–8, sector examples)" data-srcnote="Classification taken from the Scribd document 'Types and Classification of Projects', as you asked. The sector examples at the end are from your notes.">
+  <h2 class="q-title"><span class="qn">Q5</span>Different Types of Projects</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit I · Types &amp; Classification of Projects</span></div>
+
+  <p><span class="ans">Ans.</span> A project is a temporary effort to create a unique product, service or result. Projects are not all alike, so they are <span class="hl">classified on different bases</span>: who owns them, how much is invested, which sector they belong to, what their objective is, how new they are and how long they take.</p>
+
+  <div class="def" data-label="Classification">Projects can be classified on <b>7 bases</b>: (1) Ownership, (2) Investment, (3) Research in academia, (4) Sector, (5) Objective, (6) Nature and (7) Time.</div>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 320">
+      <rect class="sk-shade" x="190" y="4" width="220" height="50" rx="12"/>
+      <text x="300" y="36" text-anchor="middle" class="t-b">Types of Projects</text>
+      <path class="sk" d="M300 54 V84"/>
+      <path class="sk" d="M75 84 H525"/>
+      <path class="sk" d="M75 84 V104" marker-end="url(#arr)"/><path class="sk" d="M225 84 V104" marker-end="url(#arr)"/>
+      <path class="sk" d="M375 84 V104" marker-end="url(#arr)"/><path class="sk" d="M525 84 V104" marker-end="url(#arr)"/>
+      <rect class="sk" x="5" y="108" width="140" height="78" rx="10"/>
+      <text x="75" y="136" text-anchor="middle" class="t-b">1. Ownership</text>
+      <text x="75" y="160" text-anchor="middle" class="t-xs">Public · Private</text>
+      <text x="75" y="177" text-anchor="middle" class="t-xs">PPP</text>
+      <rect class="sk" x="155" y="108" width="140" height="78" rx="10"/>
+      <text x="225" y="136" text-anchor="middle" class="t-b">2. Investment</text>
+      <text x="225" y="160" text-anchor="middle" class="t-xs">Large · Medium</text>
+      <text x="225" y="177" text-anchor="middle" class="t-xs">Small scale</text>
+      <rect class="sk" x="305" y="108" width="140" height="78" rx="10"/>
+      <text x="375" y="136" text-anchor="middle" class="t-b">3. Academic</text>
+      <text x="375" y="160" text-anchor="middle" class="t-xs">Major · Minor</text>
+      <text x="375" y="177" text-anchor="middle" class="t-xs">research projects</text>
+      <rect class="sk" x="455" y="108" width="140" height="78" rx="10"/>
+      <text x="525" y="136" text-anchor="middle" class="t-b">4. Sector</text>
+      <text x="525" y="160" text-anchor="middle" class="t-xs">Agricultural · Industrial</text>
+      <text x="525" y="177" text-anchor="middle" class="t-xs">Service</text>
+      <path class="sk" d="M300 84 V214"/>
+      <path class="sk" d="M110 214 H490"/>
+      <path class="sk" d="M110 214 V234" marker-end="url(#arr)"/><path class="sk" d="M300 214 V234" marker-end="url(#arr)"/><path class="sk" d="M490 214 V234" marker-end="url(#arr)"/>
+      <rect class="sk" x="25" y="238" width="170" height="76" rx="10"/>
+      <text x="110" y="266" text-anchor="middle" class="t-b">5. Objective</text>
+      <text x="110" y="292" text-anchor="middle" class="t-xs">Commercial · Social</text>
+      <rect class="sk" x="215" y="238" width="170" height="76" rx="10"/>
+      <text x="300" y="266" text-anchor="middle" class="t-b">6. Nature</text>
+      <text x="300" y="292" text-anchor="middle" class="t-xs">Conventional · Innovative</text>
+      <rect class="sk" x="405" y="238" width="170" height="76" rx="10"/>
+      <text x="490" y="266" text-anchor="middle" class="t-b">7. Time</text>
+      <text x="490" y="292" text-anchor="middle" class="t-xs">Long term · Short term</text>
+    </svg>
+    <figcaption data-n="5.1">The 7 bases for classifying projects</figcaption>
+  </figure>
+
+  <h3><span class="num">1</span>Based on <u>Ownership</u></h3>
+  <ul>
+    <li><b>Public projects:</b> undertaken by the <b>government</b> for the public. <i>E.g., ISRO's satellite projects, India's Unique Identification Number (Aadhaar) project.</i></li>
+    <li><b>Private projects:</b> undertaken by <b>private enterprises</b>. <i>E.g., house construction by real estate builders, software development, marriage contracts.</i></li>
+    <li><b>Public–Private Partnership (PPP):</b> undertaken by <b>government and private enterprises together</b>. <i>E.g., electricity generation by windmills, garbage collection.</i></li>
+  </ul>
+
+  <h3><span class="num">2</span>Based on <u>Investment</u></h3>
+  <ul>
+    <li><b>Large scale projects:</b> involve a <span class="hl">huge outlay, in crores</span>. <i>E.g., real estate projects, road construction, manufacturing facilities, ISRO satellite launches, the UID project of India.</i></li>
+    <li><b>Medium scale projects:</b> medium-level investment, usually <b>technology oriented</b>. <i>E.g., the computer and electronics industry.</i></li>
+    <li><b>Small scale projects:</b> need only a <b>small investment</b>. <i>E.g., agricultural projects, small manufacturing projects.</i></li>
+  </ul>
+
+  <h3><span class="num">3</span>Based on <u>Research in Academia</u></h3>
+  <ul>
+    <li><b>Major projects:</b> take <b>more than one year</b> (up to 3–5 years) and need larger funding (in lakhs, higher for science than for social science).</li>
+    <li><b>Minor projects:</b> are <b>completed within a year</b> and have a smaller maximum funding limit.</li>
+  </ul>
+
+  <h3><span class="num">4</span>Based on <u>Sector</u></h3>
+  <ul>
+    <li><b>Agricultural projects:</b> related to farming and agriculture. <i>E.g., irrigation projects, small farm projects.</i></li>
+    <li><b>Industrial projects:</b> related to manufacturing industries such as cement, steel and textiles. <i>E.g., technology transfer, marketing project, capital issue project like an IPO.</i></li>
+    <li><b>Service projects:</b> related to services such as education, tourism, health and public utilities. <i>E.g., adult literacy project, medical camp, general health check-up camp.</i></li>
+  </ul>
+
+  <h3><span class="num">5</span>Based on <u>Objective</u></h3>
+  <ul>
+    <li><b>Commercial projects:</b> done for <b>profit</b>, a <span class="hl">return on investment is expected</span>. <i>E.g., toll roads on the BOLT (Build Own Lease Transfer) or BOOT (Build Own Operate Transfer) model, a product launch.</i></li>
+    <li><b>Social projects:</b> done for the <b>welfare of people</b>, by the government or NGOs. <i>E.g., Polio immunization, child welfare, adult literacy projects.</i></li>
+  </ul>
+
+  <h3><span class="num">6</span>Based on <u>Nature</u></h3>
+  <ul>
+    <li><b>Conventional projects:</b> traditional projects with <b>no innovative idea, technology or method</b>. <i>E.g., conventional irrigation projects, handicraft projects.</i></li>
+    <li><b>Innovative projects:</b> use <b>new technology, high R&amp;D</b>, and develop new products and services. They include:
+      <ul class="dots">
+        <li><b>Research projects:</b> exploratory (e.g., renewable energy research, optical fibre capacity) or observational (testing on real-life data).</li>
+        <li><b>New product development:</b> advance development, breakthrough (first generation of a new product), platform / next-generation, and derivative projects (improve an existing product).</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3><span class="num">7</span>Based on <u>Time</u></h3>
+  <ul>
+    <li><b>Long term projects:</b> take <b>many years</b> to complete. <i>E.g., large infrastructure such as highways or dams.</i></li>
+    <li><b>Short term projects:</b> finish in a <b>short period</b>. <i>E.g., an event, a medical camp, a minor academic project.</i></li>
+  </ul>
+
+  <h3>Quick summary table</h3>
+  <table class="hand">
+    <tr><th>Basis</th><th>Types</th><th>Example</th></tr>
+    <tr><td>Ownership</td><td>Public, Private, PPP</td><td>ISRO / builder / windmill power</td></tr>
+    <tr><td>Investment</td><td>Large, Medium, Small</td><td>UID project / electronics / farm</td></tr>
+    <tr><td>Academia</td><td>Major, Minor</td><td>3–5 year study / 1 year study</td></tr>
+    <tr><td>Sector</td><td>Agricultural, Industrial, Service</td><td>Irrigation / IPO / literacy</td></tr>
+    <tr><td>Objective</td><td>Commercial, Social</td><td>Toll road / Polio drive</td></tr>
+    <tr><td>Nature</td><td>Conventional, Innovative</td><td>Handicraft / new product R&amp;D</td></tr>
+    <tr><td>Time</td><td>Long term, Short term</td><td>Highway / medical camp</td></tr>
+  </table>
+
+  <p class="small">Sector examples from the notes: IT and AI, construction, healthcare, manufacturing, education, government, banking, renewable energy, events, NGO and disaster-relief projects.</p>
+
+  <div class="remember">O-I-A-S-O-N-T = Ownership, Investment, Academia, Sector, Objective, Nature, Time.</div>
+  <div class="tip">Draw Fig 5.1 first, then write each basis as a heading with its types and one example each. Examples get the marks!</div>
+  <div class="conclusion">Projects can be classified by ownership, investment, academic research, sector, objective, nature and time. Knowing the type helps decide who funds the project, how big it is, what it aims for and how it should be managed.</div>
+</section>
+
+<!-- ============================ Q6 ============================ -->
+<section data-tag="Q6" data-title="Agile Numerical: Velocity & Days" data-group="Main Questions" data-src="Agile projects commonly use Sprint Planning.pdf (pp. 1–6, Questions 1–6); Assignment Title.pdf (p. 4, case-study Q7–Q8)">
+  <h2 class="q-title"><span class="qn">Q6</span>Agile Project Numerical: Velocity &amp; Days</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Numerical · Agile / Scrum</span></div>
+
+  <p><span class="ans">Ans.</span> Agile projects commonly use <b>Sprint Planning, Story Points, Velocity, Burndown Charts and Capacity</b> for numerical analysis. Learn the terms first, then the numericals are easy.</p>
+
+  <h3>Key terms</h3>
+  <table class="hand">
+    <tr><th>Term</th><th>Meaning</th></tr>
+    <tr><td>Project</td><td>The entire journey, e.g. 6 months</td></tr>
+    <tr><td>Sprint</td><td>One short, time-boxed development cycle within that journey (usually 2 weeks)</td></tr>
+    <tr><td>Story points</td><td>Units used to estimate the size/effort of work (user stories)</td></tr>
+    <tr><td>Product backlog</td><td>Total list of work (story points) to be completed</td></tr>
+    <tr><td>Velocity</td><td>Story points a team completes per sprint</td></tr>
+    <tr><td>Capacity</td><td>Productive hours the team has available in a sprint</td></tr>
+    <tr><td>Burndown</td><td>Work remaining, tracked day by day</td></tr>
+  </table>
+  <figure class="fig">
+    <svg viewBox="0 0 600 120">
+      <rect class="sk-shade" x="6" y="10" width="588" height="40" rx="10"/>
+      <text x="300" y="37" text-anchor="middle" class="t-b">PROJECT → 6 months</text>
+      <g>
+        <rect class="sk" x="6" y="70" width="88" height="40" rx="8"/><text x="50" y="96" text-anchor="middle" class="t-s">Sprint 1</text>
+        <rect class="sk" x="104" y="70" width="88" height="40" rx="8"/><text x="148" y="96" text-anchor="middle" class="t-s">Sprint 2</text>
+        <rect class="sk" x="202" y="70" width="88" height="40" rx="8"/><text x="246" y="96" text-anchor="middle" class="t-s">Sprint 3</text>
+        <rect class="sk" x="300" y="70" width="88" height="40" rx="8"/><text x="344" y="96" text-anchor="middle" class="t-s">Sprint 4</text>
+        <text x="440" y="96" text-anchor="middle" class="t-b">. . . . . .</text>
+        <rect class="sk" x="506" y="70" width="88" height="40" rx="8"/><text x="550" y="96" text-anchor="middle" class="t-s">Last sprint</text>
+      </g>
+      <text x="50" y="66" text-anchor="middle" class="t-xs">2 weeks</text><text x="148" y="66" text-anchor="middle" class="t-xs">2 weeks</text><text x="246" y="66" text-anchor="middle" class="t-xs">2 weeks</text><text x="344" y="66" text-anchor="middle" class="t-xs">2 weeks</text>
+    </svg>
+    <figcaption data-n="6.1">Project = entire journey; Sprint = one short cycle</figcaption>
+  </figure>
+
+  <h3>Formulas to remember</h3>
+  <div class="formula"><span class="lbl">Average Velocity</span>Velocity = <span class="frac"><span>Total story points completed</span><span>Number of sprints</span></span></div>
+  <div class="formula"><span class="lbl">Sprints required</span>No. of sprints = <span class="frac"><span>Total story points (backlog)</span><span>Velocity</span></span></div>
+  <div class="formula"><span class="lbl">Duration</span>Project duration = No. of sprints × Sprint length</div>
+
+  <h3>Problem 1: Calculate sprint velocity</h3>
+  <p>A Scrum team completes these story points in three sprints: <b>Sprint 1 = 24, Sprint 2 = 30, Sprint 3 = 27</b>. Calculate the average velocity.</p>
+  <div class="calc">
+    <div>Average Velocity = Total story points ÷ No. of sprints</div>
+    <div>= (24 + 30 + 27) ÷ 3</div>
+    <div>= 81 ÷ 3</div>
+    <div>= <span class="answer-box">27 story points / sprint</span></div>
+  </div>
+  <p><i>Interpretation:</i> The team can be expected to complete about <b>27 story points per sprint</b>.</p>
+
+  <h3>Problem 2: Number of sprints &amp; project duration</h3>
+  <p>A product backlog has <b>150 story points</b>. The team's average velocity is <b>25 points per sprint</b>. Each sprint lasts <b>2 weeks</b>. Find (1) sprints required and (2) project duration.</p>
+  <div class="steps">
+    <div class="step"><div class="step-h">Step 1: Number of sprints</div>
+      <div class="calc"><div>No. of sprints = Total story points ÷ Velocity</div><div>= 150 ÷ 25 = <span class="answer-box">6 sprints</span></div></div></div>
+    <div class="step"><div class="step-h">Step 2: Project duration</div>
+      <div class="calc"><div>Duration = No. of sprints × Sprint length</div><div>= 6 × 2 weeks = <span class="answer-box">12 weeks</span></div><div class="small">(12 weeks × 5 working days = 60 working days)</div></div></div>
+  </div>
+
+  <h3>Problem 3: Team capacity (in hours / days)</h3>
+  <p>A team has <b>5 members</b>, each available <b>6 productive hours per day</b>. Sprint = <b>10 working days</b>. <b>20%</b> of time goes to meetings and admin work. Find effective sprint capacity.</p>
+  <div class="steps">
+    <div class="step"><div class="step-h">Step 1: Total available hours</div><div class="calc"><div>= 5 × 6 × 10 = 300 hours</div></div></div>
+    <div class="step"><div class="step-h">Step 2: Non-development time</div><div class="calc"><div>= 20% × 300 = 60 hours</div></div></div>
+    <div class="step"><div class="step-h">Step 3: Effective capacity</div><div class="calc"><div>= 300 − 60 = <span class="answer-box">240 hours</span></div></div></div>
+  </div>
+
+  <h3>Problem 4: Project completion using velocity</h3>
+  <p>Product backlog = <b>240 story points</b>. Completed: Sprint 1 = 35, Sprint 2 = 40, Sprint 3 = 45, Sprint 4 = 40. Find average velocity, remaining points and additional sprints.</p>
+  <figure class="fig">
+    <svg viewBox="0 0 600 260">
+      <path class="sk" d="M60 230 H570" marker-end="url(#arr)"/>
+      <path class="sk" d="M60 230 V20" marker-end="url(#arr)"/>
+      <text x="22" y="94" class="t-xs">35</text><text x="22" y="74" class="t-xs">40</text><text x="22" y="54" class="t-xs">45</text>
+      <rect class="sk-shade" x="100" y="90" width="64" height="140"/>
+      <rect class="sk-shade" x="220" y="70" width="64" height="160"/>
+      <rect class="sk-shade" x="340" y="50" width="64" height="180"/>
+      <rect class="sk-shade" x="460" y="70" width="64" height="160"/>
+      <text x="132" y="82" text-anchor="middle">35</text><text x="252" y="62" text-anchor="middle">40</text><text x="372" y="42" text-anchor="middle">45</text><text x="492" y="62" text-anchor="middle">40</text>
+      <text x="132" y="252" text-anchor="middle" class="t-s">Sprint 1</text><text x="252" y="252" text-anchor="middle" class="t-s">Sprint 2</text><text x="372" y="252" text-anchor="middle" class="t-s">Sprint 3</text><text x="492" y="252" text-anchor="middle" class="t-s">Sprint 4</text>
+      <path class="sk-dash" d="M60 70 H560"/>
+      <text x="560" y="64" text-anchor="end" class="t-s">average velocity = 40</text>
+    </svg>
+    <figcaption data-n="6.2">Velocity chart: story points completed per sprint</figcaption>
+  </figure>
+  <div class="steps">
+    <div class="step"><div class="step-h">Step 1: Total completed points</div><div class="calc"><div>= 35 + 40 + 45 + 40 = 160</div></div></div>
+    <div class="step"><div class="step-h">Step 2: Average velocity</div><div class="calc"><div>= 160 ÷ 4 = <span class="answer-box">40 points / sprint</span></div></div></div>
+    <div class="step"><div class="step-h">Step 3: Remaining backlog</div><div class="calc"><div>= 240 − 160 = <span class="answer-box">80 points</span></div></div></div>
+    <div class="step"><div class="step-h">Step 4: Additional sprints</div><div class="calc"><div>= 80 ÷ 40 = <span class="answer-box">2 sprints</span> (i.e. 2 × 2 = 4 more weeks)</div></div></div>
+  </div>
+
+  <h3>Problem 5: Sprint burndown (points per day)</h3>
+  <p>A sprint starts with <b>100 story points</b>. Completed: Day 1 = 8, Day 2 = 12, Day 3 = 10, Day 4 = 15, Day 5 = 10.</p>
+  <div class="calc">
+    <div>Total completed = 8 + 12 + 10 + 15 + 10 = <span class="answer-box">55 points</span></div>
+    <div>Remaining after Day 5 = 100 − 55 = <span class="answer-box">45 points</span></div>
+    <div>Average daily rate = 55 ÷ 5 = <span class="answer-box">11 points / day</span></div>
+  </div>
+  <figure class="fig">
+    <svg viewBox="0 0 600 290">
+      <path class="sk" d="M60 260 H580" marker-end="url(#arr)"/>
+      <path class="sk" d="M60 260 V10" marker-end="url(#arr)"/>
+      <text x="20" y="26" class="t-xs">100</text><text x="26" y="156" class="t-xs">45</text>
+      <text x="60" y="282" text-anchor="middle" class="t-xs">Day 0</text><text x="160" y="282" text-anchor="middle" class="t-xs">1</text><text x="260" y="282" text-anchor="middle" class="t-xs">2</text><text x="360" y="282" text-anchor="middle" class="t-xs">3</text><text x="460" y="282" text-anchor="middle" class="t-xs">4</text><text x="560" y="282" text-anchor="middle" class="t-xs">5</text>
+      <path class="sk-dash" d="M60 20 L560 152"/>
+      <path class="sk" style="stroke-width:3" d="M60 20 L160 39.2 L260 68 L360 92 L460 128 L560 152"/>
+      <circle class="sk-fill" cx="60" cy="20" r="4"/><circle class="sk-fill" cx="160" cy="39.2" r="4"/><circle class="sk-fill" cx="260" cy="68" r="4"/><circle class="sk-fill" cx="360" cy="92" r="4"/><circle class="sk-fill" cx="460" cy="128" r="4"/><circle class="sk-fill" cx="560" cy="152" r="4"/>
+      <text x="168" y="34" class="t-xs">92</text><text x="268" y="62" class="t-xs">80</text><text x="368" y="86" class="t-xs">70</text><text x="468" y="122" class="t-xs">55</text><text x="540" y="176" class="t-xs">45 left</text>
+      <text x="300" y="220" class="t-s">— actual remaining work</text>
+      <text x="300" y="242" class="t-s">- - average pace (11 pts/day)</text>
+    </svg>
+    <figcaption data-n="6.3">Burndown chart: remaining story points by day</figcaption>
+  </figure>
+  <p><i>Interpretation:</i> The team has completed <b>55%</b> of the sprint backlog and has 45 points remaining.</p>
+
+  <h3>Problem 6: Agile project cost (days × rate)</h3>
+  <p>Team: <b>4 developers @ ₹2,000/day each</b>, <b>1 Scrum Master @ ₹3,000/day</b>, <b>1 Product Owner @ ₹3,500/day</b>. Project = <b>10 sprints × 10 working days</b>. Find total personnel cost.</p>
+  <div class="steps">
+    <div class="step"><div class="step-h">Step 1: Daily developer cost</div><div class="calc"><div>4 × ₹2,000 = ₹8,000</div></div></div>
+    <div class="step"><div class="step-h">Step 2: Total daily team cost</div><div class="calc"><div>₹8,000 + ₹3,000 + ₹3,500 = ₹14,500</div></div></div>
+    <div class="step"><div class="step-h">Step 3: Total working days</div><div class="calc"><div>10 × 10 = 100 days</div></div></div>
+    <div class="step"><div class="step-h">Step 4: Total personnel cost</div><div class="calc"><div>₹14,500 × 100 = <span class="answer-box">₹14,50,000 (₹14.5 lakh)</span></div></div></div>
+  </div>
+
+  <h3>Bonus: completion rate (from the case study)</h3>
+  <div class="calc">
+    <div>32 of 40 user stories completed → Completion rate = 32/40 × 100 = <b>80%</b>; incomplete = 40 − 32 = <b>8 stories</b></div>
+    <div>320 of 400 story points done → Work completed = 320/400 × 100 = <b>80%</b></div>
+  </div>
+
+  <div class="tip">In the exam, write "Given", then the formula, then the steps. Draw the velocity bar chart or burndown chart for an extra mark.</div>
+  <div class="conclusion">Velocity tells us how much work a team finishes per sprint. Dividing the backlog by velocity gives the number of sprints, and multiplying by sprint length gives the project duration in weeks or days.</div>
+</section>
+
+<!-- ============================ Q7 ============================ -->
+<section data-tag="Q7" data-title="ROI Numerical" data-group="Main Questions" data-src="Assignment Title.pdf (p. 5, Practical Q1); Unit- II.pdf (p. 12); Difference between Project and Programme.pdf (pp. 7–8)">
+  <h2 class="q-title"><span class="qn">Q7</span>Numerical on ROI (Return on Investment)</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Numerical · Project Appraisal</span></div>
+
+  <p><span class="ans">Ans.</span> <span class="hl">ROI</span> measures how much profit a project earns <b>compared to the money invested</b>, expressed as a percentage. It is one of the financial measures used in a <b>business case</b> to analyse financial viability.</p>
+
+  <div class="formula"><span class="lbl">Formula</span>ROI = <span class="frac"><span>Net Profit (Annual Benefit)</span><span>Initial Investment</span></span> × 100</div>
+  <p class="small center">When the total return/benefit is given (not profit), use: ROI = (Benefit − Investment) ÷ Investment × 100</p>
+
+  <h3>Question</h3>
+  <div class="box">A company invests <b>₹8,00,000</b> in a new project. During the first year, the project generates a <b>net profit of ₹1,60,000</b> after all operating expenses and depreciation. Calculate the Return on Investment (ROI).</div>
+
+  <h3>Solution</h3>
+  <p><b>Given:</b> Initial Investment = ₹8,00,000; Net Profit = ₹1,60,000</p>
+  <div class="steps">
+    <div class="step"><div class="step-h">Step 1: Write the formula</div><div class="calc"><div>ROI = (Net Profit ÷ Initial Investment) × 100</div></div></div>
+    <div class="step"><div class="step-h">Step 2: Substitute the values</div><div class="calc"><div>ROI = (1,60,000 ÷ 8,00,000) × 100</div></div></div>
+    <div class="step"><div class="step-h">Step 3: Calculate</div><div class="calc"><div>= 0.20 × 100</div><div>= <span class="answer-box">ROI = 20%</span></div></div></div>
+  </div>
+  <figure class="fig">
+    <svg viewBox="0 0 600 130">
+      <text x="0" y="30" class="t-s">Investment</text>
+      <rect class="sk" x="110" y="12" width="480" height="30" rx="4"/>
+      <text x="350" y="34" text-anchor="middle" class="t-s">₹8,00,000 (100%)</text>
+      <text x="0" y="84" class="t-s">Profit</text>
+      <rect class="sk-shade" x="110" y="66" width="96" height="30" rx="4"/>
+      <text x="158" y="88" text-anchor="middle" class="t-xs">₹1.6 L</text>
+      <path class="sk-dash" d="M206 42 V110"/>
+      <text x="216" y="88" class="t-s">= 1/5th of investment = 20% per year</text>
+      <text x="110" y="124" class="t-xs">every ₹100 invested earns ₹20 of profit</text>
+    </svg>
+    <figcaption data-n="7.1">Profit as a share of investment</figcaption>
+  </figure>
+  <p><b>Interpretation:</b> The project earns <b>₹20 for every ₹100 invested</b> in the first year. A positive ROI means the project is profitable. At this rate the investment is recovered in 100 ÷ 20 = 5 years.</p>
+
+  <h3>Example 2: Business case (online sales platform)</h3>
+  <p>A retail company invests <b>₹10 lakh</b> in an e-commerce platform that generates an <b>additional profit of ₹5 lakh per year</b>.</p>
+  <div class="calc">
+    <div>ROI = Annual Benefit ÷ Initial Investment × 100</div>
+    <div>= 5 lakh ÷ 10 lakh × 100 = <span class="answer-box">50% per year</span></div>
+  </div>
+  <p>This indicates a potentially attractive investment.</p>
+
+  <h3>Example 3: Programme-level ROI (negative ROI)</h3>
+  <table class="hand">
+    <tr><th>Project</th><th class="r">Investment</th><th class="r">Annual Benefit</th></tr>
+    <tr><td>ERP implementation</td><td class="r">₹30 lakh</td><td class="r">₹12 lakh</td></tr>
+    <tr><td>Digital library</td><td class="r">₹15 lakh</td><td class="r">₹6 lakh</td></tr>
+    <tr><td>Online examination system</td><td class="r">₹10 lakh</td><td class="r">₹5 lakh</td></tr>
+    <tr class="total"><td>Total</td><td class="r">₹55 lakh</td><td class="r">₹23 lakh</td></tr>
+  </table>
+  <div class="calc">
+    <div>ROI = (Annual Benefit − Investment) ÷ Investment × 100</div>
+    <div>= (23 − 55) ÷ 55 × 100 = −32 ÷ 55 × 100</div>
+    <div>= <span class="answer-box">−58.18%</span></div>
+  </div>
+  <p><b>Meaning:</b> Based only on the first year's financial benefits, the University Digital Transformation Programme has not yet recovered its investment. A programme manager would also consider <b>long-term and non-financial benefits</b>: better student services, faster administration, transparency and better decisions.</p>
+
+  <h3>Decision rule</h3>
+  <ul>
+    <li><b>Higher ROI = better</b> project. Compare ROI with other projects or the expected return.</li>
+    <li><b>Positive ROI</b> → profitable; <b>negative ROI</b> → investment not yet recovered.</li>
+    <li>Limitation: simple ROI ignores taxes, depreciation, financing costs, inflation and the <span class="hl">time value of money</span>.</li>
+  </ul>
+
+  <div class="conclusion">ROI = Net profit ÷ Investment × 100. Here ROI = 20%, which means the project returns one-fifth of its cost every year and is financially worthwhile.</div>
+</section>
+
+<!-- ============================ Q8 ============================ -->
+<section data-tag="Q8" data-title="Payback Period Numerical" data-group="Main Questions" data-src="Assignment Title.pdf (p. 5, Practical Q2); Unit- II.pdf (pp. 5, 10, 26)">
+  <h2 class="q-title"><span class="qn">Q8</span>Numerical on Payback Period Method</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Numerical · Project Appraisal</span></div>
+
+  <p><span class="ans">Ans.</span> The <span class="hl">Payback Period</span> is the <b>time (in years) a project takes to recover its initial investment</b> from the cash inflows it generates. <b>Shorter payback = better</b> (less risky).</p>
+
+  <h3>Formulas</h3>
+  <div class="formula"><span class="lbl">(a) Equal annual cash inflows</span>Payback Period = <span class="frac"><span>Initial Investment</span><span>Annual Cash Inflow</span></span></div>
+  <div class="formula"><span class="lbl">(b) Unequal cash inflows</span>PB = Years before full recovery + <span class="frac"><span>Amount still to be recovered</span><span>Cash inflow of the next year</span></span></div>
+
+  <h3>Question (unequal cash flows)</h3>
+  <div class="box">A company invests <b>₹10,00,000</b> in a project. Expected annual cash inflows are: Year 1 = ₹2,50,000; Year 2 = ₹3,00,000; Year 3 = ₹3,50,000; Year 4 = ₹2,00,000; Year 5 = ₹1,50,000. Calculate the Payback Period.</div>
+
+  <h3>Solution</h3>
+  <p><b>Step 1:</b> Since the inflows are <b>unequal</b>, prepare a <b>cumulative cash inflow</b> table.</p>
+  <table class="hand">
+    <tr><th class="c">Year</th><th class="r">Cash Inflow (₹)</th><th class="r">Cumulative Inflow (₹)</th><th>Remark</th></tr>
+    <tr><td class="c">1</td><td class="r">2,50,000</td><td class="r">2,50,000</td><td>not recovered</td></tr>
+    <tr><td class="c">2</td><td class="r">3,00,000</td><td class="r">5,50,000</td><td>not recovered</td></tr>
+    <tr><td class="c">3</td><td class="r">3,50,000</td><td class="r">9,00,000</td><td>₹1,00,000 short</td></tr>
+    <tr><td class="c">4</td><td class="r">2,00,000</td><td class="r">11,00,000</td><td>recovered here ✓</td></tr>
+    <tr><td class="c">5</td><td class="r">1,50,000</td><td class="r">12,50,000</td><td>–</td></tr>
+  </table>
+  <p><b>Step 2:</b> After 3 years, ₹9,00,000 is recovered. Amount still to be recovered = 10,00,000 − 9,00,000 = <b>₹1,00,000</b>.</p>
+  <p><b>Step 3:</b> Year 4 brings ₹2,00,000. Fraction of year 4 needed = 1,00,000 ÷ 2,00,000 = <b>0.5 year</b>.</p>
+  <div class="calc">
+    <div>Payback Period = 3 + (1,00,000 ÷ 2,00,000)</div>
+    <div>= 3 + 0.5 = <span class="answer-box">3.5 years</span> (3 years 6 months)</div>
+  </div>
+  <figure class="fig">
+    <svg viewBox="0 0 600 290">
+      <path class="sk" d="M60 260 H580" marker-end="url(#arr)"/>
+      <path class="sk" d="M60 260 V14" marker-end="url(#arr)"/>
+      <text x="60" y="282" text-anchor="middle" class="t-xs">0</text><text x="160" y="282" text-anchor="middle" class="t-xs">1</text><text x="260" y="282" text-anchor="middle" class="t-xs">2</text><text x="360" y="282" text-anchor="middle" class="t-xs">3</text><text x="460" y="282" text-anchor="middle" class="t-xs">4</text><text x="560" y="282" text-anchor="middle" class="t-xs">5 yrs</text>
+      <path class="sk-dash" d="M60 80 H570"/>
+      <text x="64" y="72" class="t-s">Investment ₹10 L</text>
+      <path class="sk" style="stroke-width:3" d="M60 260 L160 215 L260 161 L360 98 L460 62 L560 35"/>
+      <circle class="sk-fill" cx="160" cy="215" r="4"/><circle class="sk-fill" cx="260" cy="161" r="4"/><circle class="sk-fill" cx="360" cy="98" r="4"/><circle class="sk-fill" cx="460" cy="62" r="4"/><circle class="sk-fill" cx="560" cy="35" r="4"/>
+      <text x="170" y="232" class="t-xs">2.5 L</text><text x="270" y="178" class="t-xs">5.5 L</text><text x="370" y="118" class="t-xs">9 L</text><text x="470" y="80" class="t-xs">11 L</text><text x="520" y="28" class="t-xs">12.5 L</text>
+      <circle class="sk" cx="410" cy="80" r="9"/>
+      <path class="sk-dash" d="M410 89 V260"/>
+      <text x="418" y="250" class="t-b" style="font-size:22px">3.5 yrs ✓</text>
+    </svg>
+    <figcaption data-n="8.1">Cumulative inflow crosses the investment line at 3.5 years</figcaption>
+  </figure>
+
+  <h3>Example (equal cash flows)</h3>
+  <p>The online sales platform costs <b>₹10 lakh</b> and earns <b>₹5 lakh</b> extra profit every year.</p>
+  <div class="calc"><div>Payback = Initial Investment ÷ Annual Benefit = 10 ÷ 5 = <span class="answer-box">2 years</span></div></div>
+
+  <h3>Decision rule, merits &amp; limitations</h3>
+  <ul>
+    <li><b>Accept</b> the project if its payback period is shorter than the target period. Between projects, choose the <b>shortest payback</b>.</li>
+    <li><b>Merit:</b> simple to calculate and understand; shows how fast money comes back.</li>
+    <li><b>Limitation:</b> ignores the <span class="hl">time value of money</span> and cash flows after payback (here Year 5's ₹1.5 L is ignored). For long-term projects like a university (payback ≈ 9.3 yrs), simple payback is <b>not sufficient</b>. NPV, IRR and cash-flow projections should also be examined.</li>
+  </ul>
+
+  <div class="conclusion">The project recovers its ₹10 lakh investment in 3.5 years. If management's target is, say, 4 years, the project is acceptable.</div>
+</section>
+
+<!-- ============================ Q9 ============================ -->
+<section data-tag="Q9" data-title="NPV Numerical" data-group="Main Questions" data-src="Assignment Title.pdf (p. 5, Practical Q3); Unit- II.pdf (pp. 12, 26)" data-srcnote="The question and data come from your notes. The notes don't solve it, so the discount-factor working is the standard NPV method.">
+  <h2 class="q-title"><span class="qn">Q9</span>Numerical on NPV (Net Present Value)</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Numerical · Project Appraisal</span></div>
+
+  <p><span class="ans">Ans.</span> <span class="hl">NPV</span> = Present value of all future cash inflows <b>minus</b> the initial investment. It accounts for the <b>time value of money</b>: ₹1 received in the future is worth less than ₹1 today, so future cash flows are <b>discounted</b> at the required rate of return.</p>
+
+  <div class="formula"><span class="lbl">Formula</span>NPV = Σ <span class="frac"><span>Cash inflow in year t</span><span>(1 + r)<sup>t</sup></span></span> − Initial Investment</div>
+  <p class="center small">Discount Factor (DF) = 1 ÷ (1 + r)<sup>t</sup> &nbsp;·&nbsp; PV = Cash inflow × DF</p>
+
+  <h3>Question</h3>
+  <div class="box">A company is considering a project requiring an initial investment of <b>₹12,00,000</b>. Expected cash inflows: Year 1 = ₹3,00,000; Year 2 = ₹4,00,000; Year 3 = ₹5,00,000; Year 4 = ₹4,00,000. The required rate of return is <b>10%</b>. Calculate the NPV and state whether the project should be accepted.</div>
+
+  <h3>Solution</h3>
+  <p><b>Given:</b> Investment = ₹12,00,000; r = 10%; n = 4 years</p>
+  <p><b>Step 1: Discount factors at 10%</b></p>
+  <div class="calc">
+    <div>Year 1: 1 ÷ (1.10)¹ = 1 ÷ 1.10 = 0.9091</div>
+    <div>Year 2: 1 ÷ (1.10)² = 1 ÷ 1.21 = 0.8264</div>
+    <div>Year 3: 1 ÷ (1.10)³ = 1 ÷ 1.331 = 0.7513</div>
+    <div>Year 4: 1 ÷ (1.10)⁴ = 1 ÷ 1.4641 = 0.6830</div>
+  </div>
+  <p><b>Step 2: Present value table</b></p>
+  <table class="hand">
+    <tr><th class="c">Year</th><th class="r">Cash Inflow (₹)</th><th class="c">DF @ 10%</th><th class="r">Present Value (₹)</th></tr>
+    <tr><td class="c">1</td><td class="r">3,00,000</td><td class="c">0.9091</td><td class="r">2,72,730</td></tr>
+    <tr><td class="c">2</td><td class="r">4,00,000</td><td class="c">0.8264</td><td class="r">3,30,560</td></tr>
+    <tr><td class="c">3</td><td class="r">5,00,000</td><td class="c">0.7513</td><td class="r">3,75,650</td></tr>
+    <tr><td class="c">4</td><td class="r">4,00,000</td><td class="c">0.6830</td><td class="r">2,73,200</td></tr>
+    <tr class="total"><td colspan="3">Total Present Value of inflows</td><td class="r">12,52,140</td></tr>
+  </table>
+  <p><b>Step 3: NPV</b></p>
+  <div class="calc">
+    <div>NPV = Total PV of inflows − Initial Investment</div>
+    <div>= 12,52,140 − 12,00,000</div>
+    <div>= <span class="answer-box">NPV = + ₹52,140</span></div>
+  </div>
+  <figure class="fig">
+    <svg viewBox="0 0 600 230">
+      <path class="sk" d="M30 130 H585" marker-end="url(#arr)"/>
+      <path class="sk-thin" d="M60 122 V138 M180 122 V138 M300 122 V138 M420 122 V138 M540 122 V138"/>
+      <text x="60" y="156" text-anchor="middle" class="t-xs">Year 0</text><text x="180" y="156" text-anchor="middle" class="t-xs">Year 1</text><text x="300" y="156" text-anchor="middle" class="t-xs">Year 2</text><text x="420" y="156" text-anchor="middle" class="t-xs">Year 3</text><text x="540" y="156" text-anchor="middle" class="t-xs">Year 4</text>
+      <path class="sk" d="M60 140 V200" marker-end="url(#arr)"/>
+      <text x="72" y="208" class="t-s">−12,00,000 (outflow)</text>
+      <path class="sk" d="M180 120 V95" marker-end="url(#arr)"/><text x="180" y="88" text-anchor="middle" class="t-xs">3 L</text>
+      <path class="sk" d="M300 120 V95" marker-end="url(#arr)"/><text x="300" y="88" text-anchor="middle" class="t-xs">4 L</text>
+      <path class="sk" d="M420 120 V95" marker-end="url(#arr)"/><text x="420" y="88" text-anchor="middle" class="t-xs">5 L</text>
+      <path class="sk" d="M540 120 V95" marker-end="url(#arr)"/><text x="540" y="88" text-anchor="middle" class="t-xs">4 L</text>
+      <path class="sk-dash" d="M170 72 Q120 40 72 100" marker-end="url(#arr)"/>
+      <path class="sk-dash" d="M290 72 Q180 18 76 100" marker-end="url(#arr)"/>
+      <path class="sk-dash" d="M410 72 Q240 0 80 100" marker-end="url(#arr)"/>
+      <path class="sk-dash" d="M530 72 Q300 -16 84 100" marker-end="url(#arr)"/>
+      <text x="350" y="40" class="t-s">discount each inflow back to Year 0</text>
+      <text x="60" y="118" text-anchor="middle" class="t-xs">PV</text>
+    </svg>
+    <figcaption data-n="9.1">Cash-flow timeline: future inflows are discounted back to today</figcaption>
+  </figure>
+
+  <h3>Decision</h3>
+  <p>Since <b>NPV is positive (+₹52,140)</b>, the project earns <b>more than the required 10% return</b>. Therefore, the project should be <span class="hl">ACCEPTED</span> based on the NPV criterion.</p>
+  <table class="hand">
+    <tr><th>NPV result</th><th>Meaning</th><th>Decision</th></tr>
+    <tr><td>NPV &gt; 0</td><td>Returns more than the required rate</td><td>Accept ✓</td></tr>
+    <tr><td>NPV = 0</td><td>Returns exactly the required rate</td><td>Indifferent</td></tr>
+    <tr><td>NPV &lt; 0</td><td>Returns less than the required rate</td><td>Reject ✗</td></tr>
+  </table>
+  <div class="tip">Always show the DF column. Even if your final figure differs slightly due to rounding, the method gets full marks.</div>
+  <div class="conclusion">The PV of inflows (₹12,52,140) exceeds the investment (₹12,00,000), giving a positive NPV of ₹52,140. The project adds value and should be accepted.</div>
+</section>
+
+<!-- ============================ Q10 ============================ -->
+<section data-tag="Q10" data-title="The Waterfall Method" data-group="Main Questions" data-src="Waterfall Method of Project Management.pdf (pp. 1–4); Project life cycle.pdf (pp. 7–8); Assignment Title.pdf (pp. 2–3, case-study risks)">
+  <h2 class="q-title"><span class="qn">Q10</span>Explain the Waterfall Method</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit I · Life-cycle models</span></div>
+
+  <div class="def" data-label="Definition">
+    The <span class="hl">Waterfall Method</span> is a <b>traditional, sequential</b> project management approach in which a project is divided into <b>clearly defined phases</b>, and <b>one phase must be completed before the next phase begins</b>.
+  </div>
+  <p><span class="ans">Ans.</span> It is called "Waterfall" because progress <b>flows downward</b> through the stages, just like water falling down steps. Water never flows back up, and in this model you <b>do not go back</b> to a finished phase.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 330">
+      <rect class="sk" x="8" y="10" width="160" height="46" rx="10"/><text x="88" y="40" text-anchor="middle">1. Requirements</text>
+      <rect class="sk" x="92" y="62" width="160" height="46" rx="10"/><text x="172" y="92" text-anchor="middle">2. Design</text>
+      <rect class="sk" x="176" y="114" width="160" height="46" rx="10"/><text x="256" y="144" text-anchor="middle">3. Development</text>
+      <rect class="sk" x="260" y="166" width="160" height="46" rx="10"/><text x="340" y="196" text-anchor="middle">4. Testing</text>
+      <rect class="sk" x="344" y="218" width="160" height="46" rx="10"/><text x="424" y="248" text-anchor="middle">5. Implementation</text>
+      <rect class="sk-shade" x="428" y="270" width="160" height="46" rx="10"/><text x="508" y="300" text-anchor="middle">6. Maintenance</text>
+      <path class="sk" d="M168 33 Q196 33 190 58" marker-end="url(#arr)"/>
+      <path class="sk" d="M252 85 Q280 85 274 110" marker-end="url(#arr)"/>
+      <path class="sk" d="M336 137 Q364 137 358 162" marker-end="url(#arr)"/>
+      <path class="sk" d="M420 189 Q448 189 442 214" marker-end="url(#arr)"/>
+      <path class="sk" d="M504 241 Q532 241 526 266" marker-end="url(#arr)"/>
+      <path class="sk-dash" d="M150 270 Q60 250 60 80" marker-end="url(#arr)"/>
+      <text x="20" y="300" class="t-s">✗ no going back</text>
+      <path class="sk-thin" d="M72 160 L100 186 M100 160 L72 186"/>
+    </svg>
+    <figcaption data-n="10.1">Waterfall: each phase flows down into the next</figcaption>
+  </figure>
+
+  <h3>Phases of the Waterfall model</h3>
+  <table class="hand">
+    <tr><th>Phase</th><th>Main activity</th><th>Output</th></tr>
+    <tr><td>1. Requirements</td><td>Identify project requirements</td><td>Requirement document</td></tr>
+    <tr><td>2. Design</td><td>Develop technical / project design</td><td>Design specification</td></tr>
+    <tr><td>3. Development</td><td>Build the product / system</td><td>Working product</td></tr>
+    <tr><td>4. Testing</td><td>Identify and correct defects</td><td>Tested product</td></tr>
+    <tr><td>5. Implementation</td><td>Deliver / deploy the product</td><td>Operational system</td></tr>
+    <tr><td>6. Maintenance</td><td>Fix problems, make improvements</td><td>Maintained system</td></tr>
+  </table>
+
+  <h3>Features</h3>
+  <ul>
+    <li><b>Linear &amp; sequential flow:</b> each phase depends on the deliverables of the previous one.</li>
+    <li><b>Not iterative:</b> unlike Agile or iterative models, it does not repeat cycles.</li>
+    <li><b>No flexibility to revisit</b> earlier steps; little room for change once a phase is finished.</li>
+    <li><b>Clearly defined phases</b> with a document/output at the end of each.</li>
+    <li>Best for projects with <span class="hl">well-defined requirements and minimal expected changes</span>.</li>
+  </ul>
+
+  <h3>Where is it used?</h3>
+  <p>Projects that often follow Waterfall: <b>manufacturing, construction and healthcare</b> projects, e.g. constructing a building, where the foundation must be finished before the walls.</p>
+
+  <h3>Advantages &amp; limitations</h3>
+  <div class="grid2">
+    <div class="box"><b class="nu"><u>Advantages ✓</u></b>
+      <ul class="dots"><li>Simple, clear structure</li><li>Each phase has a fixed output</li><li>Easy to calculate duration &amp; cost (phases add up)</li><li>Good for stable requirements</li></ul>
+    </div>
+    <div class="box"><b class="nu"><u>Limitations ✗</u></b>
+      <ul class="dots"><li>No flexibility for changes</li><li>Late changes cause significant delays</li><li>User feedback comes only at the end</li><li>Risk of building unwanted features</li></ul>
+    </div>
+  </div>
+
+  <h3>Waterfall vs Agile (quick compare)</h3>
+  <table class="hand">
+    <tr><th>Waterfall</th><th>Agile</th></tr>
+    <tr><td>Linear, one phase after another</td><td>Iterative, in short sprints</td></tr>
+    <tr><td>Changes are difficult</td><td>Changes added to the product backlog</td></tr>
+    <tr><td>Feedback at the end</td><td>Continuous feedback after every sprint</td></tr>
+    <tr><td>Construction, manufacturing</td><td>Software, e-commerce</td></tr>
+  </table>
+
+  <h3>Numerical 1: Project duration</h3>
+  <p>Phases: Requirements 10 days, Design 15, Development 30, Testing 12, Implementation 8, Maintenance setup 5. Since phases are sequential, durations are simply <b>added</b>:</p>
+  <div class="calc"><div>T = 10 + 15 + 30 + 12 + 8 + 5 = <span class="answer-box">80 days</span></div></div>
+
+  <h3>Numerical 2: Cost with contingency</h3>
+  <p>ERP phase costs (₹): Requirements 1,20,000; Design 1,80,000; Development 5,50,000; Testing 2,00,000; Implementation 1,50,000; Maintenance 1,00,000. Keep a 10% contingency reserve.</p>
+  <div class="calc">
+    <div>Total estimated cost = 1.2 + 1.8 + 5.5 + 2.0 + 1.5 + 1.0 lakh = ₹12,00,000</div>
+    <div>Contingency = 10% × 12,00,000 = ₹1,20,000</div>
+    <div>Total budget = 12,00,000 + 1,20,000 = <span class="answer-box">₹13,20,000</span></div>
+  </div>
+
+  <h3>Numerical 3: Effect of a delay</h3>
+  <p>Planned: Requirements 2 wks, Design 3, Development 6, Testing 3, Deployment 2. A major defect adds <b>2 weeks</b> to testing.</p>
+  <div class="calc">
+    <div>Original duration = 2+3+6+3+2 = 16 weeks</div>
+    <div>Revised testing = 3 + 2 = 5 weeks → Revised duration = 2+3+6+5+2 = 18 weeks</div>
+    <div>% increase = (18 − 16) ÷ 16 × 100 = <span class="answer-box">12.5%</span></div>
+  </div>
+  <p class="small">In Waterfall, a delay in one phase pushes <b>every later phase</b>, so the whole project gets delayed.</p>
+
+  <div class="conclusion">The Waterfall method is a step-by-step, downward-flowing approach: Requirements → Design → Development → Testing → Implementation → Maintenance. It is simple and well-controlled but inflexible, so it suits projects with clear, stable requirements.</div>
+</section>
+
+<!-- ============================ Q11 ============================ -->
+<section data-tag="Q11" data-title="Business Case Techniques" data-group="Main Questions" data-src="Unit- II.pdf (pp. 1–15, e-commerce example; pp. 16–31, university case study)">
+  <h2 class="q-title"><span class="qn">Q11</span>Explain Business Case Techniques</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit II · Business Case</span></div>
+
+  <div class="def" data-label="Definition">
+    A <span class="hl">business case</span> is a <b>structured document</b> that explains <b>why a project, investment or business initiative should be undertaken</b>. It provides a logical justification for allocating money, people, time and other resources to a proposed activity.
+  </div>
+  <p><span class="ans">Ans.</span> In project management the business case is very important. It is the <b>foundation for deciding whether a project should be started</b>, and whether it remains worthwhile as circumstances change.</p>
+
+  <h3>A business case answers 5 questions</h3>
+  <ol>
+    <li>What is the <b>problem or opportunity</b>?</li>
+    <li>What <b>solution</b> is being proposed?</li>
+    <li>How much will it <b>cost</b>?</li>
+    <li>What <b>benefits</b> will it generate?</li>
+    <li><b>Why</b> should the organisation invest in it?</li>
+  </ol>
+
+  <h3>Techniques / steps for developing a business case</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 252">
+      <g>
+        <rect class="sk" x="6" y="8" width="128" height="50" rx="10"/><text x="70" y="38" text-anchor="middle" class="t-s">1 Need / Problem</text>
+        <rect class="sk" x="160" y="8" width="128" height="50" rx="10"/><text x="224" y="38" text-anchor="middle" class="t-s">2 Objectives</text>
+        <rect class="sk" x="314" y="8" width="128" height="50" rx="10"/><text x="378" y="38" text-anchor="middle" class="t-s">3 Options</text>
+        <rect class="sk" x="468" y="8" width="128" height="50" rx="10"/><text x="532" y="38" text-anchor="middle" class="t-s">4 Feasibility</text>
+        <rect class="sk" x="468" y="100" width="128" height="50" rx="10"/><text x="532" y="130" text-anchor="middle" class="t-s">5 Costs</text>
+        <rect class="sk" x="314" y="100" width="128" height="50" rx="10"/><text x="378" y="130" text-anchor="middle" class="t-s">6 Benefits</text>
+        <rect class="sk" x="160" y="100" width="128" height="50" rx="10"/><text x="224" y="130" text-anchor="middle" class="t-s">7 Risks</text>
+        <rect class="sk" x="6" y="100" width="128" height="50" rx="10"/><text x="70" y="122" text-anchor="middle" class="t-s">8 Financial</text><text x="70" y="140" text-anchor="middle" class="t-s">analysis</text>
+        <rect class="sk" x="6" y="192" width="170" height="50" rx="10"/><text x="91" y="222" text-anchor="middle" class="t-s">9 Preferred option</text>
+        <rect class="sk" x="214" y="192" width="170" height="50" rx="10"/><text x="299" y="214" text-anchor="middle" class="t-s">10 Business case</text><text x="299" y="232" text-anchor="middle" class="t-s">document</text>
+        <rect class="sk-shade" x="422" y="192" width="174" height="50" rx="10"/><text x="509" y="222" text-anchor="middle" class="t-s">Approval → Project</text>
+      </g>
+      <path class="sk" d="M134 33 H156" marker-end="url(#arr)"/><path class="sk" d="M288 33 H310" marker-end="url(#arr)"/><path class="sk" d="M442 33 H464" marker-end="url(#arr)"/>
+      <path class="sk" d="M532 58 V96" marker-end="url(#arr)"/>
+      <path class="sk" d="M468 125 H446" marker-end="url(#arr)"/><path class="sk" d="M314 125 H292" marker-end="url(#arr)"/><path class="sk" d="M160 125 H138" marker-end="url(#arr)"/>
+      <path class="sk" d="M70 150 V188" marker-end="url(#arr)"/>
+      <path class="sk" d="M176 217 H210" marker-end="url(#arr)"/><path class="sk" d="M384 217 H418" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption data-n="11.1">Need → Objectives → Options → Feasibility → Costs → Benefits → Risks → Financial analysis → Recommendation</figcaption>
+  </figure>
+
+  <p class="small"><i>Running example:</i> A small retail shop sells only through its physical store and is losing customers to online competitors. It considers investing <b>₹10 lakh</b> in an online sales platform.</p>
+
+  <h4>1. Identify the problem or opportunity</h4>
+  <p>Why do we need the project? What happens if we do nothing? Who is affected? <i>The shop is losing customers and its market is limited to nearby customers. Opportunity: build an e-commerce platform.</i></p>
+  <h4>2. Define business objectives (SMART)</h4>
+  <p>Objectives should be <b>Specific, Measurable, Achievable, Relevant and Time-bound</b>. <i>E.g. increase sales by 20% within two years; reach customers outside the local market.</i></p>
+  <h4>3. Identify alternative solutions</h4>
+  <p>Don't assume one solution. Compare options, e.g. <b>do nothing</b>, a smaller version, a full version, or a partnership.</p>
+  <h4>4. Conduct a feasibility analysis</h4>
+  <table class="hand">
+    <tr><th>Feasibility</th><th>Question asked</th></tr>
+    <tr><td>Technical</td><td>Can we implement the technology?</td></tr>
+    <tr><td>Financial</td><td>Can we afford it, and will it give enough returns?</td></tr>
+    <tr><td>Operational</td><td>Can employees and existing systems support it?</td></tr>
+    <tr><td>Legal / regulatory</td><td>Are there any legal constraints?</td></tr>
+    <tr><td>Market</td><td>Is there enough customer demand?</td></tr>
+  </table>
+  <h4>5. Estimate costs</h4>
+  <table class="hand">
+    <tr><th>Cost item</th><th class="r">Estimated cost</th></tr>
+    <tr><td>Website &amp; technology</td><td class="r">₹4 lakh</td></tr>
+    <tr><td>Digital marketing</td><td class="r">₹2 lakh</td></tr>
+    <tr><td>Inventory / logistics integration</td><td class="r">₹2 lakh</td></tr>
+    <tr><td>Employee training</td><td class="r">₹1 lakh</td></tr>
+    <tr><td>Contingency</td><td class="r">₹1 lakh</td></tr>
+    <tr class="total"><td>Total initial investment</td><td class="r">₹10 lakh</td></tr>
+  </table>
+  <p class="small">Also consider <b>recurring operating costs</b>, not just the initial investment.</p>
+  <h4>6. Estimate benefits</h4>
+  <div class="grid2">
+    <div><b class="nu"><u>Financial</u></b><ul class="dots"><li>Increased sales (+₹25 L/yr)</li><li>Increased profit (+₹5 L/yr)</li><li>Reduced operating cost</li><li>Improved productivity</li></ul></div>
+    <div><b class="nu"><u>Non-financial</u></b><ul class="dots"><li>Customer satisfaction</li><li>Brand image</li><li>Wider market reach</li><li>Competitive advantage</li></ul></div>
+  </div>
+  <h4>7. Assess risks</h4>
+  <table class="hand">
+    <tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr>
+    <tr><td>Low customer adoption</td><td>Lower sales</td><td>Strong digital marketing</td></tr>
+    <tr><td>Cybersecurity problems</td><td>Financial / reputation loss</td><td>Security controls</td></tr>
+    <tr><td>Technology failure</td><td>Business disruption</td><td>Backup &amp; support systems</td></tr>
+    <tr><td>Higher costs</td><td>Lower profitability</td><td>Cost monitoring</td></tr>
+    <tr><td>Strong competition</td><td>Lower market share</td><td>Competitive pricing &amp; service</td></tr>
+  </table>
+  <h4>8. Analyse financial viability</h4>
+  <p>Techniques: <span class="hl">Payback Period, ROI, NPV, IRR, Cost–Benefit Analysis</span> (plus sensitivity and scenario analysis for big projects).</p>
+  <div class="calc">
+    <div>Payback = 10 L ÷ 5 L = <b>2 years</b></div>
+    <div>ROI = 5 L ÷ 10 L × 100 = <b>50% per year</b></div>
+  </div>
+  <h4>9. Select the preferred option</h4>
+  <p><i>Recommended: a company-owned e-commerce platform with outsourced logistics and payment integration.</i> This gives the best balance of cost, benefit, risk, feasibility and strategic alignment.</p>
+  <h4>10. Prepare the business case document</h4>
+  <table class="hand">
+    <tr><th>Element</th><th>Business case summary</th></tr>
+    <tr><td>Problem</td><td>Declining store growth, limited reach</td></tr>
+    <tr><td>Objective</td><td>Increase sales, reach new customers</td></tr>
+    <tr><td>Investment</td><td>₹10 lakh</td></tr>
+    <tr><td>Annual extra profit</td><td>₹5 lakh</td></tr>
+    <tr><td>ROI / Payback</td><td>50% per year / 2 years</td></tr>
+    <tr><td>Major risks</td><td>Competition, cybersecurity, low adoption</td></tr>
+    <tr><td>Recommendation</td><td>Develop an e-commerce platform</td></tr>
+  </table>
+
+  <h3>Importance of a business case</h3>
+  <ul class="dots">
+    <li><b>Supports decision-making:</b> is the project worth pursuing?</li>
+    <li><b>Establishes justification:</b> shows the need and expected value.</li>
+    <li><b>Estimates costs &amp; benefits</b> (financial and non-financial).</li>
+    <li><b>Identifies risks</b> and how to manage them.</li>
+    <li><b>Aligns with strategy</b> and organisational goals.</li>
+    <li><b>Helps obtain funding</b> from management, investors and banks.</li>
+    <li><b>Provides a basis for evaluation</b>: actual results are later compared with projections.</li>
+  </ul>
+
+  <h3>Case: a new university in Satna (M.P.)</h3>
+  <p>Investment ≈ <b>₹140 crore</b>; fee ₹1.5 L/student. With 2,000 students revenue = ₹30 cr; with 5,000 = ₹75 cr. Annual surplus ₹15 cr → payback ≈ <b>9.3 years</b>. A <b>sensitivity analysis</b> tests "what if enrolment is lower?":</p>
+  <table class="hand">
+    <tr><th>Scenario</th><th class="r">Students</th><th class="r">Tuition revenue</th></tr>
+    <tr><td>Pessimistic</td><td class="r">1,500</td><td class="r">₹22.5 crore</td></tr>
+    <tr><td>Base case</td><td class="r">2,000</td><td class="r">₹30 crore</td></tr>
+    <tr><td>Optimistic</td><td class="r">2,500</td><td class="r">₹37.5 crore</td></tr>
+  </table>
+  <p class="small">Recommended: phased development (Phase I Management, Economics, CS → Phase II Engineering, Law, AI → Phase III research, PhD) to reduce risk. Proceed only after satisfactory regulatory, market, financial and academic feasibility studies.</p>
+
+  <div class="remember">A business case proves: "This is the problem, this is the solution, this is the cost, this is what we gain, these are the risks, so this is why we should (or should not) invest."</div>
+  <div class="conclusion">Business case techniques (problem identification, SMART objectives, options, feasibility, cost and benefit estimation, risk assessment and financial analysis) ensure that resources go only to projects that deliver genuine organisational value.</div>
+</section>
+
+<!-- ============================ Q12 ============================ -->
+<section data-tag="Q12" data-title="What is Project Appraisal?" data-group="Main Questions" data-src="Unit- II.pdf (pp. 8, 12, 20–27, 31); Project life cycle.pdf (p. 3, Initiation); Assignment Title.pdf (p. 1, topic)" data-srcnote="The notes don't define 'appraisal' in one line. The definition here is built from the feasibility, financial analysis and risk steps in Unit II.">
+  <h2 class="q-title"><span class="qn">Q12</span>What is Project Appraisal?</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit II · Appraisal</span></div>
+
+  <div class="def" data-label="Definition">
+    <span class="hl">Project Appraisal</span> is the process of <b>evaluating a proposed project before investing in it</b> by examining its feasibility, costs, benefits, risks and financial returns, to decide whether the project is <b>financially and strategically justified</b>.
+  </div>
+  <p><span class="ans">Ans.</span> Before an organisation spends money, people and time on a project, it must check: <i>"Is this project worth doing?"</i> Project appraisal answers this question. It happens in the <b>Initiation phase</b> of the project life cycle, through the <b>business case</b> and the <b>feasibility study</b>.</p>
+  <div class="box center">"Why should we invest ₹X crore in this project, what value will it create, what risks will we face, and is the investment financially and strategically justified?"</div>
+
+  <h3>Aspects of project appraisal</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 260">
+      <rect class="sk-shade" x="190" y="6" width="220" height="48" rx="12"/>
+      <text x="300" y="38" text-anchor="middle" class="t-b">Project Appraisal</text>
+      <path class="sk-thin" d="M300 54 V72 M100 72 H500 M100 72 V90 M300 72 V90 M500 72 V90"/>
+      <rect class="sk" x="10" y="90" width="180" height="160" rx="12"/>
+      <text x="100" y="116" text-anchor="middle" class="t-b">Feasibility</text>
+      <text x="100" y="144" text-anchor="middle" class="t-s">Market</text><text x="100" y="166" text-anchor="middle" class="t-s">Technical</text><text x="100" y="188" text-anchor="middle" class="t-s">Operational</text><text x="100" y="210" text-anchor="middle" class="t-s">Legal / Regulatory</text><text x="100" y="232" text-anchor="middle" class="t-s">Academic / HR</text>
+      <rect class="sk" x="210" y="90" width="180" height="160" rx="12"/>
+      <text x="300" y="116" text-anchor="middle" class="t-b">Financial</text>
+      <text x="300" y="144" text-anchor="middle" class="t-s">Payback Period</text><text x="300" y="166" text-anchor="middle" class="t-s">ROI</text><text x="300" y="188" text-anchor="middle" class="t-s">NPV</text><text x="300" y="210" text-anchor="middle" class="t-s">IRR</text><text x="300" y="232" text-anchor="middle" class="t-s">Cost–Benefit</text>
+      <rect class="sk" x="410" y="90" width="180" height="160" rx="12"/>
+      <text x="500" y="116" text-anchor="middle" class="t-b">Risk</text>
+      <text x="500" y="144" text-anchor="middle" class="t-s">Risk identification</text><text x="500" y="166" text-anchor="middle" class="t-s">Impact + mitigation</text><text x="500" y="188" text-anchor="middle" class="t-s">Sensitivity analysis</text><text x="500" y="210" text-anchor="middle" class="t-s">Scenario analysis</text><text x="500" y="232" text-anchor="middle" class="t-s">Break-even</text>
+    </svg>
+    <figcaption data-n="12.1">The three pillars of project appraisal</figcaption>
+  </figure>
+
+  <h3><span class="num">1</span>Market appraisal</h3>
+  <p>Is there enough <b>customer demand</b>? Study the population, competitors, fee/price structures, preferences and employment opportunities. <i>E.g. demand for BBA/MBA, BCA/MCA, B.Tech and AI programmes in Satna.</i></p>
+  <h3><span class="num">2</span>Technical appraisal</h3>
+  <p>Can we build it? Check land, buildings, labs, IT and digital infrastructure, and the required technology.</p>
+  <h3><span class="num">3</span>Financial appraisal</h3>
+  <p>Can we afford it, and will it give enough returns? Use <b>Payback, ROI, NPV, IRR</b>, cash-flow projections and break-even analysis.</p>
+  <h3><span class="num">4</span>Operational &amp; legal appraisal</h3>
+  <p>Can employees and systems support it? Are all <b>regulatory approvals</b> and accreditation requirements satisfied?</p>
+  <h3><span class="num">5</span>Risk appraisal</h3>
+  <p>Identify major risks, their impact and mitigation. Use <b>sensitivity analysis</b> ("what if enrolment falls to 1,500?") and <b>scenario analysis</b> (pessimistic / base / optimistic).</p>
+
+  <h3>Steps in project appraisal</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 70">
+      <rect class="sk" x="2" y="12" width="104" height="46" rx="8"/><text x="54" y="40" text-anchor="middle" class="t-xs">Identify need</text>
+      <rect class="sk" x="124" y="12" width="104" height="46" rx="8"/><text x="176" y="40" text-anchor="middle" class="t-xs">Feasibility</text>
+      <rect class="sk" x="246" y="12" width="104" height="46" rx="8"/><text x="298" y="32" text-anchor="middle" class="t-xs">Cost &amp; benefit</text><text x="298" y="49" text-anchor="middle" class="t-xs">estimation</text>
+      <rect class="sk" x="368" y="12" width="104" height="46" rx="8"/><text x="420" y="32" text-anchor="middle" class="t-xs">Risk + financial</text><text x="420" y="49" text-anchor="middle" class="t-xs">analysis</text>
+      <rect class="sk-shade" x="490" y="12" width="106" height="46" rx="8"/><text x="543" y="32" text-anchor="middle" class="t-xs">Decision:</text><text x="543" y="49" text-anchor="middle" class="t-xs">Go / No-go</text>
+      <path class="sk" d="M106 35 H120" marker-end="url(#arr)"/><path class="sk" d="M228 35 H242" marker-end="url(#arr)"/><path class="sk" d="M350 35 H364" marker-end="url(#arr)"/><path class="sk" d="M472 35 H486" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption data-n="12.2">Appraisal leads to a go / no-go decision</figcaption>
+  </figure>
+
+  <h3>Example: e-commerce platform appraisal</h3>
+  <table class="hand">
+    <tr><th>Appraisal check</th><th>Result</th></tr>
+    <tr><td>Market</td><td>Customers moving to online shopping ✓</td></tr>
+    <tr><td>Cost</td><td>₹10 lakh initial investment</td></tr>
+    <tr><td>Benefit</td><td>₹5 lakh extra profit per year</td></tr>
+    <tr><td>Payback / ROI</td><td>2 years / 50% per year ✓</td></tr>
+    <tr><td>Risks</td><td>Low adoption, cybersecurity (mitigated)</td></tr>
+    <tr><td>Decision</td><td><b>Commercially attractive → GO</b></td></tr>
+  </table>
+
+  <h3>Importance</h3>
+  <ul class="dots">
+    <li>Prevents wasting resources on unviable projects.</li>
+    <li>Helps select the best project among alternatives.</li>
+    <li>Gives evidence to banks, investors and funding agencies.</li>
+    <li>Identifies risks early so they can be managed.</li>
+    <li>Ensures the project is aligned with organisational strategy.</li>
+  </ul>
+  <div class="conclusion">Project appraisal is the "health check" of a project before money is spent. Through market, technical, financial and risk evaluation, it tells management whether to proceed, modify or reject the project.</div>
+</section>
+
+<!-- ============================ Q13 ============================ -->
+<section data-tag="Q13" data-title="Explain the Types of Projects" data-group="Main Questions" data-src="Project life cycle.pdf (pp. 7–9); Difference between Project and Programme.pdf (pp. 9–12); Exploring opportinities in PM.pdf (pp. 1–8); Assignment Title.pdf (pp. 3–4, XYZ Retail)">
+  <h2 class="q-title"><span class="qn">Q13</span>Explain the Types of Projects</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit I · Classification</span></div>
+
+  <p><span class="ans">Ans.</span> A project is a temporary endeavour to create a unique product, service or result. Projects can be classified in three ways: <b>(A) by life-cycle approach</b>, <b>(B) by scale / structure</b> and <b>(C) by sector</b>.</p>
+  <div class="tip">Q5 and Q13 are often asked as the same question. Write the sector-wise list from Q5 <i>and</i> the life-cycle types below. This answer is the "explain" version.</div>
+
+  <h3>(A) Types by life-cycle approach</h3>
+  <p>Every team is unique, so there are <b>three types of project life cycles</b>. Choose the one that fits the project.</p>
+  <figure class="fig">
+    <svg viewBox="0 0 600 200">
+      <text x="95" y="20" text-anchor="middle" class="t-b">Waterfall</text>
+      <rect class="sk" x="10" y="34" width="70" height="28" rx="6"/>
+      <rect class="sk" x="50" y="74" width="70" height="28" rx="6"/>
+      <rect class="sk" x="90" y="114" width="70" height="28" rx="6"/>
+      <rect class="sk" x="130" y="154" width="50" height="28" rx="6"/>
+      <path class="sk-thin" d="M80 48 Q92 48 88 72" marker-end="url(#arr)"/><path class="sk-thin" d="M120 88 Q132 88 128 112" marker-end="url(#arr)"/><path class="sk-thin" d="M160 128 Q172 128 166 152" marker-end="url(#arr)"/>
+      <text x="300" y="20" text-anchor="middle" class="t-b">Iterative</text>
+      <circle class="sk" cx="300" cy="105" r="58"/>
+      <path class="sk" d="M350 75 L356 88 L342 86" />
+      <text x="300" y="80" text-anchor="middle" class="t-xs">prototype</text>
+      <text x="345" y="125" text-anchor="middle" class="t-xs">test</text>
+      <text x="255" y="125" text-anchor="middle" class="t-xs">refine</text>
+      <text x="300" y="185" text-anchor="middle" class="t-xs">feedback at milestones</text>
+      <text x="505" y="20" text-anchor="middle" class="t-b">Agile</text>
+      <path class="sk" d="M420 120 q20 -50 40 0 q20 -50 40 0 q20 -50 40 0 q20 -50 40 0" marker-end="url(#arr)"/>
+      <text x="440" y="140" text-anchor="middle" class="t-xs">S1</text><text x="480" y="140" text-anchor="middle" class="t-xs">S2</text><text x="520" y="140" text-anchor="middle" class="t-xs">S3</text><text x="560" y="140" text-anchor="middle" class="t-xs">S4</text>
+      <text x="505" y="185" text-anchor="middle" class="t-xs">continuous feedback</text>
+    </svg>
+    <figcaption data-n="13.1">The three project life-cycle types</figcaption>
+  </figure>
+  <h4>1. Waterfall (predictive) projects</h4>
+  <p>Follow a <b>linear sequential flow</b>; each phase depends on the deliverables of the previous one. Not iterative, no revisiting steps. Best for <b>well-defined requirements</b>. <i>E.g. manufacturing, construction, healthcare projects.</i></p>
+  <h4>2. Agile projects</h4>
+  <p>Emphasise <b>flexibility and iterative progress</b>, adapting through constant feedback. Popular with software teams. Two frameworks:</p>
+  <ul>
+    <li><b>Scrum:</b> time-boxed <b>sprints</b> with set goals and regular reviews.</li>
+    <li><b>Kanban:</b> visualise tasks, limit work in progress, keep a continuous flow. Ideal when there are no strict deadlines.</li>
+  </ul>
+  <p><i>E.g. XYZ Retail's e-commerce platform built as an MVP in four 2-week sprints.</i></p>
+  <h4>3. Iterative projects</h4>
+  <p>A flexible, cyclical approach: build a working version through repeated cycles of <b>prototyping, testing and refining</b>, and improve it with each cycle. Feedback usually comes at the <b>end of a milestone</b> (in Agile it is more continuous).</p>
+  <table class="hand">
+    <tr><th>Basis</th><th>Waterfall</th><th>Iterative</th><th>Agile</th></tr>
+    <tr><td>Flow</td><td>Linear</td><td>Cyclical</td><td>Short sprints</td></tr>
+    <tr><td>Change</td><td>Difficult</td><td>Each cycle</td><td>Anytime (backlog)</td></tr>
+    <tr><td>Feedback</td><td>At the end</td><td>Per milestone</td><td>Continuous</td></tr>
+    <tr><td>Best for</td><td>Stable needs</td><td>Complex, evolving needs</td><td>Uncertain needs</td></tr>
+  </table>
+
+  <h3>(B) Types by scale / structure</h3>
+  <ul>
+    <li><b>Individual project:</b> one specific deliverable. <i>E.g. New Factory Project, ₹40 crore.</i></li>
+    <li><b>Programme:</b> a group of related projects managed together for strategic benefits. <i>E.g. Digital Transformation Programme, ₹50 crore, 3 projects.</i></li>
+    <li><b>Portfolio:</b> all projects and programmes managed to achieve strategy. <i>E.g. total strategic investment, ₹190 crore.</i></li>
+  </ul>
+
+  <h3>(C) Types by sector</h3>
+  <p>IT · Construction &amp; infrastructure · Healthcare · Manufacturing · R&amp;D · Education · Government · Banking &amp; finance · Renewable energy · Events · Disaster management · NGO · International development · AI · Pharmaceutical. <span class="small">(See Q5 for an example of each.)</span></p>
+
+  <div class="conclusion">Projects can be classified by life cycle (Waterfall, Agile, Iterative), by scale (project, programme, portfolio) and by sector (IT, construction, healthcare and so on). Knowing the type helps the manager choose the right approach.</div>
+</section>
+
+<!-- =====================================================================
+     ADDITIONAL QUESTIONS
+     ===================================================================== -->
+
+<!-- ============================ A1 ============================ -->
+<section data-tag="A1" data-title="Methods of Project Appraisal" data-group="Additional Questions" data-src="Unit- II.pdf (pp. 10, 12, 26–27); Assignment Title.pdf (p. 5, Practical Q1–Q3)">
+  <h2 class="q-title"><span class="qn">A1</span>Methods of Project Appraisal</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit II · Appraisal</span></div>
+
+  <p><span class="ans">Ans.</span> <span class="hl">Project appraisal</span> means evaluating a project before investing, to check whether it is financially and strategically justified. Management uses the following <b>financial measures (methods)</b>, as listed in the business case notes:</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 230">
+      <rect class="sk-shade" x="170" y="6" width="260" height="46" rx="12"/>
+      <text x="300" y="37" text-anchor="middle" class="t-b">Methods of Appraisal</text>
+      <path class="sk-thin" d="M300 52 V70 M100 70 H500 M100 70 V88 M300 70 V88 M500 70 V88"/>
+      <rect class="sk" x="10" y="88" width="180" height="130" rx="12"/>
+      <text x="100" y="114" text-anchor="middle" class="t-b">Non-discounted</text>
+      <text x="100" y="134" text-anchor="middle" class="t-xs">(ignore time value)</text>
+      <text x="100" y="164" text-anchor="middle">1. Payback Period</text>
+      <text x="100" y="190" text-anchor="middle">2. ROI</text>
+      <rect class="sk" x="210" y="88" width="180" height="130" rx="12"/>
+      <text x="300" y="114" text-anchor="middle" class="t-b">Discounted</text>
+      <text x="300" y="134" text-anchor="middle" class="t-xs">(time value of money)</text>
+      <text x="300" y="164" text-anchor="middle">3. NPV</text>
+      <text x="300" y="190" text-anchor="middle">4. IRR</text>
+      <rect class="sk" x="410" y="88" width="180" height="130" rx="12"/>
+      <text x="500" y="114" text-anchor="middle" class="t-b">Other tools</text>
+      <text x="500" y="146" text-anchor="middle" class="t-s">5. Cost–Benefit</text>
+      <text x="500" y="168" text-anchor="middle" class="t-s">6. Sensitivity</text>
+      <text x="500" y="190" text-anchor="middle" class="t-s">7. Scenario</text>
+      <text x="500" y="212" text-anchor="middle" class="t-s">8. Break-even</text>
+    </svg>
+    <figcaption data-n="A1.1">Classification of appraisal methods</figcaption>
+  </figure>
+
+  <h3><span class="num">1</span>Payback Period</h3>
+  <p>Time taken to recover the initial investment. <b>Payback = Investment ÷ Annual cash inflow.</b> <i>E-commerce: 10 L ÷ 5 L = 2 years.</i> Shorter is better.</p>
+  <h3><span class="num">2</span>Return on Investment (ROI)</h3>
+  <p>Profit as a % of investment. <b>ROI = Net profit ÷ Investment × 100.</b> <i>₹1.6 L ÷ ₹8 L × 100 = 20%.</i> Higher is better.</p>
+  <h3><span class="num">3</span>Net Present Value (NPV)</h3>
+  <p>PV of future inflows minus investment, discounted at the required rate. <i>₹12,52,140 − ₹12,00,000 = +₹52,140 → accept.</i> Accept if NPV &gt; 0.</p>
+  <h3><span class="num">4</span>Internal Rate of Return (IRR)</h3>
+  <p>The discount rate at which <b>NPV = 0</b>. <i>Same project: IRR ≈ 11.89% &gt; 10% required → accept.</i></p>
+  <h3><span class="num">5</span>Cost–Benefit Analysis</h3>
+  <p>Compares total costs with total <b>financial and non-financial benefits</b> (customer satisfaction, brand image, market reach).</p>
+  <h3><span class="num">6–8</span>Sensitivity, Scenario &amp; Break-even analysis</h3>
+  <p><b>Sensitivity:</b> how results change if one key assumption changes (e.g. enrolment). <b>Scenario:</b> pessimistic / base / optimistic cases (1,500 / 2,000 / 2,500 students → ₹22.5 / 30 / 37.5 crore). <b>Break-even:</b> minimum level (e.g. enrolment) at which revenue covers costs.</p>
+
+  <h3>Summary table</h3>
+  <table class="hand">
+    <tr><th>Method</th><th>Formula / idea</th><th>Accept if</th><th>Time value?</th></tr>
+    <tr><td>Payback</td><td>Investment ÷ annual inflow</td><td>≤ target period</td><td>No</td></tr>
+    <tr><td>ROI</td><td>Profit ÷ investment × 100</td><td>≥ expected %</td><td>No</td></tr>
+    <tr><td>NPV</td><td>PV inflows − investment</td><td>NPV &gt; 0</td><td>Yes</td></tr>
+    <tr><td>IRR</td><td>Rate where NPV = 0</td><td>IRR &gt; required rate</td><td>Yes</td></tr>
+    <tr><td>CBA</td><td>Benefits vs costs</td><td>Benefits &gt; costs</td><td>–</td></tr>
+  </table>
+  <p class="small">Besides these financial methods, appraisal also covers <b>market, technical, operational and legal feasibility</b> (see Q12).</p>
+  <div class="conclusion">Payback and ROI are simple, quick methods; NPV and IRR are more accurate because they consider the time value of money. For large long-term projects, sensitivity and scenario analysis should be added.</div>
+</section>
+
+<!-- ============================ A2 ============================ -->
+<section data-tag="A2" data-title="What is ROI?" data-group="Additional Questions" data-src="Unit- II.pdf (p. 12); Assignment Title.pdf (p. 5, Practical Q1); Difference between Project and Programme.pdf (pp. 7–8)">
+  <h2 class="q-title"><span class="qn">A2</span>What is ROI (Return on Investment)?</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit II · Financial measures</span></div>
+
+  <div class="def" data-label="Definition">
+    <span class="hl">Return on Investment (ROI)</span> is a financial measure that shows the <b>profit (benefit) earned from a project as a percentage of the money invested</b> in it.
+  </div>
+  <p><span class="ans">Ans.</span> ROI answers a simple question: <i>"For every ₹100 I put into this project, how much do I get back as profit?"</i> It is one of the main measures used in the <b>financial viability</b> step of a business case, along with Payback, NPV, IRR and cost–benefit analysis.</p>
+
+  <div class="formula"><span class="lbl">Formula</span>ROI = <span class="frac"><span>Net Profit (Annual Benefit)</span><span>Initial Investment</span></span> × 100</div>
+
+  <h3>Features of ROI</h3>
+  <ul>
+    <li>Expressed as a <b>percentage (%)</b>, so projects of different sizes can be compared easily.</li>
+    <li>Can be calculated <b>per year</b> (simple annual ROI).</li>
+    <li>Can be calculated for a <b>project</b> or a whole <b>programme</b>.</li>
+    <li><b>Positive</b> ROI = profitable; <b>negative</b> ROI = investment not recovered.</li>
+  </ul>
+
+  <h3>Example</h3>
+  <p>A company invests <b>₹8,00,000</b> and earns <b>₹1,60,000</b> net profit in year 1.</p>
+  <div class="calc"><div>ROI = 1,60,000 ÷ 8,00,000 × 100 = <span class="answer-box">20%</span></div></div>
+  <figure class="fig">
+    <svg viewBox="0 0 600 120">
+      <circle class="sk" cx="90" cy="60" r="50"/>
+      <path class="sk-shade" d="M90 60 L90 10 A50 50 0 0 1 137.6 44.5 Z"/>
+      <text x="122" y="22" class="t-xs">20%</text>
+      <text x="170" y="40" class="t-s">Shaded slice = profit earned on the</text>
+      <text x="170" y="62" class="t-s">investment in one year.</text>
+      <text x="170" y="92" class="t-b" style="font-size:22px">₹100 invested → ₹20 profit</text>
+    </svg>
+    <figcaption data-n="A2.1">ROI as a share of investment</figcaption>
+  </figure>
+
+  <h3>Uses of ROI</h3>
+  <ol>
+    <li><b>Project selection:</b> choose the project with the higher ROI.</li>
+    <li><b>Business case:</b> justify investment to management and banks (e-commerce: 50% ROI).</li>
+    <li><b>Performance evaluation:</b> compare actual ROI with projected ROI later.</li>
+    <li><b>Programme review:</b> University Digital Transformation Programme ROI = −58.18% in year 1, which signals that long-term benefits must be considered.</li>
+  </ol>
+
+  <h3>Limitations</h3>
+  <p>A proper business case should also account for <b>taxes, depreciation, financing costs, cash flows, inflation and the time value of money</b>. Simple ROI ignores these, and it also ignores <b>non-financial benefits</b>.</p>
+  <div class="conclusion">ROI is a simple, popular measure of profitability: profit ÷ investment × 100. A higher ROI means a more attractive project, but it should be used together with NPV and IRR.</div>
+</section>
+
+<!-- ============================ A3 ============================ -->
+<section data-tag="A3" data-title="Formula for ROI" data-group="Additional Questions" data-src="Unit- II.pdf (p. 12); Difference between Project and Programme.pdf (p. 7); Assignment Title.pdf (p. 5, Practical Q1)">
+  <h2 class="q-title"><span class="qn">A3</span>What is the Formula for ROI?</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit II · Formula</span></div>
+
+  <p><span class="ans">Ans.</span> ROI (Return on Investment) measures profitability as a percentage of the amount invested. Two forms of the formula are used, depending on what the question gives you:</p>
+
+  <h3>Form 1: when Net Profit is given</h3>
+  <div class="formula"><span class="lbl">ROI (simple annual)</span>ROI = <span class="frac"><span>Net Profit</span><span>Initial Investment</span></span> × 100</div>
+  <ul>
+    <li><b>Net Profit</b> = profit after all operating expenses and depreciation (or the annual benefit).</li>
+    <li><b>Initial Investment</b> = total money put into the project at the start.</li>
+  </ul>
+
+  <h3>Form 2: when total Benefit / Return is given</h3>
+  <div class="formula"><span class="lbl">ROI (gain over cost)</span>ROI = <span class="frac"><span>Benefit − Investment</span><span>Investment</span></span> × 100</div>
+  <p>Here we first subtract the investment from the benefit to get the <b>net gain</b>.</p>
+
+  <h3>Components explained</h3>
+  <table class="hand">
+    <tr><th>Term</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td>Investment</td><td>Initial money spent</td><td>₹8,00,000; ₹10 lakh; ₹55 lakh</td></tr>
+    <tr><td>Net profit / annual benefit</td><td>Gain from the project</td><td>₹1,60,000; ₹5 lakh</td></tr>
+    <tr><td>× 100</td><td>Converts the ratio to %</td><td>0.20 → 20%</td></tr>
+  </table>
+
+  <h3>Applying both forms</h3>
+  <div class="steps">
+    <div class="step"><div class="step-h">(i) Form 1: Net profit ₹1,60,000 on ₹8,00,000</div>
+      <div class="calc"><div>ROI = 1,60,000 ÷ 8,00,000 × 100 = <span class="answer-box">20%</span></div></div></div>
+    <div class="step"><div class="step-h">(ii) Form 1: Business case, ₹5 L profit on ₹10 L</div>
+      <div class="calc"><div>ROI = 5 ÷ 10 × 100 = <span class="answer-box">50% per year</span></div></div></div>
+    <div class="step"><div class="step-h">(iii) Form 2: Programme, benefit ₹23 L on ₹55 L</div>
+      <div class="calc"><div>ROI = (23 − 55) ÷ 55 × 100 = −32 ÷ 55 × 100 = <span class="answer-box">−58.18%</span></div></div></div>
+  </div>
+
+  <h3>Interpreting the result</h3>
+  <table class="hand">
+    <tr><th>ROI</th><th>Meaning</th></tr>
+    <tr><td>Positive (e.g. 20%, 50%)</td><td>Project is profitable; higher = better</td></tr>
+    <tr><td>Zero</td><td>Just breaks even</td></tr>
+    <tr><td>Negative (e.g. −58.18%)</td><td>Investment not yet recovered</td></tr>
+  </table>
+  <div class="remember">ROI = Gain ÷ Cost × 100. Always multiply by 100 and write the % sign!</div>
+  <div class="conclusion">The ROI formula expresses gain relative to cost as a percentage. Use Net Profit ÷ Investment × 100 when profit is given, and (Benefit − Investment) ÷ Investment × 100 when total benefit is given.</div>
+</section>
+
+<!-- ============================ A4 ============================ -->
+<section data-tag="A4" data-title="Calculate ROI (Profit & Investment)" data-group="Additional Questions" data-src="Assignment Title.pdf (p. 5, Practical Q1); Unit- II.pdf (p. 12)">
+  <h2 class="q-title"><span class="qn">A4</span>Calculate ROI using Profit and Initial Investment</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Numerical · ROI</span></div>
+
+  <h3>Question</h3>
+  <div class="box">A company invests <b>₹8,00,000</b> in a new project. During the first year, the project generates a <b>net profit of ₹1,60,000</b> after all operating expenses and depreciation. Calculate the ROI.</div>
+
+  <p><span class="ans">Ans.</span></p>
+  <p><b>Given:</b></p>
+  <ul class="dots">
+    <li>Initial Investment = ₹8,00,000</li>
+    <li>Net Profit (Year 1) = ₹1,60,000 (after expenses and depreciation)</li>
+  </ul>
+  <p><b>To find:</b> ROI (%)</p>
+
+  <div class="formula"><span class="lbl">Formula</span>ROI = <span class="frac"><span>Net Profit</span><span>Initial Investment</span></span> × 100</div>
+
+  <div class="steps">
+    <div class="step"><div class="step-h">Step 1: Substitute</div><div class="calc"><div>ROI = <span class="frac"><span>1,60,000</span><span>8,00,000</span></span> × 100</div></div></div>
+    <div class="step"><div class="step-h">Step 2: Simplify the ratio</div><div class="calc"><div>1,60,000 ÷ 8,00,000 = 16 ÷ 80 = 1 ÷ 5 = 0.20</div></div></div>
+    <div class="step"><div class="step-h">Step 3: Convert to %</div><div class="calc"><div>0.20 × 100 = <span class="answer-box">ROI = 20%</span></div></div></div>
+  </div>
+
+  <h3>Interpretation</h3>
+  <ul>
+    <li>The project earns <b>₹20 profit for every ₹100 invested</b> in the first year.</li>
+    <li>ROI is <b>positive</b>, so the project is <b>profitable</b>.</li>
+    <li>At 20% per year, the investment would be recovered in about <b>5 years</b> (100 ÷ 20).</li>
+    <li>If the company's expected return is lower than 20%, the project is acceptable.</li>
+  </ul>
+
+  <h3>Second example (business case)</h3>
+  <p>Investment in an online sales platform = <b>₹10 lakh</b>; additional profit = <b>₹5 lakh per year</b>.</p>
+  <div class="calc">
+    <div>ROI = 5,00,000 ÷ 10,00,000 × 100</div>
+    <div>= 0.5 × 100 = <span class="answer-box">50% per year</span></div>
+  </div>
+  <table class="hand">
+    <tr><th>Project</th><th class="r">Investment</th><th class="r">Profit</th><th class="r">ROI</th></tr>
+    <tr><td>New project</td><td class="r">₹8,00,000</td><td class="r">₹1,60,000</td><td class="r">20%</td></tr>
+    <tr><td>Online platform</td><td class="r">₹10,00,000</td><td class="r">₹5,00,000</td><td class="r">50%</td></tr>
+  </table>
+  <p>If we compare, the <b>online platform has the higher ROI</b> and is the more attractive investment.</p>
+  <div class="tip">Write "ROI is positive, so the project is profitable" as your last line. Interpretation carries marks.</div>
+  <div class="conclusion">ROI = 1,60,000 ÷ 8,00,000 × 100 = 20%. The project gives a healthy return on the money invested.</div>
+</section>
+
+<!-- ============================ A5 ============================ -->
+<section data-tag="A5" data-title="Payback Period Method" data-group="Additional Questions" data-src="Unit- II.pdf (pp. 5, 10, 12, 26); Assignment Title.pdf (p. 5, Practical Q2)">
+  <h2 class="q-title"><span class="qn">A5</span>What is the Payback Period Method?</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit II · Financial measures</span></div>
+
+  <div class="def" data-label="Definition">
+    The <span class="hl">Payback Period Method</span> is a project appraisal technique that measures the <b>number of years required to recover the initial investment</b> of a project from its cash inflows (annual benefits).
+  </div>
+  <p><span class="ans">Ans.</span> It answers: <i>"How quickly will we get our money back?"</i> It is one of the financial measures used in the business case to analyse <b>financial viability</b>.</p>
+
+  <h3>Formula</h3>
+  <div class="formula"><span class="lbl">Equal cash inflows</span>Payback Period = <span class="frac"><span>Initial Investment</span><span>Annual Cash Inflow</span></span></div>
+  <div class="formula"><span class="lbl">Unequal cash inflows</span>PB = Years before recovery + <span class="frac"><span>Unrecovered amount</span><span>Next year's inflow</span></span></div>
+
+  <h3>How it works</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 150">
+      <rect class="sk" x="10" y="40" width="130" height="60" rx="10"/><text x="75" y="66" text-anchor="middle" class="t-s">Investment</text><text x="75" y="88" text-anchor="middle" class="t-b">₹10 L</text>
+      <path class="sk" d="M140 70 H170" marker-end="url(#arr)"/>
+      <rect class="sk-shade" x="176" y="40" width="96" height="60" rx="8"/><text x="224" y="66" text-anchor="middle" class="t-xs">Year 1</text><text x="224" y="88" text-anchor="middle">+₹5 L</text>
+      <rect class="sk-shade" x="282" y="40" width="96" height="60" rx="8"/><text x="330" y="66" text-anchor="middle" class="t-xs">Year 2</text><text x="330" y="88" text-anchor="middle">+₹5 L</text>
+      <path class="sk" d="M378 70 H408" marker-end="url(#arr)"/>
+      <text x="420" y="64" class="t-b">Recovered!</text>
+      <text x="420" y="90" class="t-s">Payback = 2 years</text>
+      <path class="sk-dash" d="M176 120 H378"/>
+      <text x="277" y="140" text-anchor="middle" class="t-xs">time to get money back</text>
+    </svg>
+    <figcaption data-n="A5.1">Payback of the online sales platform</figcaption>
+  </figure>
+
+  <h3>Examples</h3>
+  <table class="hand">
+    <tr><th>Project</th><th>Calculation</th><th>Payback</th></tr>
+    <tr><td>E-commerce platform</td><td>₹10 L ÷ ₹5 L</td><td>2 years</td></tr>
+    <tr><td>New university</td><td>₹140 cr ÷ ₹15 cr</td><td>≈ 9.3 years</td></tr>
+    <tr><td>Unequal flows (₹10 L)</td><td>3 + 1 L ÷ 2 L</td><td>3.5 years</td></tr>
+  </table>
+
+  <h3>Decision rule</h3>
+  <ul>
+    <li><b>Accept</b> if payback ≤ the target (maximum acceptable) period.</li>
+    <li>Between alternatives, prefer the <b>shorter payback</b>, since money comes back faster and risk is lower.</li>
+  </ul>
+
+  <div class="grid2">
+    <div class="box"><b class="nu"><u>Merits ✓</u></b>
+      <ul class="dots"><li>Simple and easy to understand</li><li>Quick to calculate</li><li>Shows liquidity / risk</li><li>Useful in the business case</li></ul>
+    </div>
+    <div class="box"><b class="nu"><u>Limitations ✗</u></b>
+      <ul class="dots"><li>Ignores time value of money</li><li>Ignores flows after payback</li><li>Not enough for long-term projects (university: also check NPV, IRR)</li></ul>
+    </div>
+  </div>
+  <div class="conclusion">The payback period tells how many years a project needs to repay its cost. It is simple and useful for a first screening, but should be combined with NPV and IRR for long-term decisions.</div>
+</section>
+
+<!-- ============================ A6 ============================ -->
+<section data-tag="A6" data-title="Types of Payback Cash Flows" data-group="Additional Questions" data-src="Unit- II.pdf (pp. 5, 26, equal flows); Assignment Title.pdf (p. 5, Practical Q2, unequal flows)">
+  <h2 class="q-title"><span class="qn">A6</span>Types of Payback Period Cash Flows</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit II · Payback</span></div>
+
+  <p><span class="ans">Ans.</span> The Payback Period is the time needed to recover the initial investment. How we calculate it depends on the <span class="hl">pattern of cash inflows</span>. There are two types:</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 230">
+      <text x="150" y="20" text-anchor="middle" class="t-b">1. Equal (even)</text>
+      <path class="sk" d="M30 200 H280" marker-end="url(#arr)"/><path class="sk" d="M30 200 V40" marker-end="url(#arr)"/>
+      <rect class="sk-shade" x="50" y="120" width="40" height="80"/><rect class="sk-shade" x="110" y="120" width="40" height="80"/><rect class="sk-shade" x="170" y="120" width="40" height="80"/><rect class="sk-shade" x="230" y="120" width="40" height="80"/>
+      <path class="sk-dash" d="M40 120 H280"/>
+      <text x="70" y="220" text-anchor="middle" class="t-xs">Y1</text><text x="130" y="220" text-anchor="middle" class="t-xs">Y2</text><text x="190" y="220" text-anchor="middle" class="t-xs">Y3</text><text x="250" y="220" text-anchor="middle" class="t-xs">Y4</text>
+      <text x="150" y="108" text-anchor="middle" class="t-xs">same amount each year</text>
+      <text x="450" y="20" text-anchor="middle" class="t-b">2. Unequal (uneven)</text>
+      <path class="sk" d="M330 200 H580" marker-end="url(#arr)"/><path class="sk" d="M330 200 V40" marker-end="url(#arr)"/>
+      <rect class="sk-shade" x="345" y="135" width="36" height="65"/><rect class="sk-shade" x="391" y="120" width="36" height="80"/><rect class="sk-shade" x="437" y="105" width="36" height="95"/><rect class="sk-shade" x="483" y="148" width="36" height="52"/><rect class="sk-shade" x="529" y="161" width="36" height="39"/>
+      <text x="363" y="220" text-anchor="middle" class="t-xs">Y1</text><text x="409" y="220" text-anchor="middle" class="t-xs">Y2</text><text x="455" y="220" text-anchor="middle" class="t-xs">Y3</text><text x="501" y="220" text-anchor="middle" class="t-xs">Y4</text><text x="547" y="220" text-anchor="middle" class="t-xs">Y5</text>
+      <text x="455" y="90" text-anchor="middle" class="t-xs">different each year</text>
+    </svg>
+    <figcaption data-n="A6.1">Equal vs unequal cash inflows</figcaption>
+  </figure>
+
+  <h3><span class="num">1</span>Equal (even / uniform) cash flows</h3>
+  <p>The project generates the <b>same cash inflow every year</b>. We simply divide.</p>
+  <div class="formula">Payback = <span class="frac"><span>Initial Investment</span><span>Annual Cash Inflow</span></span></div>
+  <p><i>Example:</i> E-commerce platform: ₹10 lakh ÷ ₹5 lakh per year = <b>2 years</b>. University: ₹140 crore ÷ ₹15 crore = <b>≈ 9.3 years</b>.</p>
+
+  <h3><span class="num">2</span>Unequal (uneven) cash flows</h3>
+  <p>The cash inflow is <b>different each year</b>. We cannot divide directly; instead we prepare a <b>cumulative cash inflow</b> table and find when the running total equals the investment.</p>
+  <div class="formula">PB = Years before recovery + <span class="frac"><span>Unrecovered amount</span><span>Cash inflow of the next year</span></span></div>
+  <p><i>Example:</i> Investment ₹10,00,000; inflows ₹2.5 L, ₹3 L, ₹3.5 L, ₹2 L, ₹1.5 L. Cumulative after 3 years = ₹9 L → unrecovered ₹1 L → PB = 3 + 1/2 = <b>3.5 years</b>.</p>
+
+  <h3>Comparison</h3>
+  <table class="hand">
+    <tr><th>Basis</th><th>Equal cash flows</th><th>Unequal cash flows</th></tr>
+    <tr><td>Inflow pattern</td><td>Same every year</td><td>Changes every year</td></tr>
+    <tr><td>Method</td><td>Direct division</td><td>Cumulative table + interpolation</td></tr>
+    <tr><td>Formula</td><td>Investment ÷ annual inflow</td><td>Years + unrecovered ÷ next inflow</td></tr>
+    <tr><td>Example</td><td>₹10 L ÷ ₹5 L = 2 yrs</td><td>3 + 1 L/2 L = 3.5 yrs</td></tr>
+  </table>
+  <div class="tip">First check if the inflows are equal or unequal, and write it down: "Since cash inflows are unequal, cumulative method is used."</div>
+  <div class="conclusion">Cash flows for the payback period are either equal or unequal. Equal flows use simple division, while unequal flows need a cumulative cash inflow table.</div>
+</section>
+
+<!-- ============================ A7 ============================ -->
+<section data-tag="A7" data-title="Payback: Equal Cash Flow" data-group="Additional Questions" data-src="Unit- II.pdf (pp. 5, 10, e-commerce; p. 26, university)">
+  <h2 class="q-title"><span class="qn">A7</span>Calculate Payback Period for Equal Cash Flow</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Numerical · Payback</span></div>
+
+  <p><span class="ans">Ans.</span> When a project earns the <b>same cash inflow every year</b>, the payback period is found by simple division.</p>
+  <div class="formula"><span class="lbl">Formula</span>Payback Period = <span class="frac"><span>Initial Investment</span><span>Annual Cash Inflow</span></span></div>
+
+  <h3>Question 1: online sales platform</h3>
+  <div class="box">A retail company invests <b>₹10 lakh</b> to develop an online sales platform. It expects an <b>additional profit of ₹5 lakh per year</b>. Calculate the payback period.</div>
+  <p><b>Given:</b> Investment = ₹10,00,000; Annual inflow = ₹5,00,000 (equal every year)</p>
+  <div class="calc">
+    <div>Payback = 10,00,000 ÷ 5,00,000</div>
+    <div>= <span class="answer-box">2 years</span></div>
+  </div>
+  <table class="hand">
+    <tr><th class="c">Year</th><th class="r">Inflow</th><th class="r">Cumulative</th><th class="r">Still to recover</th></tr>
+    <tr><td class="c">0</td><td class="r">–</td><td class="r">–</td><td class="r">₹10,00,000</td></tr>
+    <tr><td class="c">1</td><td class="r">₹5,00,000</td><td class="r">₹5,00,000</td><td class="r">₹5,00,000</td></tr>
+    <tr><td class="c">2</td><td class="r">₹5,00,000</td><td class="r">₹10,00,000</td><td class="r">₹0 ✓</td></tr>
+  </table>
+  <p><b>Interpretation:</b> The investment is recovered within <b>two years</b>, so management may conclude the investment is <b>commercially attractive</b>, provided the assumptions, risks and market conditions are reasonable.</p>
+
+  <h3>Question 2: new university</h3>
+  <div class="box">A university needs an initial investment of <b>₹140 crore</b>. Expected annual operating surplus after stabilisation = <b>₹15 crore</b>. Find the payback period.</div>
+  <div class="calc">
+    <div>Payback = 140 ÷ 15 = 9.33 years</div>
+    <div>0.33 year × 12 = 4 months</div>
+    <div>= <span class="answer-box">≈ 9.3 years (9 years 4 months)</span></div>
+  </div>
+  <p><b>Interpretation:</b> A university is a <b>long-term investment</b>, so simple payback is not sufficient. NPV, IRR, cash-flow projections, break-even enrolment and sensitivity/scenario analysis should also be checked.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 120">
+      <text x="0" y="30" class="t-s">E-commerce</text>
+      <rect class="sk-shade" x="120" y="12" width="96" height="28" rx="4"/>
+      <text x="226" y="32" class="t-s">2 yrs</text>
+      <text x="0" y="86" class="t-s">University</text>
+      <rect class="sk-shade" x="120" y="68" width="448" height="28" rx="4"/>
+      <text x="344" y="88" text-anchor="middle" class="t-s">9.3 yrs</text>
+    </svg>
+    <figcaption data-n="A7.1">Shorter bar = faster recovery = less risk</figcaption>
+  </figure>
+  <div class="remember">To convert decimal years to months, multiply the decimal part by 12.</div>
+  <div class="conclusion">For equal cash flows, Payback = Investment ÷ Annual inflow. The e-commerce project (2 years) recovers its money much faster than the university (≈ 9.3 years).</div>
+</section>
+
+<!-- ============================ A8 ============================ -->
+<section data-tag="A8" data-title="Payback: Unequal Cash Flow" data-group="Additional Questions" data-src="Assignment Title.pdf (p. 5, Practical Q2)">
+  <h2 class="q-title"><span class="qn">A8</span>Calculate Payback Period for Unequal Cash Flow</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Numerical · Payback</span></div>
+
+  <h3>Question</h3>
+  <div class="box">A company invests <b>₹10,00,000</b> in a project. The expected annual cash inflows are: Year 1 ₹2,50,000; Year 2 ₹3,00,000; Year 3 ₹3,50,000; Year 4 ₹2,00,000; Year 5 ₹1,50,000. Calculate the Payback Period.</div>
+
+  <p><span class="ans">Ans.</span> Since the cash inflows are <span class="hl">unequal</span>, we use the <b>cumulative cash inflow method</b>.</p>
+  <div class="formula"><span class="lbl">Formula</span>PB = Y + <span class="frac"><span>Unrecovered amount at start of next year</span><span>Cash inflow during next year</span></span></div>
+  <p class="center small">Y = last year in which cumulative inflow is still below the investment</p>
+
+  <div class="steps">
+    <div class="step"><div class="step-h">Step 1: Cumulative cash inflow table</div></div>
+  </div>
+  <table class="hand">
+    <tr><th class="c">Year</th><th class="r">Cash Inflow (₹)</th><th class="r">Cumulative (₹)</th><th class="r">Unrecovered (₹)</th></tr>
+    <tr><td class="c">1</td><td class="r">2,50,000</td><td class="r">2,50,000</td><td class="r">7,50,000</td></tr>
+    <tr><td class="c">2</td><td class="r">3,00,000</td><td class="r">5,50,000</td><td class="r">4,50,000</td></tr>
+    <tr><td class="c">3</td><td class="r">3,50,000</td><td class="r">9,00,000</td><td class="r">1,00,000</td></tr>
+    <tr><td class="c">4</td><td class="r">2,00,000</td><td class="r">11,00,000</td><td class="r">✓ recovered</td></tr>
+    <tr><td class="c">5</td><td class="r">1,50,000</td><td class="r">12,50,000</td><td class="r">–</td></tr>
+  </table>
+  <div class="steps">
+    <div class="step"><div class="step-h">Step 2: Locate the payback year</div>
+      <div class="calc"><div>After Year 3: cumulative = ₹9,00,000 (&lt; ₹10,00,000)</div><div>After Year 4: cumulative = ₹11,00,000 (&gt; ₹10,00,000)</div><div>∴ Payback lies between Year 3 and Year 4</div></div></div>
+    <div class="step"><div class="step-h">Step 3: Unrecovered amount</div>
+      <div class="calc"><div>= 10,00,000 − 9,00,000 = ₹1,00,000</div></div></div>
+    <div class="step"><div class="step-h">Step 4: Apply formula</div>
+      <div class="calc"><div>PB = 3 + (1,00,000 ÷ 2,00,000)</div><div>= 3 + 0.5</div><div>= <span class="answer-box">3.5 years</span></div><div>0.5 × 12 = 6 months → <b>3 years 6 months</b></div></div></div>
+  </div>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 120">
+      <rect class="sk-shade" x="10" y="30" width="125" height="40"/><text x="72" y="56" text-anchor="middle" class="t-xs">Y1 2.5 L</text>
+      <rect class="sk-shade" x="135" y="30" width="150" height="40"/><text x="210" y="56" text-anchor="middle" class="t-xs">Y2 3 L</text>
+      <rect class="sk-shade" x="285" y="30" width="175" height="40"/><text x="372" y="56" text-anchor="middle" class="t-xs">Y3 3.5 L</text>
+      <rect class="sk" x="460" y="30" width="50" height="40"/><text x="485" y="56" text-anchor="middle" class="t-xs">½ Y4</text>
+      <rect class="sk-dash" x="510" y="30" width="50" height="40"/>
+      <path class="sk" d="M10 90 H510" marker-end="url(#arr)" marker-start="url(#arr)"/>
+      <text x="260" y="112" text-anchor="middle" class="t-s">₹10,00,000 recovered = 3.5 years</text>
+      <text x="10" y="20" class="t-xs">each block width ∝ cash inflow</text>
+    </svg>
+    <figcaption data-n="A8.1">Filling up the ₹10 L investment year by year</figcaption>
+  </figure>
+  <p><b>Interpretation:</b> The project recovers its cost in <b>3.5 years</b>. Year 5's inflow (₹1.5 L) comes after payback and is ignored by this method, which is a limitation.</p>
+  <div class="conclusion">Using the cumulative method, the payback period for unequal cash flows is 3 + 1,00,000/2,00,000 = 3.5 years.</div>
+</section>
+
+<!-- ============================ A9 ============================ -->
+<section data-tag="A9" data-title="Cumulative Cash Inflow" data-group="Additional Questions" data-src="Assignment Title.pdf (p. 5, Practical Q2)">
+  <h2 class="q-title"><span class="qn">A9</span>Calculate Cumulative Cash Inflow for Unequal Cash Flows</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Numerical · Payback</span></div>
+
+  <div class="def" data-label="Meaning">
+    <span class="hl">Cumulative cash inflow</span> is the <b>running total</b> of cash inflows up to a given year. It is obtained by adding each year's cash inflow to the total of all previous years.
+  </div>
+  <p><span class="ans">Ans.</span> When cash inflows are <b>unequal</b>, we cannot divide investment by one annual figure. The cumulative inflow shows <b>how much of the investment has been recovered</b> by the end of each year.</p>
+
+  <div class="formula"><span class="lbl">Rule</span>Cumulative inflow (Year n) = Cumulative (Year n−1) + Cash inflow (Year n)</div>
+
+  <h3>Question</h3>
+  <div class="box">Investment = <b>₹10,00,000</b>. Cash inflows: Y1 ₹2,50,000; Y2 ₹3,00,000; Y3 ₹3,50,000; Y4 ₹2,00,000; Y5 ₹1,50,000. Compute the cumulative cash inflows and find when the investment is recovered.</div>
+
+  <h3>Working: step by step</h3>
+  <div class="calc">
+    <div><b>Year 1:</b> 0 + 2,50,000 = <b>2,50,000</b></div>
+    <div><b>Year 2:</b> 2,50,000 + 3,00,000 = <b>5,50,000</b></div>
+    <div><b>Year 3:</b> 5,50,000 + 3,50,000 = <b>9,00,000</b></div>
+    <div><b>Year 4:</b> 9,00,000 + 2,00,000 = <b>11,00,000</b></div>
+    <div><b>Year 5:</b> 11,00,000 + 1,50,000 = <b>12,50,000</b></div>
+  </div>
+
+  <table class="hand">
+    <tr><th class="c">Year</th><th class="r">Cash Inflow (₹)</th><th class="r">Cumulative Inflow (₹)</th><th class="r">% of investment recovered</th></tr>
+    <tr><td class="c">1</td><td class="r">2,50,000</td><td class="r">2,50,000</td><td class="r">25%</td></tr>
+    <tr><td class="c">2</td><td class="r">3,00,000</td><td class="r">5,50,000</td><td class="r">55%</td></tr>
+    <tr><td class="c">3</td><td class="r">3,50,000</td><td class="r">9,00,000</td><td class="r">90%</td></tr>
+    <tr><td class="c">4</td><td class="r">2,00,000</td><td class="r">11,00,000</td><td class="r">110% ✓</td></tr>
+    <tr><td class="c">5</td><td class="r">1,50,000</td><td class="r">12,50,000</td><td class="r">125%</td></tr>
+  </table>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 260">
+      <path class="sk" d="M60 230 H580" marker-end="url(#arr)"/><path class="sk" d="M60 230 V14" marker-end="url(#arr)"/>
+      <rect class="sk-shade" x="100" y="185" width="56" height="45"/>
+      <rect class="sk-shade" x="190" y="131" width="56" height="99"/>
+      <rect class="sk-shade" x="280" y="68" width="56" height="162"/>
+      <rect class="sk-shade" x="370" y="32" width="56" height="198"/>
+      <rect class="sk-shade" x="460" y="5" width="56" height="225"/>
+      <text x="128" y="178" text-anchor="middle" class="t-xs">2.5</text><text x="218" y="124" text-anchor="middle" class="t-xs">5.5</text><text x="308" y="61" text-anchor="middle" class="t-xs">9.0</text><text x="398" y="25" text-anchor="middle" class="t-xs">11.0</text><text x="540" y="20" class="t-xs">12.5 L</text>
+      <path class="sk-dash" d="M60 50 H570"/>
+      <text x="64" y="44" class="t-s">investment ₹10 L</text>
+      <text x="128" y="250" text-anchor="middle" class="t-xs">Y1</text><text x="218" y="250" text-anchor="middle" class="t-xs">Y2</text><text x="308" y="250" text-anchor="middle" class="t-xs">Y3</text><text x="398" y="250" text-anchor="middle" class="t-xs">Y4</text><text x="488" y="250" text-anchor="middle" class="t-xs">Y5</text>
+    </svg>
+    <figcaption data-n="A9.1">Cumulative inflow crosses ₹10 L during Year 4</figcaption>
+  </figure>
+
+  <h3>Using the cumulative inflow</h3>
+  <p>The investment of ₹10 L is crossed between Year 3 (₹9 L) and Year 4 (₹11 L). Unrecovered after Year 3 = ₹1 L.</p>
+  <div class="calc"><div>Payback = 3 + 1,00,000 ÷ 2,00,000 = <span class="answer-box">3.5 years</span></div></div>
+  <div class="conclusion">Cumulative cash inflows are running totals: ₹2.5 L, ₹5.5 L, ₹9 L, ₹11 L and ₹12.5 L. They show the investment is recovered during the 4th year (3.5 years), and total inflows over 5 years are ₹12.5 L.</div>
+</section>
+
+<!-- ============================ A10 ============================ -->
+<section data-tag="A10" data-title="What is NPV?" data-group="Additional Questions" data-src="Unit- II.pdf (pp. 12, 26); Assignment Title.pdf (p. 5, Practical Q3)" data-srcnote="The notes only name NPV and mention the 'time value of money'. The definition, formula and decision rule are the standard textbook version, applied to your notes' numbers.">
+  <h2 class="q-title"><span class="qn">A10</span>What is Net Present Value (NPV)?</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit II · Discounted methods</span></div>
+
+  <div class="def" data-label="Definition">
+    <span class="hl">Net Present Value (NPV)</span> is the difference between the <b>present value of all future cash inflows</b> of a project and the <b>initial investment</b>, where future cash flows are discounted at the required rate of return.
+  </div>
+  <p><span class="ans">Ans.</span> NPV is one of the financial measures used in a business case. Unlike simple payback and ROI, it accounts for the <b>time value of money</b>: ₹1 received after 3 years is worth less than ₹1 today, so every future inflow is brought back to today's value before comparing it with the cost.</p>
+
+  <div class="formula"><span class="lbl">Formula</span>NPV = <span class="frac"><span>CF₁</span><span>(1+r)¹</span></span> + <span class="frac"><span>CF₂</span><span>(1+r)²</span></span> + … + <span class="frac"><span>CFₙ</span><span>(1+r)ⁿ</span></span> − Initial Investment</div>
+  <p class="center small">CF = cash inflow · r = required rate of return · n = number of years</p>
+
+  <h3>Steps to calculate NPV</h3>
+  <ol>
+    <li>Find the <b>discount factor</b> for each year: DF = 1 ÷ (1 + r)ᵗ.</li>
+    <li>Multiply each year's inflow by its DF to get the <b>present value (PV)</b>.</li>
+    <li>Add all PVs → <b>total PV of inflows</b>.</li>
+    <li>NPV = Total PV − Initial investment.</li>
+    <li>Take the decision: accept if NPV is positive.</li>
+  </ol>
+
+  <h3>Example</h3>
+  <p>Investment ₹12,00,000; inflows ₹3 L, ₹4 L, ₹5 L, ₹4 L; r = 10%.</p>
+  <table class="hand">
+    <tr><th class="c">Year</th><th class="r">Inflow</th><th class="c">DF @10%</th><th class="r">PV</th></tr>
+    <tr><td class="c">1</td><td class="r">3,00,000</td><td class="c">0.9091</td><td class="r">2,72,730</td></tr>
+    <tr><td class="c">2</td><td class="r">4,00,000</td><td class="c">0.8264</td><td class="r">3,30,560</td></tr>
+    <tr><td class="c">3</td><td class="r">5,00,000</td><td class="c">0.7513</td><td class="r">3,75,650</td></tr>
+    <tr><td class="c">4</td><td class="r">4,00,000</td><td class="c">0.6830</td><td class="r">2,73,200</td></tr>
+    <tr class="total"><td colspan="3">Total PV − Investment = 12,52,140 − 12,00,000</td><td class="r">+52,140</td></tr>
+  </table>
+  <p>NPV &gt; 0 → <b>Accept</b>.</p>
+
+  <h3>Decision rule</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 110">
+      <rect class="sk" x="10" y="20" width="180" height="70" rx="10"/><text x="100" y="50" text-anchor="middle" class="t-b">NPV &gt; 0</text><text x="100" y="76" text-anchor="middle" class="t-s">Accept ✓</text>
+      <rect class="sk" x="210" y="20" width="180" height="70" rx="10"/><text x="300" y="50" text-anchor="middle" class="t-b">NPV = 0</text><text x="300" y="76" text-anchor="middle" class="t-s">Indifferent</text>
+      <rect class="sk" x="410" y="20" width="180" height="70" rx="10"/><text x="500" y="50" text-anchor="middle" class="t-b">NPV &lt; 0</text><text x="500" y="76" text-anchor="middle" class="t-s">Reject ✗</text>
+    </svg>
+    <figcaption data-n="A10.1">NPV decision rule</figcaption>
+  </figure>
+
+  <h3>Merits &amp; limitations</h3>
+  <div class="grid2">
+    <div class="box"><b class="nu"><u>Merits ✓</u></b><ul class="dots"><li>Considers time value of money</li><li>Uses all cash flows of the project</li><li>Shows value added in ₹</li></ul></div>
+    <div class="box"><b class="nu"><u>Limitations ✗</u></b><ul class="dots"><li>Needs a required rate (r)</li><li>Calculation is longer</li><li>Depends on cash-flow estimates</li></ul></div>
+  </div>
+  <div class="conclusion">NPV converts all future inflows to today's value and subtracts the cost. A positive NPV means the project earns more than the required return and adds value, so it is the most reliable appraisal method.</div>
+</section>
+
+<!-- ============================ A11 ============================ -->
+<section data-tag="A11" data-title="NPV & Compound Interest" data-group="Additional Questions" data-src="Unit- II.pdf (p. 12, time value of money); Assignment Title.pdf (p. 5, Practical Q3 data)" data-srcnote="Your notes don't cover the link to compound interest. It's explained here with the standard compounding/discounting formula, using the notes' 10% example.">
+  <h2 class="q-title"><span class="qn">A11</span>How is NPV related to Compound Interest Rate?</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit II · Time value of money</span></div>
+
+  <p><span class="ans">Ans.</span> NPV is based on the <span class="hl">time value of money</span>, and the time value of money works through <b>compound interest</b>. <b>Discounting</b> (used in NPV) is simply <b>compounding in reverse</b>.</p>
+
+  <h3>1. Compounding: today → future</h3>
+  <p>If money earns interest at rate r every year, and the interest also earns interest, then ₹P grows to:</p>
+  <div class="formula"><span class="lbl">Compound interest</span>Future Value = P × (1 + r)ⁿ</div>
+  <p><i>At 10%:</i> ₹1 today → ₹1.10 after 1 yr → ₹1.21 after 2 → ₹1.331 after 3 → ₹1.4641 after 4 years.</p>
+
+  <h3>2. Discounting: future → today</h3>
+  <p>NPV asks the opposite question: <i>"What is a future amount worth today?"</i> We divide by the same compound factor:</p>
+  <div class="formula"><span class="lbl">Present value</span>Present Value = <span class="frac"><span>Future amount</span><span>(1 + r)ⁿ</span></span></div>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 210">
+      <text x="300" y="20" text-anchor="middle" class="t-b">COMPOUNDING (×) →</text>
+      <path class="sk" d="M40 40 H560" marker-end="url(#arrL)"/>
+      <circle class="sk" cx="60" cy="100" r="30"/><text x="60" y="106" text-anchor="middle">₹1</text>
+      <circle class="sk" cx="180" cy="100" r="30"/><text x="180" y="106" text-anchor="middle" class="t-s">1.10</text>
+      <circle class="sk" cx="300" cy="100" r="30"/><text x="300" y="106" text-anchor="middle" class="t-s">1.21</text>
+      <circle class="sk" cx="420" cy="100" r="30"/><text x="420" y="106" text-anchor="middle" class="t-s">1.331</text>
+      <circle class="sk" cx="540" cy="100" r="30"/><text x="540" y="106" text-anchor="middle" class="t-s">1.4641</text>
+      <text x="60" y="146" text-anchor="middle" class="t-xs">Year 0</text><text x="180" y="146" text-anchor="middle" class="t-xs">Year 1</text><text x="300" y="146" text-anchor="middle" class="t-xs">Year 2</text><text x="420" y="146" text-anchor="middle" class="t-xs">Year 3</text><text x="540" y="146" text-anchor="middle" class="t-xs">Year 4</text>
+      <path class="sk" d="M560 166 H40" marker-end="url(#arrL)"/>
+      <text x="300" y="196" text-anchor="middle" class="t-b">← DISCOUNTING (÷) : DF = 0.9091 · 0.8264 · 0.7513 · 0.6830</text>
+    </svg>
+    <figcaption data-n="A11.1">Discounting is the reverse of compound interest (r = 10%)</figcaption>
+  </figure>
+
+  <h3>3. Link to NPV</h3>
+  <table class="hand">
+    <tr><th class="c">Year</th><th class="c">Compound factor (1.10)ⁿ</th><th class="c">Discount factor 1/(1.10)ⁿ</th></tr>
+    <tr><td class="c">1</td><td class="c">1.1000</td><td class="c">0.9091</td></tr>
+    <tr><td class="c">2</td><td class="c">1.2100</td><td class="c">0.8264</td></tr>
+    <tr><td class="c">3</td><td class="c">1.3310</td><td class="c">0.7513</td></tr>
+    <tr><td class="c">4</td><td class="c">1.4641</td><td class="c">0.6830</td></tr>
+  </table>
+  <p><i>Example:</i> ₹3,00,000 received after 1 year at 10% is worth 3,00,000 × 0.9091 = <b>₹2,72,730 today</b>. Check: ₹2,72,730 invested at 10% compound interest grows back to ≈ ₹3,00,000 in one year. ✓</p>
+  <p>So NPV = Σ (inflow ÷ compound factor) − investment. In the ₹12 L project, the total PV = ₹12,52,140 and NPV = <b>+₹52,140</b>.</p>
+
+  <h3>4. Effect of the interest rate on NPV</h3>
+  <ul>
+    <li><b>Higher</b> compound/discount rate → bigger denominator → <b>lower PV → lower NPV</b>.</li>
+    <li><b>Lower</b> rate → <b>higher NPV</b>.</li>
+    <li>Same ₹12 L project: NPV = +₹52,140 at 10%, but −₹3,150 at 12%.</li>
+    <li>The rate at which NPV becomes exactly zero is the <b>IRR</b> (≈ 11.89%).</li>
+  </ul>
+  <div class="remember">Compounding multiplies by (1+r)ⁿ; discounting divides by (1+r)ⁿ. NPV uses discounting.</div>
+  <div class="conclusion">NPV is built on compound interest. Each future cash flow is divided by (1 + r)ⁿ to find its present value. The higher the compound interest rate, the lower the NPV.</div>
+</section>
+
+<!-- ============================ A12 ============================ -->
+<section data-tag="A12" data-title="What is IRR?" data-group="Additional Questions" data-src="Unit- II.pdf (pp. 12, 26); Assignment Title.pdf (p. 5, Practical Q3 data)" data-srcnote="The notes only list IRR by name. The definition and the interpolation method are standard; the 11.89% figure is worked out from your notes' NPV question.">
+  <h2 class="q-title"><span class="qn">A12</span>What is IRR (Internal Rate of Return)?</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit II · Discounted methods</span></div>
+
+  <div class="def" data-label="Definition">
+    The <span class="hl">Internal Rate of Return (IRR)</span> is the <b>discount rate at which the NPV of a project becomes zero</b>, i.e. the rate at which the present value of cash inflows equals the initial investment.
+  </div>
+  <p><span class="ans">Ans.</span> IRR is listed with Payback, ROI and NPV as a financial measure for checking a project's viability. While NPV gives the answer in <b>₹</b>, IRR gives the project's own <b>rate of return in %</b>, its "true earning rate".</p>
+
+  <div class="formula"><span class="lbl">At r = IRR</span>Σ <span class="frac"><span>CFₜ</span><span>(1 + IRR)ᵗ</span></span> − Initial Investment = 0</div>
+
+  <h3>Decision rule</h3>
+  <table class="hand">
+    <tr><th>Condition</th><th>Decision</th></tr>
+    <tr><td>IRR &gt; required rate of return</td><td>Accept ✓</td></tr>
+    <tr><td>IRR = required rate</td><td>Indifferent</td></tr>
+    <tr><td>IRR &lt; required rate</td><td>Reject ✗</td></tr>
+  </table>
+
+  <h3>Calculating IRR (trial &amp; error + interpolation)</h3>
+  <p>Same project: Investment ₹12,00,000; inflows ₹3 L, ₹4 L, ₹5 L, ₹4 L.</p>
+  <div class="steps">
+    <div class="step"><div class="step-h">Step 1: NPV at 10% (lower rate)</div><div class="calc"><div>NPV = 12,52,140 − 12,00,000 = <b>+52,140</b> (positive → try a higher rate)</div></div></div>
+    <div class="step"><div class="step-h">Step 2: NPV at 12% (higher rate)</div></div>
+  </div>
+  <table class="hand">
+    <tr><th class="c">Year</th><th class="r">Inflow</th><th class="c">DF @12%</th><th class="r">PV</th></tr>
+    <tr><td class="c">1</td><td class="r">3,00,000</td><td class="c">0.8929</td><td class="r">2,67,870</td></tr>
+    <tr><td class="c">2</td><td class="r">4,00,000</td><td class="c">0.7972</td><td class="r">3,18,880</td></tr>
+    <tr><td class="c">3</td><td class="r">5,00,000</td><td class="c">0.7118</td><td class="r">3,55,900</td></tr>
+    <tr><td class="c">4</td><td class="r">4,00,000</td><td class="c">0.6355</td><td class="r">2,54,200</td></tr>
+    <tr class="total"><td colspan="3">Total PV − 12,00,000</td><td class="r">−3,150</td></tr>
+  </table>
+  <div class="steps">
+    <div class="step"><div class="step-h">Step 3: Interpolate</div>
+      <div class="calc">
+        <div>IRR = L + <span class="frac"><span>NPV at L</span><span>NPV at L − NPV at H</span></span> × (H − L)</div>
+        <div>= 10% + <span class="frac"><span>52,140</span><span>52,140 − (−3,150)</span></span> × (12% − 10%)</div>
+        <div>= 10% + (52,140 ÷ 55,290) × 2% = 10% + 1.89%</div>
+        <div>= <span class="answer-box">IRR ≈ 11.89%</span></div>
+      </div></div>
+  </div>
+  <p><b>Decision:</b> IRR (11.89%) &gt; required return (10%) → <b>Accept</b>. This matches the positive NPV result.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 250">
+      <path class="sk" d="M60 170 H585" marker-end="url(#arr)"/>
+      <path class="sk" d="M70 240 V14" marker-end="url(#arr)"/>
+      <text x="575" y="194" text-anchor="end" class="t-xs">discount rate →</text>
+      <text x="78" y="24" class="t-xs">NPV (₹ lakh)</text>
+      <path class="sk" style="stroke-width:3" d="M70 50 C150 95 220 140 320 160 C380 172 470 205 570 227"/>
+      <circle class="sk-fill" cx="70" cy="50" r="4"/><text x="80" y="48" class="t-xs">0% → +4.0 L</text>
+      <circle class="sk-fill" cx="320" cy="155" r="4"/><text x="250" y="140" class="t-xs">10% → +0.52 L</text>
+      <circle class="sk-fill" cx="370" cy="171" r="4"/><text x="380" y="160" class="t-xs">12% → −0.03 L</text>
+      <circle class="sk" cx="367" cy="170" r="10"/>
+      <path class="sk-dash" d="M367 180 V232"/>
+      <text x="367" y="248" text-anchor="middle" class="t-b" style="font-size:20px">IRR ≈ 11.89%</text>
+      <text x="520" y="215" class="t-xs">20% → −1.9 L</text>
+      <text x="120" y="190" class="t-xs">NPV positive (accept)</text>
+      <text x="440" y="240" class="t-xs">NPV negative</text>
+    </svg>
+    <figcaption data-n="A12.1">NPV profile: IRR is where the curve crosses zero</figcaption>
+  </figure>
+
+  <h3>NPV vs IRR</h3>
+  <table class="hand">
+    <tr><th>NPV</th><th>IRR</th></tr>
+    <tr><td>Answer in ₹ (value added)</td><td>Answer in % (rate of return)</td></tr>
+    <tr><td>Needs the required rate as input</td><td>Found by trial and error</td></tr>
+    <tr><td>Accept if NPV &gt; 0</td><td>Accept if IRR &gt; required rate</td></tr>
+  </table>
+  <div class="conclusion">IRR is the break-even discount rate where NPV = 0. For our project IRR ≈ 11.89%, which is higher than the 10% required, so the project is acceptable.</div>
+</section>
+
+<!-- ============================ FORMULA SHEET ============================ -->
+<section data-tag="★" data-title="Formula Sheet (Last-minute Revision)" data-group="Revision" data-src="All the notes (summary of every numerical in this book)">
+  <h2 class="q-title"><span class="qn">★</span>Formula Sheet</h2>
+  <div class="q-meta"><span class="marks">revise 5 min before exam</span></div>
+  <table class="hand">
+    <tr><th>Topic</th><th>Formula</th><th>Notes example</th></tr>
+    <tr><td>ROI</td><td>Net Profit ÷ Investment × 100</td><td>1.6 L ÷ 8 L = 20%</td></tr>
+    <tr><td>ROI (benefit)</td><td>(Benefit − Investment) ÷ Investment × 100</td><td>(23−55)/55 = −58.18%</td></tr>
+    <tr><td>Payback (equal)</td><td>Investment ÷ Annual inflow</td><td>10 L ÷ 5 L = 2 yrs</td></tr>
+    <tr><td>Payback (unequal)</td><td>Y + Unrecovered ÷ Next year inflow</td><td>3 + 1/2 = 3.5 yrs</td></tr>
+    <tr><td>Discount factor</td><td>1 ÷ (1 + r)ⁿ</td><td>0.9091, 0.8264, 0.7513, 0.6830</td></tr>
+    <tr><td>NPV</td><td>Σ CF × DF − Investment</td><td>12,52,140 − 12 L = +52,140</td></tr>
+    <tr><td>IRR</td><td>L + NPV<sub>L</sub> ÷ (NPV<sub>L</sub> − NPV<sub>H</sub>) × (H − L)</td><td>≈ 11.89%</td></tr>
+    <tr><td>Compound value</td><td>P × (1 + r)ⁿ</td><td>₹1 → 1.4641 in 4 yrs</td></tr>
+    <tr><td>Avg. velocity</td><td>Total story points ÷ No. of sprints</td><td>81 ÷ 3 = 27</td></tr>
+    <tr><td>Sprints needed</td><td>Backlog ÷ Velocity</td><td>150 ÷ 25 = 6</td></tr>
+    <tr><td>Duration (Agile)</td><td>Sprints × Sprint length</td><td>6 × 2 = 12 weeks</td></tr>
+    <tr><td>Capacity</td><td>Members × Hrs/day × Days − overhead</td><td>300 − 60 = 240 hrs</td></tr>
+    <tr><td>Burndown rate</td><td>Points done ÷ Days</td><td>55 ÷ 5 = 11/day</td></tr>
+    <tr><td>Agile cost</td><td>Daily team cost × Total days</td><td>14,500 × 100 = 14.5 L</td></tr>
+    <tr><td>Waterfall duration</td><td>Sum of phase durations</td><td>80 days</td></tr>
+    <tr><td>Budget</td><td>Est. cost + Contingency %</td><td>12 L + 10% = 13.2 L</td></tr>
+    <tr><td>% delay</td><td>(Revised − Original) ÷ Original × 100</td><td>(18−16)/16 = 12.5%</td></tr>
+    <tr><td>Programme budget</td><td>Sum of project budgets</td><td>20+5+10 = ₹35 cr</td></tr>
+    <tr><td>Programme duration</td><td>max(parallel project durations)</td><td>max(12,8,10) = 12 m</td></tr>
+  </table>
+  <h3>Must-remember one-liners</h3>
+  <ul>
+    <li><b>Project</b> = temporary + unique. <b>Programme</b> = related projects + benefits. <b>Portfolio</b> = strategy.</li>
+    <li><b>Life cycle:</b> Initiation → Planning → Execution → Monitoring &amp; Controlling → Closure.</li>
+    <li><b>Waterfall:</b> Requirements → Design → Development → Testing → Implementation → Maintenance.</li>
+    <li><b>Business case:</b> problem → solution → cost → benefit → risk → why invest.</li>
+    <li><b>Costs:</b> Direct, Indirect, Fixed, Variable, Sunk (ignore sunk costs in decisions).</li>
+  </ul>
+</section>
+
+<!-- ============================ SOURCE INDEX ============================ -->
+<section data-tag="§" data-title="Source Notes Index" data-group="Revision">
+  <h2 class="q-title"><span class="qn">§</span>Source Notes Index</h2>
+  <div class="q-meta"><span class="marks">where every answer came from</span></div>
+  <p>Every answer in this notebook is written from the PDFs in your <b>Project Management Exam</b> folder. Nothing was taken from the internet. Use this table to open the original note when you want to revise from the source.</p>
+  <table class="hand">
+    <tr><th>Note (PDF)</th><th>What it covers</th><th>Used in</th></tr>
+    <tr><td>Project.pdf</td><td>Definition of project, key parts, project vs regular work, examples, life-cycle phases</td><td>Q1, Q2, Q3</td></tr>
+    <tr><td>Project life cycle.pdf</td><td>5 phases, PM control areas, Agile / Waterfall / Iterative life cycles, importance</td><td>Q1, Q2, Q3, Q5, Q10, Q12, Q13</td></tr>
+    <tr><td>Difference between Project and Programme.pdf</td><td>PMI &amp; OGC definitions, comparison table, Gandhinagar example, numericals, programme ROI, portfolio</td><td>Q1, Q3, Q4, Q7, Q13, A2, A3</td></tr>
+    <tr><td>Exploring opportinities in PM.pdf</td><td>15 sector-wise project types, careers, skills, methodologies, Business School example</td><td>Q1, Q2, Q3, Q5, Q13</td></tr>
+    <tr><td>Types and Classification of Projects (Scribd)</td><td>7 bases: ownership, investment, academia, sector, objective, nature, time</td><td>Q5</td></tr>
+    <tr><td>Different Types of Cost in Project Management.pdf</td><td>Direct, indirect, fixed, variable and sunk costs</td><td>Q3, Formula sheet</td></tr>
+    <tr><td>Waterfall Method of Project Management.pdf</td><td>Definition, phase table, duration / cost / delay numericals</td><td>Q10, Formula sheet</td></tr>
+    <tr><td>Agile projects commonly use Sprint Planning.pdf</td><td>Sprint vs project, Questions 1–6 (velocity, sprints, capacity, burndown, cost)</td><td>Q6, Formula sheet</td></tr>
+    <tr><td>Unit- II.pdf</td><td>Business case: definition, 5 questions, importance, 10 steps, e-commerce example, payback, ROI, financial measures, Satna university case study, sensitivity analysis</td><td>Q7, Q8, Q9, Q11, Q12, A1–A7, A10–A12</td></tr>
+    <tr><td>Assignment Title.pdf</td><td>Agile case studies (university LMS, XYZ Retail), Practical Q1 ROI, Q2 Payback, Q3 NPV</td><td>Q6, Q7, Q8, Q9, Q10, Q13, A1–A12</td></tr>
+  </table>
+  <h3>Answers that needed a little extra theory</h3>
+  <p>Your notes <b>name</b> these topics and give the numbers, but don't fully explain them. The standard method is shown with your notes' own data, and each one is flagged in its "From notes" tag:</p>
+  <ul>
+    <li><b>Q9 / A10, NPV:</b> the notes give the question (₹12 L, 10%) and say "time value of money"; the discount-factor working is the standard method.</li>
+    <li><b>A11, NPV and compound interest:</b> not in the notes; explained with (1 + r)ⁿ using the same 10% example.</li>
+    <li><b>A12, IRR:</b> the notes only list IRR; it is worked out by interpolation from the notes' NPV question (≈ 11.89%).</li>
+    <li><b>Q12, Project appraisal:</b> no one-line definition in the notes; built from the Unit II feasibility, financial and risk steps.</li>
+  </ul>
+</section>
+
+<!-- ============================ BACK COVER ============================ -->
+<section data-kind="raw" data-title="The End">
+<div class="page endcover">
+  <div class="cover-inner end-inner">
+    <img class="csk csk-e1" alt="" />
+    <img class="csk csk-e2" alt="" />
+    <img class="csk csk-e3" alt="" />
+    <img class="csk csk-e4" alt="" />
+    <img class="csk csk-e5" alt="" />
+
+    <div class="end-center">
+      <div class="end-title">All the <span>best!</span></div>
+      <div class="end-sub">Define → Explain → Draw → Example → Conclude.</div>
+    </div>
+
+    <div class="brand"><span class="by">Created by</span><span class="name">Ronit Kaushal</span><img class="cover-logo" src="assets/img/RonitLogodark.webp" alt="Ronit Kaushal logo" width="112" height="46" /></div>
+  </div>
+</div>
+</section>
+
+</div>
+
+<script src="assets/lib/jquery.min.js"></script>
+<script src="assets/lib/turn.min.js?v=4"></script>
+<script src="assets/js/book.js?v=24"></script>
+</body>
+</html>

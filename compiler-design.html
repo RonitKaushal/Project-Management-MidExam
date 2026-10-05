@@ -1,0 +1,2091 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script>
+  /* Safari / every iPhone browser (WebKit) drops SVG shapes that use the hand-drawn
+     filter inside the page-turn layers, leaving only the labels. */
+  if ("GestureEvent" in window || /iP(hone|ad|od)/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
+    document.documentElement.classList.add("no-rough");
+  }
+</script>
+<title>Compiler Design — Exam Prep Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Patrick+Hand&display=swap" rel="stylesheet" />
+<link rel="icon" type="image/webp" href="assets/img/RonitLogodark.webp" />
+<link rel="stylesheet" href="assets/css/style.css?v=23" />
+</head>
+<body data-footer="Compiler Design · Exam Prep Notes" data-store="cd-book-page">
+
+<div class="loader" id="loader">binding pages…</div>
+<div class="progress" id="progress"></div>
+
+<header class="nav">
+  <div class="nav-left">
+    <a class="brand" href="index.html" title="All exam books">
+      <img class="brand-logo" src="assets/img/RonitLogodark.webp" alt="Ronit Kaushal" width="58" height="24" />
+      <span class="brand-div"></span>
+      CD Exam Book
+    </a>
+    <span class="slash">/</span>
+    <span class="pill hide-sm">5 marks each</span>
+    <span class="slash s2">/</span>
+    <span class="crumb" id="crumb">Cover</span>
+  </div>
+  <div class="nav-right">
+    <a class="btn hide-sm" href="index.html" title="Choose another exam book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>All books</a>
+    <button class="btn hide-sm" id="printBtn" title="Print / Save as PDF">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+      Print
+    </button>
+    <button class="btn primary" id="tocBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      Contents <kbd style="border-color:#bbb;color:#555">T</kbd>
+    </button>
+  </div>
+</header>
+
+<main class="stage">
+  <div class="book-wrap" id="bookWrap">
+    <div class="book" id="book"></div>
+  </div>
+</main>
+
+<div class="controls">
+  <button class="ctl" id="firstBtn" title="Cover (Home)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button>
+  <button class="ctl" id="prevBtn" title="Previous page (←)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="counter" id="counter">—</div>
+  <button class="ctl" id="nextBtn" title="Next page (→)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+  <button class="ctl" id="lastBtn" title="Last page (End)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg></button>
+  <button class="ctl" id="zoomBtn" title="Zoom (for small screens)"><span class="zoom-lbl" id="zoomLbl">1×</span></button>
+  <button class="ctl" id="tocBtn2" title="Contents (T)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
+</div>
+
+<div class="hint"><kbd>←</kbd><kbd>→</kbd> flip · click page · swipe</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3>Contents <button class="btn" id="closeDrawer" style="height:28px;padding:0 10px">Esc</button></h3>
+    <input class="search" id="search" placeholder="Search questions…" autocomplete="off" />
+  </div>
+  <nav class="toc" id="toc"></nav>
+</aside>
+
+<div id="measure"></div>
+
+<svg class="defs-svg" aria-hidden="true">
+  <defs>
+    <filter id="rough" filterUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+      <path d="M1 1 L9 5 L1 9" fill="none" stroke="#141414" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrL" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="12" markerHeight="12" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+      <path d="M1 1 L9 5 L1 9" fill="none" stroke="#141414" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+</svg>
+
+<!-- =====================================================================
+     BOOK CONTENT — every <section> is flowed onto A4 pages by book.js
+     ===================================================================== -->
+<div id="src">
+
+<!-- ============================ COVER ============================ -->
+<section data-kind="raw" data-title="Cover">
+<div class="page cover">
+  <div class="cover-inner">
+    <div class="eyebrow">Unit 1, 2 &amp; 3 · Exam Preparation</div>
+    <h1><span>Compiler</span><span>Design</span></h1>
+    <div class="sub">23 questions. 5 marks each. Written from my class notes.</div>
+
+    <img class="csk csk-f1" alt="" />
+    <img class="csk csk-f2" alt="" />
+    <img class="csk csk-f3" alt="" />
+    <img class="csk csk-f4" alt="" />
+    <img class="csk csk-f5" alt="" />
+
+    <div class="brand"><span class="by">Created by</span><span class="name">Ronit Kaushal</span><img class="cover-logo" src="assets/img/RonitLogodark.webp" alt="Ronit Kaushal logo" width="112" height="46" /></div>
+  </div>
+</div>
+</section>
+
+<!-- ============================ CONTENTS ============================ -->
+<section data-kind="toc" data-title="Contents"></section>
+
+<!-- ============================ HOW TO USE ============================ -->
+<section data-kind="flow" data-tag="✎" data-title="How to use this book">
+  <h2 class="q-title">How to write a 5-mark answer</h2>
+  <p class="q-meta">Read this once before you start. It takes 1 minute.</p>
+  <p>A 5-mark Compiler Design answer needs around <span class="hl">1.5 to 2 pages</span> in the exam. Examiners give marks for <b>definition + diagram + example</b>. Every answer in this book follows the same pattern, so you can copy the style straight into your answer sheet:</p>
+  <figure class="fig">
+    <svg viewBox="0 0 600 120">
+      <rect class="sk" x="6" y="30" width="100" height="56" rx="10"/><text x="56" y="56" text-anchor="middle" class="t-b">Define</text><text x="56" y="76" text-anchor="middle" class="t-xs">1 mark</text>
+      <rect class="sk" x="128" y="30" width="110" height="56" rx="10"/><text x="183" y="56" text-anchor="middle" class="t-b">Explain</text><text x="183" y="76" text-anchor="middle" class="t-xs">points + headings</text>
+      <rect class="sk" x="260" y="30" width="100" height="56" rx="10"/><text x="310" y="56" text-anchor="middle" class="t-b">Draw</text><text x="310" y="76" text-anchor="middle" class="t-xs">diagram / tree</text>
+      <rect class="sk" x="382" y="30" width="100" height="56" rx="10"/><text x="432" y="56" text-anchor="middle" class="t-b">Example</text><text x="432" y="76" text-anchor="middle" class="t-xs">grammar + string</text>
+      <rect class="sk-shade" x="504" y="30" width="90" height="56" rx="10"/><text x="549" y="56" text-anchor="middle" class="t-b">Conclude</text><text x="549" y="76" text-anchor="middle" class="t-xs">1–2 lines</text>
+      <path class="sk" d="M106 58 H124" marker-end="url(#arr)"/><path class="sk" d="M238 58 H256" marker-end="url(#arr)"/><path class="sk" d="M360 58 H378" marker-end="url(#arr)"/><path class="sk" d="M482 58 H500" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption data-n="0.1">The 5-step answer pattern used on every page</figcaption>
+  </figure>
+  <h3>Symbols used in this book</h3>
+  <table class="hand">
+    <tr><th>Symbol</th><th>Meaning</th></tr>
+    <tr><td>Boxed definition</td><td>Write this <b>word-for-word</b> as your first line.</td></tr>
+    <tr><td>✎ Exam tip</td><td>A small trick to get extra marks.</td></tr>
+    <tr><td>★ Remember</td><td>A one-line memory hook.</td></tr>
+    <tr><td><span class="hl">Highlighted</span></td><td>Keywords the examiner looks for.</td></tr>
+    <tr><td><span class="answer-box">Boxed result</span></td><td>Final result of a derivation / proof. Box it in the exam!</td></tr>
+  </table>
+  <h3>For derivation and parsing questions, always write…</h3>
+  <ol>
+    <li>The <b>grammar</b> (productions) and the <b>input string</b>.</li>
+    <li>Every step on a new line with the <b>⇒</b> sign. Never skip a step.</li>
+    <li>The <b>parse tree</b> for the derivation.</li>
+    <li>For parsers: a <b>Stack | Input | Action</b> table.</li>
+    <li>One line of <b>conclusion</b> (accepted / ambiguous / not ambiguous).</li>
+  </ol>
+  <div class="remember">Grammar + string + steps + tree + box = full marks in derivation questions.</div>
+  <p class="small">All content in this book comes from the two PDFs in the <i>Compiler Design</i> folder: <i>Compiler Design - All Units Notes</i> (Darshan, Unit 1–4) and the <i>Compiler Design Handbook</i> (Units 1–3, errors, symbol table).</p>
+</section>
+
+<!-- =====================================================================
+     UNIT 1
+     ===================================================================== -->
+
+<!-- ============================ Q1 ============================ -->
+<section data-tag="Q1" data-title="Phases of a Compiler" data-group="Unit 1 · Introduction" data-src="Compiler Design - All Units Notes.pdf (pp. 2–5, Fig 1.2); Compiler Design Handbook.pdf (pp. 2–8)">
+  <h2 class="q-title"><span class="qn">Q1</span>Explain the phases of a compiler with a block diagram</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 1 · Introduction</span></div>
+
+  <div class="def" data-label="Definition">
+    A <span class="hl">compiler</span> is a program that reads a program written in one language (<b>source program</b>) and translates it into an equivalent program in another language (<b>target program</b>). The compiler does this job in a series of steps called <span class="hl">phases</span>.
+  </div>
+
+  <p><span class="ans">Ans.</span> There are mainly <b>two parts</b> of the compilation process:</p>
+  <ol>
+    <li><b>Analysis phase:</b> breaks the source code into parts and arranges these pieces into a meaningful structure. It has three sub-parts: <span class="hl">lexical analysis, syntax analysis and semantic analysis</span>.</li>
+    <li><b>Synthesis phase:</b> builds the target program from that structure. It has three sub-parts: <span class="hl">intermediate code generation, code optimization and code generation</span>.</li>
+  </ol>
+
+  <h3>Block diagram</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 430">
+      <text x="300" y="20" text-anchor="middle" class="t-b">Source program</text>
+      <path class="sk" d="M300 28 V44" marker-end="url(#arr)"/>
+      <rect class="sk" x="200" y="46" width="200" height="40" rx="8"/><text x="300" y="72" text-anchor="middle">Lexical Analysis</text>
+      <path class="sk" d="M300 86 V102" marker-end="url(#arr)"/>
+      <rect class="sk" x="200" y="104" width="200" height="40" rx="8"/><text x="300" y="130" text-anchor="middle">Syntax Analysis</text>
+      <path class="sk" d="M300 144 V160" marker-end="url(#arr)"/>
+      <rect class="sk" x="200" y="162" width="200" height="40" rx="8"/><text x="300" y="188" text-anchor="middle">Semantic Analysis</text>
+      <path class="sk" d="M300 202 V218" marker-end="url(#arr)"/>
+      <rect class="sk" x="200" y="220" width="200" height="40" rx="8"/><text x="300" y="246" text-anchor="middle">Intermediate Code</text>
+      <path class="sk" d="M300 260 V276" marker-end="url(#arr)"/>
+      <rect class="sk" x="200" y="278" width="200" height="40" rx="8"/><text x="300" y="304" text-anchor="middle">Code Optimization</text>
+      <path class="sk" d="M300 318 V334" marker-end="url(#arr)"/>
+      <rect class="sk" x="200" y="336" width="200" height="40" rx="8"/><text x="300" y="362" text-anchor="middle">Code Generation</text>
+      <path class="sk" d="M300 376 V394" marker-end="url(#arr)"/>
+      <text x="300" y="418" text-anchor="middle" class="t-b">Target program</text>
+
+      <rect class="sk-shade" x="8" y="186" width="124" height="50" rx="10"/><text x="70" y="217" text-anchor="middle" class="t-b">Symbol Table</text>
+      <path class="sk-thin" d="M132 211 L198 66" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-thin" d="M132 211 L198 124" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-thin" d="M132 211 L198 182" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-thin" d="M132 211 L198 240" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-thin" d="M132 211 L198 298" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-thin" d="M132 211 L198 356" marker-start="url(#arr)" marker-end="url(#arr)"/>
+
+      <rect class="sk-shade" x="468" y="180" width="124" height="62" rx="10"/><text x="530" y="206" text-anchor="middle" class="t-b">Error detection</text><text x="530" y="230" text-anchor="middle" class="t-b">&amp; recovery</text>
+      <path class="sk-thin" d="M468 211 L402 66" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-thin" d="M468 211 L402 124" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-thin" d="M468 211 L402 182" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-thin" d="M468 211 L402 240" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-thin" d="M468 211 L402 298" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-thin" d="M468 211 L402 356" marker-start="url(#arr)" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption data-n="1.1">Phases of compiler (Fig 1.2 of the notes). Every phase talks to the symbol table and the error handler.</figcaption>
+  </figure>
+
+  <p>We follow the statement <mark>a := a + b * c * 2</mark> through every phase, exactly as the notes do.</p>
+
+  <h3><span class="num">1</span>Lexical analysis</h3>
+  <ul>
+    <li>Also called <span class="hl">linear analysis or scanning</span>.</li>
+    <li>The lexical analyzer reads the source program and breaks it into a stream of units called <b>tokens</b>.</li>
+    <li>It classifies the units into lexical classes (identifiers, constants, keywords etc.) and enters them into different tables.</li>
+  </ul>
+  <table class="hand">
+    <tr><th>Lexeme</th><th>Token</th><th>Lexeme</th><th>Token</th></tr>
+    <tr><td>a</td><td>Identifier 1 (id1)</td><td>*</td><td>Multiplication sign</td></tr>
+    <tr><td>:=</td><td>Assignment sign</td><td>c</td><td>Identifier 3 (id3)</td></tr>
+    <tr><td>a</td><td>Identifier 1 (id1)</td><td>*</td><td>Multiplication sign</td></tr>
+    <tr><td>+</td><td>The plus sign</td><td>2</td><td>Number 2</td></tr>
+    <tr><td>b</td><td>Identifier 2 (id2)</td><td></td><td></td></tr>
+  </table>
+
+  <h3><span class="num">2</span>Syntax analysis</h3>
+  <ul>
+    <li>Also called <span class="hl">hierarchical analysis or parsing</span>.</li>
+    <li>The syntax analyzer checks each line of the code and spots every tiny mistake the programmer made while typing the code.</li>
+    <li>If the code is error-free, the syntax analyzer <b>generates the tree</b>.</li>
+  </ul>
+
+  <h3><span class="num">3</span>Semantic analysis</h3>
+  <ul>
+    <li>The semantic analyzer determines the <b>meaning</b> of a source string.</li>
+    <li>For example, matching of parentheses, matching of if…else, performing arithmetic operations that are <b>type compatible</b>, or checking the scope of operation.</li>
+    <li>In our example, the integer 2 is converted with <b>int to float</b> because the others are real.</li>
+  </ul>
+  <figure class="fig">
+    <svg viewBox="0 0 600 330">
+      <text x="140" y="24" text-anchor="middle" class="t-b">Syntax analysis</text>
+      <text x="140" y="56" text-anchor="middle">:=</text>
+      <path class="sk-thin" d="M132 62 L92 92"/><path class="sk-thin" d="M148 62 L188 92"/>
+      <text x="85" y="110" text-anchor="middle">a</text><text x="192" y="110" text-anchor="middle">+</text>
+      <path class="sk-thin" d="M184 116 L150 146"/><path class="sk-thin" d="M200 116 L234 146"/>
+      <text x="145" y="164" text-anchor="middle">a</text><text x="238" y="164" text-anchor="middle">*</text>
+      <path class="sk-thin" d="M230 170 L200 200"/><path class="sk-thin" d="M246 170 L272 200"/>
+      <text x="196" y="218" text-anchor="middle">b</text><text x="276" y="218" text-anchor="middle">*</text>
+      <path class="sk-thin" d="M268 224 L240 254"/><path class="sk-thin" d="M284 224 L310 254"/>
+      <text x="236" y="272" text-anchor="middle">c</text><text x="314" y="272" text-anchor="middle">2</text>
+
+      <path class="sk-dash" d="M300 10 V320"/>
+
+      <text x="440" y="24" text-anchor="middle" class="t-b">Semantic analysis</text>
+      <text x="400" y="56" text-anchor="middle">:=</text>
+      <path class="sk-thin" d="M392 62 L352 92"/><path class="sk-thin" d="M408 62 L448 92"/>
+      <text x="345" y="110" text-anchor="middle">a</text><text x="452" y="110" text-anchor="middle">+</text>
+      <path class="sk-thin" d="M444 116 L410 146"/><path class="sk-thin" d="M460 116 L494 146"/>
+      <text x="405" y="164" text-anchor="middle">a</text><text x="498" y="164" text-anchor="middle">*</text>
+      <path class="sk-thin" d="M490 170 L460 200"/><path class="sk-thin" d="M506 170 L532 200"/>
+      <text x="456" y="218" text-anchor="middle">b</text><text x="536" y="218" text-anchor="middle">*</text>
+      <path class="sk-thin" d="M528 224 L500 254"/><path class="sk-thin" d="M544 224 L570 254"/>
+      <text x="496" y="272" text-anchor="middle">c</text><text x="574" y="272" text-anchor="middle">2</text>
+      <path class="sk" d="M574 280 V300"/>
+      <text x="540" y="320" text-anchor="middle" class="t-s">int to float</text>
+    </svg>
+    <figcaption data-n="1.2">Tree produced by syntax analysis (left) and the same tree after semantic analysis, where 2 is converted int to float (right)</figcaption>
+  </figure>
+
+  <h3><span class="num">4</span>Intermediate code generation</h3>
+  <p>The intermediate representation should have two properties: it should be <b>easy to produce</b> and <b>easy to translate</b> into the target program. We use <span class="hl">three-address code</span>, a sequence of instructions each having at most three operands:</p>
+  <div class="calc">
+    <div>t1 = inttoreal(2)</div>
+    <div>t2 = id3 * t1</div>
+    <div>t3 = t2 * id2</div>
+    <div>t4 = t3 + id1</div>
+    <div>id1 = t4</div>
+  </div>
+
+  <h3><span class="num">5</span>Code optimization</h3>
+  <p>This phase attempts to <b>improve the intermediate code</b> so that we get faster-running code or less memory consumption. The overall running time of the target program improves:</p>
+  <div class="calc">
+    <div>t1 = id3 * 2.0</div>
+    <div>t2 = id2 * t1</div>
+    <div>id1 = id1 + t2</div>
+  </div>
+
+  <h3><span class="num">6</span>Code generation</h3>
+  <p>The target code is generated. The intermediate instructions are translated into a sequence of <b>machine instructions</b>:</p>
+  <div class="grid2">
+    <div class="calc"><div>MOV id3, R1</div><div>MUL #2.0, R1</div><div>MOV id2, R2</div><div>MUL R2, R1</div></div>
+    <div class="calc"><div>MOV id1, R2</div><div>ADD R2, R1</div><div>MOV R1, id1</div></div>
+  </div>
+
+  <h3>Two helpers used by all phases</h3>
+  <ul class="dots">
+    <li><b>Symbol table:</b> a data structure that stores names found in the source program (variables, procedures, keywords, constants, class names, label names) with their attributes.</li>
+    <li><b>Error detection &amp; recovery:</b> each phase can find errors (lexical, syntax, semantic) and must deal with them so that compilation can continue.</li>
+  </ul>
+
+  <div class="tip">Draw Fig 1.1 first, with both side boxes (Symbol Table and Error detection). Then explain each phase using the same statement a := a + b * c * 2.</div>
+  <div class="conclusion">A compiler works in six phases: lexical, syntax and semantic analysis (analysis part) and intermediate code generation, code optimization and code generation (synthesis part). All phases use the symbol table and the error handler.</div>
+</section>
+
+<!-- ============================ Q2 ============================ -->
+<section data-tag="Q2" data-title="Structure of a Compiler, Symbol Table &amp; Error Handler" data-group="Unit 1 · Introduction" data-src="Compiler Design - All Units Notes.pdf (pp. 2–6, 51–52); Compiler Design Handbook.pdf (pp. 2–9, 96–105)">
+  <h2 class="q-title"><span class="qn">Q2</span>Structure of a compiler, symbol table and error handler</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 1 · Introduction</span></div>
+
+  <div class="def" data-label="Definition">
+    A <span class="hl">compiler</span> translates a source program into an equivalent target program. Structurally it is made of an <b>analysis part (front end)</b> and a <b>synthesis part (back end)</b>, both supported by a <b>symbol table</b> and an <b>error handler</b>.
+  </div>
+
+  <p><span class="ans">Ans.</span> Major functions done by a compiler (from the notes):</p>
+  <ul>
+    <li>Convert one form of program to another.</li>
+    <li>Generate target machine code that is easy to understand.</li>
+    <li><b>Preserve the meaning</b> of the source code.</li>
+    <li><b>Report errors</b> that occur during the compilation process.</li>
+    <li>Do the compilation <b>efficiently</b>.</li>
+  </ul>
+
+  <h3>Structure: front end and back end</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 290">
+      <text x="44" y="78" text-anchor="middle" class="t-s">Source</text><text x="44" y="98" text-anchor="middle" class="t-s">program</text>
+      <path class="sk" d="M76 88 H106" marker-end="url(#arr)"/>
+      <rect class="sk" x="110" y="20" width="200" height="150" rx="12"/>
+      <text x="210" y="46" text-anchor="middle" class="t-b">FRONT END</text>
+      <text x="210" y="76" text-anchor="middle" class="t-s">Lexical analysis</text>
+      <text x="210" y="100" text-anchor="middle" class="t-s">Syntax analysis</text>
+      <text x="210" y="124" text-anchor="middle" class="t-s">Semantic analysis</text>
+      <text x="210" y="148" text-anchor="middle" class="t-s">Intermediate code gen.</text>
+      <path class="sk" d="M310 95 H356" marker-end="url(#arr)"/><text x="333" y="85" text-anchor="middle" class="t-xs">IR</text>
+      <rect class="sk" x="360" y="45" width="160" height="100" rx="12"/>
+      <text x="440" y="71" text-anchor="middle" class="t-b">BACK END</text>
+      <text x="440" y="101" text-anchor="middle" class="t-s">Code optimization</text>
+      <text x="440" y="125" text-anchor="middle" class="t-s">Code generation</text>
+      <path class="sk" d="M520 95 H546" marker-end="url(#arr)"/>
+      <text x="572" y="90" text-anchor="middle" class="t-s">Target</text><text x="572" y="110" text-anchor="middle" class="t-s">program</text>
+      <rect class="sk-shade" x="110" y="228" width="180" height="46" rx="10"/><text x="200" y="257" text-anchor="middle" class="t-b">Symbol table</text>
+      <rect class="sk-shade" x="330" y="228" width="190" height="46" rx="10"/><text x="425" y="257" text-anchor="middle" class="t-b">Error handler</text>
+      <path class="sk-dash" d="M180 172 L190 224" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-dash" d="M260 172 L390 224" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-dash" d="M400 147 L270 224" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-dash" d="M470 147 L455 224" marker-start="url(#arr)" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption data-n="2.1">Grouping of phases into front end and back end, sharing the symbol table and the error handler</figcaption>
+  </figure>
+  <table class="hand">
+    <tr><th>Front end</th><th>Back end</th></tr>
+    <tr><td>Phases that depend mainly on the <b>source language</b>, largely independent of the target machine.</td><td>Phases that depend on the <b>target machine</b> and do not depend on the source program.</td></tr>
+    <tr><td>Lexical, syntax and semantic analysis, intermediate code generation and creation of the symbol table. Some code optimization too.</td><td>Code optimization and code generation, with the necessary error handling and symbol table operations.</td></tr>
+  </table>
+  <p class="small"><b>Pass:</b> one complete scan of the source program (read an input file, write an output file). Several phases may be grouped into one pass.</p>
+
+  <h3>Role of the symbol table</h3>
+  <div class="box">A <b>symbol table</b> is a data structure used by a language translator such as a compiler or interpreter. It stores the names found in the source program along with the relevant <b>attributes</b> of those names. It is used by <b>both the analysis and synthesis phases</b>.</div>
+  <div class="grid2">
+    <div>
+      <p><b class="nu"><u>What it stores</u></b></p>
+      <ul class="dots"><li>Variables / identifiers</li><li>Procedures / functions</li><li>Keywords</li><li>Constants</li><li>Class names</li><li>Label names</li></ul>
+    </div>
+    <div>
+      <p><b class="nu"><u>What it is used for</u></b></p>
+      <ul class="dots"><li>Store all names in one structured place</li><li>Verify whether a variable has been declared</li><li>Determine the scope of a name</li><li>Type checking of assignments and expressions</li></ul>
+    </div>
+  </div>
+  <p>Each entry has the format <mark>&lt;symbol name, type, attribute&gt;</mark>. For <b>static int salary</b> the entry is <b>&lt;salary, int, static&gt;</b>.</p>
+  <ul>
+    <li><b>insert():</b> used mostly in the analysis phase when tokens are identified, e.g. <b>int x;</b> is processed as <b>insert(x, int)</b>.</li>
+    <li><b>lookup():</b> searches a name to check if it exists, was declared before use, is in scope, is initialised, or is declared more than once.</li>
+    <li><b>Implementation:</b> linear (sorted / unsorted) list, binary search tree or <b>hash table</b> (most common).</li>
+  </ul>
+
+  <h3>Role of the error handler</h3>
+  <p>The <b>error detection and recovery</b> box in Fig 1.1 is connected to every phase. A compiler should <b>report errors</b> and then <b>recover</b> so it can continue and find more errors.</p>
+  <table class="hand">
+    <tr><th>Error type</th><th>Found in phase</th><th>Typical examples</th></tr>
+    <tr><td>Lexical</td><td>Lexical analysis</td><td>Spelling errors, too-long identifiers or constants, illegal characters, e.g. <b>x = 1xab;</b></td></tr>
+    <tr><td>Syntax</td><td>Syntax analysis</td><td>Errors in structure, missing operators, unbalanced parentheses, e.g. <b>x = (3 + 5;</b></td></tr>
+    <tr><td>Semantic</td><td>Semantic analysis</td><td>Incompatible operand types, undeclared variable, actual and formal arguments not matching, e.g. <b>int a = "hello";</b></td></tr>
+  </table>
+  <p><b>Error recovery strategies:</b></p>
+  <ol>
+    <li><b>Panic mode:</b> discard input symbols one at a time until a synchronizing token (like <b>;</b> or <b>end</b>) is found. Simple and never goes into an infinite loop.</li>
+    <li><b>Phrase level:</b> do a local correction on the remaining input, e.g. replace a comma by a semicolon or insert a missing semicolon.</li>
+    <li><b>Error production:</b> add productions for common errors to the grammar so a proper message can be generated.</li>
+    <li><b>Global correction:</b> find a parse tree for a related correct string using the minimum number of insertions, deletions and changes. Mostly theoretical.</li>
+  </ol>
+
+  <div class="tip">Draw Fig 2.1, then write two separate headings "Symbol table" and "Error handler". Writing the &lt;salary, int, static&gt; example scores extra.</div>
+  <div class="conclusion">A compiler is structured as a front end (analysis) and a back end (synthesis). The symbol table keeps information about every name for all phases, and the error handler detects, reports and recovers from lexical, syntax and semantic errors.</div>
+</section>
+
+<!-- =====================================================================
+     UNIT 2
+     ===================================================================== -->
+
+<!-- ============================ Q3 ============================ -->
+<section data-tag="Q3" data-title="Lexical Analysis: Tokens, Lexemes &amp; Patterns" data-group="Unit 2 · Lexical Analysis" data-src="Compiler Design - All Units Notes.pdf (pp. 2, 9–10); Compiler Design Handbook.pdf (pp. 3, 13–15)">
+  <h2 class="q-title"><span class="qn">Q3</span>What is lexical analysis? Explain tokens, lexemes and patterns</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 2 · Lexical Analysis</span></div>
+
+  <div class="def" data-label="Definition">
+    <span class="hl">Lexical analysis</span> (also called <b>linear analysis or scanning</b>) is the <b>first phase</b> of a compiler. It reads the input characters of the source program and produces as output a <b>sequence of tokens</b> that the parser uses for syntax analysis.
+  </div>
+
+  <p><span class="ans">Ans.</span> The lexical analyzer reads the source program and breaks it into a stream of units called <b>tokens</b>. It then classifies these units into different lexical classes, e.g. identifiers, constants and keywords, and enters them into different tables (like the symbol table).</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 110">
+      <text x="50" y="50" text-anchor="middle" class="t-s">characters</text>
+      <text x="50" y="72" text-anchor="middle" class="t-xs">t o t a l = s u m …</text>
+      <path class="sk" d="M110 58 H168" marker-end="url(#arr)"/>
+      <rect class="sk" x="172" y="28" width="190" height="60" rx="12"/><text x="267" y="54" text-anchor="middle" class="t-b">Lexical</text><text x="267" y="78" text-anchor="middle" class="t-b">Analyzer</text>
+      <path class="sk" d="M362 58 H420" marker-end="url(#arr)"/>
+      <text x="510" y="50" text-anchor="middle" class="t-s">tokens</text>
+      <text x="510" y="72" text-anchor="middle" class="t-xs">id = id + num</text>
+    </svg>
+    <figcaption data-n="3.1">Lexical analysis turns a stream of characters into a stream of tokens</figcaption>
+  </figure>
+
+  <h3><span class="num">1</span>Token</h3>
+  <div class="box">A <b>token</b> is a <span class="hl">sequence of characters having a collective meaning</span>.</div>
+  <p>Typical tokens are: <b>1)</b> identifiers <b>2)</b> keywords <b>3)</b> operators <b>4)</b> special symbols <b>5)</b> constants.</p>
+
+  <h3><span class="num">2</span>Pattern</h3>
+  <div class="box">A <b>pattern</b> is the <span class="hl">set of rules</span> associated with a token. It describes which strings belong to that token, e.g. "letter followed by letters and digits" for an identifier.</div>
+
+  <h3><span class="num">3</span>Lexeme</h3>
+  <div class="box">A <b>lexeme</b> is the <span class="hl">sequence of characters in the source program that is matched with a pattern</span> for a token.</div>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 170">
+      <rect class="sk" x="20" y="20" width="160" height="56" rx="10"/><text x="100" y="46" text-anchor="middle" class="t-b">Lexeme</text><text x="100" y="66" text-anchor="middle" class="t-xs">count</text>
+      <rect class="sk" x="220" y="20" width="160" height="56" rx="10"/><text x="300" y="46" text-anchor="middle" class="t-b">Pattern</text><text x="300" y="66" text-anchor="middle" class="t-xs">letter (letter | digit)*</text>
+      <rect class="sk-shade" x="420" y="20" width="160" height="56" rx="10"/><text x="500" y="46" text-anchor="middle" class="t-b">Token</text><text x="500" y="66" text-anchor="middle" class="t-xs">id</text>
+      <path class="sk" d="M180 48 H216" marker-end="url(#arr)"/><text x="198" y="100" text-anchor="middle" class="t-xs">matched by</text>
+      <path class="sk" d="M380 48 H416" marker-end="url(#arr)"/><text x="398" y="100" text-anchor="middle" class="t-xs">gives</text>
+      <text x="300" y="140" text-anchor="middle" class="t-s">The actual text (lexeme) is matched by a rule (pattern) and reported as a class (token).</text>
+    </svg>
+    <figcaption data-n="3.2">How the three terms relate</figcaption>
+  </figure>
+
+  <h3>Examples of tokens (Table 2.1 of the notes)</h3>
+  <table class="hand">
+    <tr><th>Token</th><th>Lexeme</th><th>Pattern</th></tr>
+    <tr><td>const</td><td>const</td><td>const</td></tr>
+    <tr><td>if</td><td>if</td><td>if</td></tr>
+    <tr><td>relation</td><td>&lt;, &lt;=, =, &lt;&gt;, &gt;=, &gt;</td><td>&lt; or &lt;= or = or &lt;&gt; or &gt;= or &gt;</td></tr>
+    <tr><td>id</td><td>pi, count, n, i</td><td>letter followed by letters and digits</td></tr>
+    <tr><td>number</td><td>3.14159, 0, 6.02e23</td><td>any numeric constant</td></tr>
+    <tr><td>literal</td><td>"Darshan Institute"</td><td>any characters between " and " except "</td></tr>
+  </table>
+
+  <h3>Example 1: total = sum + 12.5</h3>
+  <table class="hand">
+    <tr><th>Lexeme</th><th>total</th><th>=</th><th>sum</th><th>+</th><th>12.5</th></tr>
+    <tr><td><b>Token</b></td><td>id</td><td>relation</td><td>id</td><td>operator</td><td>num</td></tr>
+  </table>
+  <p><b>Tokens are:</b> total (id), = (relation), sum (id), + (operator), 12.5 (num).<br/><b>Lexemes are:</b> total, =, sum, +, 12.5.</p>
+
+  <h3>Example 2: a := a + b * c * 2</h3>
+  <p>Tokens: <b>id1 := id1 + id2 * id3 * 2</b>. Here a, b and c are identifiers (entered in the symbol table as id1, id2, id3), := is the assignment sign, + and * are operators and 2 is a number.</p>
+
+  <div class="remember">Lexeme = actual text · Pattern = rule · Token = class name given to the lexeme.</div>
+  <div class="conclusion">Lexical analysis is the first phase of the compiler. It groups characters into lexemes, matches each lexeme against a pattern and passes the resulting tokens to the parser.</div>
+</section>
+
+<!-- ============================ Q4 ============================ -->
+<section data-tag="Q4" data-title="Functions of the Lexical Analyzer" data-group="Unit 2 · Lexical Analysis" data-src="Compiler Design - All Units Notes.pdf (pp. 9–11, 51); Compiler Design Handbook.pdf (pp. 13–17, 96)">
+  <h2 class="q-title"><span class="qn">Q4</span>Functions and responsibilities of the lexical analyzer</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 2 · Lexical Analysis</span></div>
+
+  <div class="def" data-label="Definition">
+    The <span class="hl">lexical analyzer</span> is the first phase of the compiler. Its main task is to <b>read the input characters and produce as output a sequence of tokens</b> that the parser uses for syntax analysis.
+  </div>
+
+  <p><span class="ans">Ans.</span> The lexical analyzer works together with the parser. It is implemented as a <b>subroutine</b> of the parser.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 220">
+      <text x="46" y="62" text-anchor="middle" class="t-s">Source</text><text x="46" y="82" text-anchor="middle" class="t-s">program</text>
+      <path class="sk" d="M82 72 H128" marker-end="url(#arr)"/>
+      <rect class="sk" x="132" y="40" width="150" height="64" rx="12"/><text x="207" y="68" text-anchor="middle" class="t-b">Lexical</text><text x="207" y="92" text-anchor="middle" class="t-b">analyzer</text>
+      <rect class="sk" x="380" y="40" width="150" height="64" rx="12"/><text x="455" y="80" text-anchor="middle" class="t-b">Parser</text>
+      <path class="sk" d="M284 60 H376" marker-end="url(#arr)"/><text x="330" y="52" text-anchor="middle" class="t-s">token</text>
+      <path class="sk" d="M376 88 H286" marker-end="url(#arr)"/><text x="330" y="112" text-anchor="middle" class="t-s">get next token</text>
+      <rect class="sk-shade" x="230" y="160" width="160" height="46" rx="10"/><text x="310" y="189" text-anchor="middle" class="t-b">Symbol table</text>
+      <path class="sk-dash" d="M207 106 L270 156" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk-dash" d="M455 106 L350 156" marker-start="url(#arr)" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption data-n="4.1">Communication between scanner and parser (Fig 2.1 of the notes)</figcaption>
+  </figure>
+
+  <h3>Functions / responsibilities</h3>
+  <ol>
+    <li><b>Read the source program:</b> it scans the input string from left to right, <b>one character at a time</b>.</li>
+    <li><b>Produce tokens:</b> on receiving a <span class="hl">"get next token"</span> command from the parser, it reads input characters until it can identify the next token, and returns it.</li>
+    <li><b>Classify lexemes:</b> it puts each unit into a lexical class (identifier, keyword, operator, constant, special symbol) by matching it with a <b>pattern</b>.</li>
+    <li><b>Enter names in the symbol table:</b> identifiers and constants are entered in tables so that later phases can use them.</li>
+    <li><b>Strip comments and white space:</b> as a secondary task at the user interface, it removes comments and white space (blanks, tabs and newline characters).</li>
+    <li><b>Detect lexical errors:</b> spelling errors, exceeding the length of identifiers or numeric constants, and appearance of illegal characters. Example: in <b>x = 1xab;</b>, 1xab is neither a number nor an identifier.</li>
+    <li><b>Input buffering:</b> it uses special buffering to reduce the overhead of processing each character (explained below).</li>
+  </ol>
+
+  <h3>Scanning + lexical analysis</h3>
+  <p>Some lexical analyzers are divided into a <b>cascade of two phases</b>: the first is called <b>scanning</b> (does simple tasks) and the second is <b>lexical analysis</b> (does the more complex tasks).</p>
+
+  <h3>Input buffering: buffer pair</h3>
+  <ul>
+    <li>A buffer is divided into <b>two N-character halves</b> (N = number of characters on one disk block). N characters are read into each half.</li>
+    <li>Two pointers are kept: <b>lexeme_beginning</b> marks the beginning of the current lexeme, and <b>forward</b> scans ahead until a pattern match is found. The string between them is the current lexeme.</li>
+    <li>Once the lexeme is found, forward is set to its right end, and after the token is returned lexeme_beginning moves to the character just after it.</li>
+  </ul>
+  <figure class="fig">
+    <svg viewBox="0 0 600 130">
+      <rect class="sk" x="20" y="20" width="560" height="40"/>
+      <path class="sk-thin" d="M300 20 V60"/>
+      <text x="40" y="46">E</text><text x="70" y="46">=</text><text x="100" y="46">M</text><text x="130" y="46">*</text><text x="160" y="46">C</text><text x="190" y="46">*</text><text x="220" y="46">*</text><text x="250" y="46">2</text><text x="272" y="46" class="t-xs">eof</text>
+      <text x="160" y="80" text-anchor="middle" class="t-xs">first half (N chars)</text><text x="440" y="80" text-anchor="middle" class="t-xs">second half (N chars)</text>
+      <path class="sk" d="M44 118 V64" marker-end="url(#arr)"/><text x="54" y="118" class="t-s">lexeme_beginning</text>
+      <path class="sk" d="M254 118 V64" marker-end="url(#arr)"/><text x="264" y="118" class="t-s">forward</text>
+    </svg>
+    <figcaption data-n="4.2">An input buffer in two halves (Fig 2.2 of the notes)</figcaption>
+  </figure>
+  <p><b>Sentinels:</b> a special character <b>eof</b> is placed at the end of each buffer half, so the scanner needs only one test per character to know when a half has ended.</p>
+
+  <h3>Why keep it separate from the parser?</h3>
+  <ul class="dots">
+    <li><b>Simpler design</b>, the most important reason.</li>
+    <li><b>Compiler efficiency</b> is improved.</li>
+    <li><b>Compiler portability</b> is enhanced.</li>
+  </ul>
+
+  <div class="conclusion">The lexical analyzer reads characters, removes comments and white space, groups lexemes into tokens, enters names into the symbol table, reports lexical errors and hands tokens to the parser on every "get next token" request.</div>
+</section>
+
+<!-- ============================ Q5 ============================ -->
+<section data-tag="Q5" data-title="Lexical vs Syntax Analysis" data-group="Unit 2 · Lexical Analysis" data-src="Compiler Design - All Units Notes.pdf (pp. 2–3, 9, 26, 51); Compiler Design Handbook.pdf (pp. 3–4, 13–14, 35, 96–98)" data-srcnote="The notes describe both phases separately. The comparison table is built from those descriptions.">
+  <h2 class="q-title"><span class="qn">Q5</span>Difference between lexical analysis and syntax analysis</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 2 · Lexical / Unit 3 · Parsing</span></div>
+
+  <div class="def" data-label="Definitions">
+    <b>Lexical analysis</b> (scanning) reads characters and produces a <b>stream of tokens</b>.<br/>
+    <b>Syntax analysis</b> (parsing) takes those tokens and checks them against the <b>grammar</b>, producing a <b>parse tree</b> or an error message.
+  </div>
+
+  <p><span class="ans">Ans.</span> Both belong to the <b>analysis phase</b> of the compiler. The lexical analyzer is the first phase and the parser is the second. The parser obtains a string of tokens from the lexical analyzer.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 120">
+      <text x="44" y="56" text-anchor="middle" class="t-s">characters</text>
+      <path class="sk" d="M88 50 H120" marker-end="url(#arr)"/>
+      <rect class="sk" x="124" y="22" width="150" height="56" rx="12"/><text x="199" y="46" text-anchor="middle" class="t-b">Lexical</text><text x="199" y="68" text-anchor="middle" class="t-xs">(scanner)</text>
+      <path class="sk" d="M274 50 H322" marker-end="url(#arr)"/><text x="298" y="40" text-anchor="middle" class="t-xs">tokens</text>
+      <rect class="sk" x="326" y="22" width="150" height="56" rx="12"/><text x="401" y="46" text-anchor="middle" class="t-b">Syntax</text><text x="401" y="68" text-anchor="middle" class="t-xs">(parser)</text>
+      <path class="sk" d="M476 50 H520" marker-end="url(#arr)"/>
+      <text x="558" y="46" text-anchor="middle" class="t-s">parse</text><text x="558" y="66" text-anchor="middle" class="t-s">tree</text>
+    </svg>
+    <figcaption data-n="5.1">Lexical analysis feeds syntax analysis</figcaption>
+  </figure>
+
+  <h3>Comparison</h3>
+  <table class="hand">
+    <tr><th>Basis</th><th>Lexical analysis</th><th>Syntax analysis</th></tr>
+    <tr><td>Other name</td><td>Linear analysis / scanning</td><td>Hierarchical analysis / parsing</td></tr>
+    <tr><td>Position</td><td>First phase of the compiler</td><td>Second phase of the compiler</td></tr>
+    <tr><td>Input</td><td>Characters of the source program</td><td>Tokens from the lexical analyzer</td></tr>
+    <tr><td>Output</td><td>Stream of tokens</td><td>Parse tree (or syntax tree)</td></tr>
+    <tr><td>Rules used</td><td>Patterns (e.g. "letter followed by letters and digits")</td><td>Context-free grammar (productions)</td></tr>
+    <tr><td>Works on</td><td>Each word / lexeme separately</td><td>Structure of the whole statement</td></tr>
+    <tr><td>Extra jobs</td><td>Strips comments and white space; input buffering</td><td>Builds the tree; recovers from common errors</td></tr>
+    <tr><td>Errors found</td><td>Spelling errors, too-long identifiers, illegal characters</td><td>Errors in structure, missing operators, unbalanced parentheses</td></tr>
+    <tr><td>Interaction</td><td>Called as a subroutine on "get next token"</td><td>Calls the lexical analyzer for every token</td></tr>
+  </table>
+
+  <h3>Example 1: the same statement in both phases</h3>
+  <p>Statement: <mark>total = sum + 12.5</mark></p>
+  <ul>
+    <li><b>Lexical analysis</b> gives the tokens: total (id), = (relation), sum (id), + (operator), 12.5 (num).</li>
+    <li><b>Syntax analysis</b> checks that "id = id + num" follows the grammar and builds the tree with = at the root, total on the left and + (sum, 12.5) on the right.</li>
+  </ul>
+  <figure class="fig">
+    <svg viewBox="0 0 600 170">
+      <text x="300" y="30" text-anchor="middle">=</text>
+      <path class="sk-thin" d="M292 36 L212 70"/><path class="sk-thin" d="M308 36 L388 70"/>
+      <text x="200" y="88" text-anchor="middle">total</text><text x="395" y="88" text-anchor="middle">+</text>
+      <path class="sk-thin" d="M387 94 L332 128"/><path class="sk-thin" d="M403 94 L458 128"/>
+      <text x="325" y="146" text-anchor="middle">sum</text><text x="465" y="146" text-anchor="middle">12.5</text>
+    </svg>
+    <figcaption data-n="5.2">Tree built by the syntax analyzer from the tokens</figcaption>
+  </figure>
+
+  <h3>Example 2: different errors</h3>
+  <div class="grid2">
+    <div class="box"><b class="nu"><u>Lexical error</u></b><br/><b>x = 1xab;</b><br/>1xab is neither a number nor an identifier, so a valid token cannot be formed.</div>
+    <div class="box"><b class="nu"><u>Syntax error</u></b><br/><b>x = (3 + 5;</b><br/>Every token is valid, but the closing ")" is missing, so the grammar rule fails.</div>
+  </div>
+  <p class="small">Note: in <b>fi ( ) { }</b>, "fi" is not reported as a misspelling of <b>if</b>. The lexical analyzer treats it as a valid identifier, so lexical analysis alone cannot find every mistake.</p>
+
+  <h3>Why are they separated?</h3>
+  <ul class="dots"><li>Simpler design</li><li>Better compiler efficiency</li><li>Better compiler portability</li></ul>
+
+  <div class="conclusion">Lexical analysis works on characters and produces tokens using patterns. Syntax analysis works on tokens and produces a parse tree using a context-free grammar. Together they form the first two steps of the analysis phase.</div>
+</section>
+
+<!-- =====================================================================
+     UNIT 3
+     ===================================================================== -->
+
+<!-- ============================ Q6 ============================ -->
+<section data-tag="Q6" data-title="Context-Free Grammar &amp; its Components" data-group="Unit 3 · Grammar &amp; Derivation" data-src="Compiler Design Handbook.pdf (pp. 41–44); Compiler Design - All Units Notes.pdf (pp. 26–27)">
+  <h2 class="q-title"><span class="qn">Q6</span>Define CFG and explain its components with an example</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Grammar</span></div>
+
+  <div class="def" data-label="Definition">
+    A <span class="hl">Context-Free Grammar (CFG)</span> is a 4-tuple <b>G = (V, T, P, S)</b> that describes the syntax (structure) of a language. Every production has a <b>single variable on the left-hand side</b>.
+  </div>
+
+  <p><span class="ans">Ans.</span> The parser checks the tokens against the rules of a formal grammar. In compilers that grammar is a context-free grammar. It is used for parsing, derivations and parse trees.</p>
+
+  <h3>Components of a CFG</h3>
+  <div class="formula"><span class="lbl">4-tuple</span>G = ( V , T , P , S )</div>
+  <table class="hand">
+    <tr><th>Symbol</th><th>Name</th><th>Meaning (from the notes)</th></tr>
+    <tr><td><b>V</b></td><td>Variables (non-terminals)</td><td>A finite set of variables, e.g. E, S, T. They can be replaced further.</td></tr>
+    <tr><td><b>T</b></td><td>Terminals</td><td>A finite set of terminals: the actual symbols / tokens, e.g. id, +, *, (, ).</td></tr>
+    <tr><td><b>P</b></td><td>Productions</td><td>A finite set of rules of the form <b>A → α</b>, where A is a variable and α ∈ (V ∪ T)*.</td></tr>
+    <tr><td><b>S</b></td><td>Start symbol</td><td>A designated variable from which every derivation starts.</td></tr>
+  </table>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 170">
+      <text x="300" y="60" text-anchor="middle" class="t-b" style="font-size:34px">E → E + E | id</text>
+      <path class="sk-thin" d="M196 70 L120 110" marker-end="url(#arr)"/><text x="110" y="130" text-anchor="middle" class="t-s">head: variable (V)</text><text x="110" y="150" text-anchor="middle" class="t-xs">also the start symbol S</text>
+      <path class="sk-thin" d="M236 66 L270 110" marker-end="url(#arr)"/><text x="290" y="130" text-anchor="middle" class="t-s">arrow: "can be replaced by"</text>
+      <path class="sk-thin" d="M370 70 L460 110" marker-end="url(#arr)"/><text x="470" y="130" text-anchor="middle" class="t-s">body: mix of V and T</text><text x="470" y="150" text-anchor="middle" class="t-xs">"|" separates alternatives</text>
+    </svg>
+    <figcaption data-n="6.1">Parts of a production</figcaption>
+  </figure>
+
+  <h3>Example grammar (from the handbook)</h3>
+  <p>Set of alphabets Σ = {0, …, 9, +, *, (, )}</p>
+  <div class="calc">
+    <div>E → I</div>
+    <div>E → E + E</div>
+    <div>E → E * E</div>
+    <div>E → (E)</div>
+    <div>I → ε | 0 | 1 | … | 9</div>
+  </div>
+  <table class="hand">
+    <tr><th>Component</th><th>For this grammar</th></tr>
+    <tr><td>V (variables)</td><td>{ E, I }</td></tr>
+    <tr><td>T (terminals)</td><td>{ 0, 1, …, 9, +, *, (, ) }</td></tr>
+    <tr><td>P (productions)</td><td>the 5 rules above</td></tr>
+    <tr><td>S (start symbol)</td><td>E</td></tr>
+  </table>
+
+  <h3>Using the grammar: deriving 3*2+5</h3>
+  <p>A string belongs to the language if it can be <b>derived</b> from the start symbol by replacing variables using productions:</p>
+  <div class="calc">
+    <div>E ⇒ E * E</div>
+    <div>&nbsp;&nbsp;⇒ I * E</div>
+    <div>&nbsp;&nbsp;⇒ 3 * E</div>
+    <div>&nbsp;&nbsp;⇒ 3 * E + E</div>
+    <div>&nbsp;&nbsp;⇒ 3 * I + E</div>
+    <div>&nbsp;&nbsp;⇒ 3 * 2 + E</div>
+    <div>&nbsp;&nbsp;⇒ 3 * 2 + I</div>
+    <div>&nbsp;&nbsp;⇒ <span class="answer-box">3 * 2 + 5</span></div>
+  </div>
+
+  <h3>Another example (notes, Unit 3)</h3>
+  <p>E → E + E | E * E | id. Here V = {E}, T = {+, *, id}, S = E. The string <b>id + id * id</b> is derived from it, and its parse tree has non-terminals at interior nodes and terminals at the leaves.</p>
+
+  <div class="tip">Always write "G = (V, T, P, S)" and explain each letter in one line. Then identify V, T, P, S for your own example grammar.</div>
+  <div class="conclusion">A CFG G = (V, T, P, S) consists of variables, terminals, productions and a start symbol. It defines the syntax of a programming language and is the base for derivations, parse trees and parsing.</div>
+</section>
+
+<!-- ============================ Q7 ============================ -->
+<section data-tag="Q7" data-title="Leftmost &amp; Rightmost Derivations" data-group="Unit 3 · Grammar &amp; Derivation" data-src="Compiler Design - All Units Notes.pdf (p. 27, Table 3.1.2); Compiler Design Handbook.pdf (pp. 42–44)">
+  <h2 class="q-title"><span class="qn">Q7</span>Explain leftmost and rightmost derivations with examples</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Derivation</span></div>
+
+  <div class="def" data-label="Definition">
+    A <span class="hl">derivation</span> is a sequence of steps in which we start from the start symbol and, at every step, replace one non-terminal by the body of one of its productions, until only terminals (the input string) remain.
+  </div>
+
+  <p><span class="ans">Ans.</span> There are mainly two types of derivations:</p>
+  <ol>
+    <li><b>Leftmost derivation (LMD):</b> a derivation of a string W in grammar G is a leftmost derivation if at every step the <span class="hl">leftmost non-terminal is replaced</span>.</li>
+    <li><b>Rightmost derivation (RMD):</b> a derivation of a string W in grammar G is a rightmost derivation if at every step the <span class="hl">rightmost non-terminal is replaced</span>.</li>
+  </ol>
+
+  <h3>Grammar used (from the notes)</h3>
+  <div class="formula">S → S+S | S−S | S*S | S/S | (S) | a</div>
+
+  <h3>Leftmost vs rightmost (Table 3.1.2 of the notes)</h3>
+  <table class="hand">
+    <tr><th>Leftmost derivation</th><th>Rightmost derivation</th></tr>
+    <tr><td>Replace the <b>leftmost</b> non-terminal at every step.</td><td>Replace the <b>rightmost</b> non-terminal at every step.</td></tr>
+    <tr><td>Consider string <b>a*a−a</b>:
+      <div class="calc"><div>S ⇒ S−S</div><div>&nbsp;&nbsp;⇒ S*S−S</div><div>&nbsp;&nbsp;⇒ a*S−S</div><div>&nbsp;&nbsp;⇒ a*a−S</div><div>&nbsp;&nbsp;⇒ a*a−a</div></div></td>
+      <td>Consider string <b>a−a/a</b>:
+      <div class="calc"><div>S ⇒ S−S</div><div>&nbsp;&nbsp;⇒ S−S/S</div><div>&nbsp;&nbsp;⇒ S−S/a</div><div>&nbsp;&nbsp;⇒ S−a/a</div><div>&nbsp;&nbsp;⇒ a−a/a</div></div></td></tr>
+    <tr><td>Used by <b>top-down</b> parsers (e.g. LL(1): the second L means leftmost derivation).</td><td>Used <b>in reverse</b> by <b>bottom-up</b> parsers (LR: the R means rightmost derivation in reverse).</td></tr>
+  </table>
+
+  <h3>Derivation trees</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 260">
+      <text x="150" y="20" text-anchor="middle" class="t-s">LMD tree for a*a−a</text>
+      <text x="150" y="50" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M150 56 L80 88"/><path class="sk-thin" d="M150 56 L150 88"/><path class="sk-thin" d="M150 56 L220 88"/>
+      <text x="80" y="108" text-anchor="middle" class="t-b">S</text><text x="150" y="108" text-anchor="middle" class="t-b">−</text><text x="220" y="108" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M80 114 L40 146"/><path class="sk-thin" d="M80 114 L80 146"/><path class="sk-thin" d="M80 114 L120 146"/>
+      <path class="sk-thin" d="M220 114 L220 146"/>
+      <text x="40" y="166" text-anchor="middle" class="t-b">S</text><text x="80" y="166" text-anchor="middle" class="t-b">*</text><text x="120" y="166" text-anchor="middle" class="t-b">S</text><text x="220" y="166" text-anchor="middle">a</text>
+      <path class="sk-thin" d="M40 172 L40 204"/><path class="sk-thin" d="M120 172 L120 204"/>
+      <text x="40" y="224" text-anchor="middle">a</text><text x="120" y="224" text-anchor="middle">a</text>
+
+      <text x="450" y="20" text-anchor="middle" class="t-s">RMD tree for a−a/a</text>
+      <text x="450" y="50" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M450 56 L380 88"/><path class="sk-thin" d="M450 56 L450 88"/><path class="sk-thin" d="M450 56 L520 88"/>
+      <text x="380" y="108" text-anchor="middle" class="t-b">S</text><text x="450" y="108" text-anchor="middle" class="t-b">−</text><text x="520" y="108" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M380 114 L380 146"/>
+      <path class="sk-thin" d="M520 114 L480 146"/><path class="sk-thin" d="M520 114 L520 146"/><path class="sk-thin" d="M520 114 L560 146"/>
+      <text x="380" y="166" text-anchor="middle">a</text><text x="480" y="166" text-anchor="middle" class="t-b">S</text><text x="520" y="166" text-anchor="middle" class="t-b">/</text><text x="560" y="166" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M480 172 L480 204"/><path class="sk-thin" d="M560 172 L560 204"/>
+      <text x="480" y="224" text-anchor="middle">a</text><text x="560" y="224" text-anchor="middle">a</text>
+    </svg>
+    <figcaption data-n="7.1">Equivalent leftmost and rightmost derivation trees (from Table 3.1.2 of the notes)</figcaption>
+  </figure>
+
+  <h3>One more example (handbook): 3*2+5</h3>
+  <p>Grammar: E → I | E+E | E*E | (E), I → ε | 0 | 1 | … | 9</p>
+  <div class="grid2">
+    <div><b class="nu"><u>Leftmost</u></b><div class="calc"><div>E ⇒ E*E</div><div>⇒ I*E</div><div>⇒ 3*E</div><div>⇒ 3*E+E</div><div>⇒ 3*I+E</div><div>⇒ 3*2+E</div><div>⇒ 3*2+I</div><div>⇒ 3*2+5</div></div></div>
+    <div><b class="nu"><u>Rightmost</u></b><div class="calc"><div>E ⇒ E+E</div><div>⇒ E+I</div><div>⇒ E+5</div><div>⇒ E*E+5</div><div>⇒ E*I+5</div><div>⇒ E*2+5</div><div>⇒ I*2+5</div><div>⇒ 3*2+5</div></div></div>
+  </div>
+  <p class="small">The leftmost one is from the handbook; the rightmost one uses the same grammar, always expanding the rightmost E.</p>
+
+  <div class="remember">Leftmost → always expand the first non-terminal from the left. Rightmost → always expand the last one.</div>
+  <div class="conclusion">In a leftmost derivation the leftmost non-terminal is replaced at every step; in a rightmost derivation the rightmost one is replaced. Top-down parsers follow leftmost derivation, and bottom-up (LR) parsers follow rightmost derivation in reverse.</div>
+</section>
+
+<!-- ============================ Q8 ============================ -->
+<section data-tag="Q8" data-title="Parse Tree &amp; its Construction" data-group="Unit 3 · Grammar &amp; Derivation" data-src="Compiler Design - All Units Notes.pdf (pp. 26–27, Table 3.1.1, Fig 3.1.2); Compiler Design Handbook.pdf (pp. 35, 42)" data-srcnote="The notes give the parse-tree properties and the example tree. The step-by-step construction is written by following the derivation in the notes.">
+  <h2 class="q-title"><span class="qn">Q8</span>What is a parse tree? How is it constructed from a CFG?</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Parse tree</span></div>
+
+  <div class="def" data-label="Definition">
+    A <span class="hl">parse tree</span> (derivation tree) is a tree that shows how a string is derived from the start symbol of a grammar. Its <b>root is the start symbol</b>, its <b>interior nodes are non-terminals</b> and its <b>leaves are terminals</b>.
+  </div>
+
+  <p><span class="ans">Ans.</span> The parser obtains a string of tokens from the lexical analyzer, and its output is some representation of the <b>parse tree</b> for that stream of tokens. If the string is a valid sentence of the grammar, the parser produces a parse tree; otherwise it gives an error message.</p>
+
+  <h3>Properties of a parse tree</h3>
+  <ul class="dots">
+    <li>The <b>root</b> is labelled by the start symbol.</li>
+    <li>Every <b>interior node</b> is a non-terminal; its children are the symbols of the body of the production used.</li>
+    <li>Every <b>leaf</b> is a terminal (or ε).</li>
+    <li>Reading the leaves from <b>left to right</b> gives the input string (the "yield").</li>
+    <li>It represents the <b>concrete syntax</b> of a program.</li>
+  </ul>
+
+  <h3>Steps to construct a parse tree from a CFG</h3>
+  <ol>
+    <li>Write the <b>start symbol</b> as the root.</li>
+    <li>Pick the production used in the next derivation step (e.g. leftmost derivation).</li>
+    <li>Make the symbols of that production's body the <b>children</b> of the non-terminal, from left to right.</li>
+    <li>Repeat for every non-terminal leaf until all leaves are terminals.</li>
+    <li>Check: the leaves read left to right must equal the input string.</li>
+  </ol>
+
+  <h3>Example: id + id * id</h3>
+  <p>Grammar (from the notes): <b>E → E+E | E*E | id</b></p>
+  <div class="calc">
+    <div>E ⇒ E + E</div><div>&nbsp;&nbsp;⇒ id + E</div><div>&nbsp;&nbsp;⇒ id + E * E</div><div>&nbsp;&nbsp;⇒ id + id * E</div><div>&nbsp;&nbsp;⇒ id + id * id</div>
+  </div>
+  <figure class="fig">
+    <svg viewBox="0 0 600 250">
+      <text x="100" y="20" text-anchor="middle" class="t-xs">Step 1: E → E+E</text>
+      <text x="100" y="56" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M100 62 L55 92"/><path class="sk-thin" d="M100 62 L100 92"/><path class="sk-thin" d="M100 62 L145 92"/>
+      <text x="55" y="112" text-anchor="middle" class="t-b">E</text><text x="100" y="112" text-anchor="middle">+</text><text x="145" y="112" text-anchor="middle" class="t-b">E</text>
+
+      <text x="300" y="20" text-anchor="middle" class="t-xs">Step 2: left E → id</text>
+      <text x="300" y="56" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M300 62 L255 92"/><path class="sk-thin" d="M300 62 L300 92"/><path class="sk-thin" d="M300 62 L345 92"/>
+      <text x="255" y="112" text-anchor="middle" class="t-b">E</text><text x="300" y="112" text-anchor="middle">+</text><text x="345" y="112" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M255 118 L255 148"/><text x="255" y="168" text-anchor="middle">id</text>
+
+      <text x="500" y="20" text-anchor="middle" class="t-xs">Step 3–5: E → E*E, id, id</text>
+      <text x="500" y="56" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M500 62 L455 92"/><path class="sk-thin" d="M500 62 L495 92"/><path class="sk-thin" d="M500 62 L540 92"/>
+      <text x="455" y="112" text-anchor="middle" class="t-b">E</text><text x="495" y="112" text-anchor="middle">+</text><text x="540" y="112" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M455 118 L455 148"/><text x="455" y="168" text-anchor="middle">id</text>
+      <path class="sk-thin" d="M540 118 L505 148"/><path class="sk-thin" d="M540 118 L540 148"/><path class="sk-thin" d="M540 118 L575 148"/>
+      <text x="505" y="168" text-anchor="middle" class="t-b">E</text><text x="540" y="168" text-anchor="middle">*</text><text x="575" y="168" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M505 174 L505 204"/><path class="sk-thin" d="M575 174 L575 204"/>
+      <text x="505" y="224" text-anchor="middle">id</text><text x="575" y="224" text-anchor="middle">id</text>
+      <path class="sk" d="M175 90 H215" marker-end="url(#arr)"/><path class="sk" d="M375 90 H415" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption data-n="8.1">Parse tree for id + id * id growing one production at a time</figcaption>
+  </figure>
+
+  <h3>Parse tree vs syntax tree (Table 3.1.1 of the notes)</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 240">
+      <text x="160" y="20" text-anchor="middle" class="t-s">Parse tree</text>
+      <text x="160" y="50" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M160 56 L95 86"/><path class="sk-thin" d="M160 56 L160 86"/><path class="sk-thin" d="M160 56 L225 86"/>
+      <text x="95" y="106" text-anchor="middle" class="t-b">E</text><text x="160" y="106" text-anchor="middle">+</text><text x="225" y="106" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M95 112 L95 142"/><text x="95" y="162" text-anchor="middle">id</text>
+      <path class="sk-thin" d="M225 112 L180 142"/><path class="sk-thin" d="M225 112 L225 142"/><path class="sk-thin" d="M225 112 L270 142"/>
+      <text x="180" y="162" text-anchor="middle" class="t-b">E</text><text x="225" y="162" text-anchor="middle">*</text><text x="270" y="162" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M180 168 L180 198"/><path class="sk-thin" d="M270 168 L270 198"/>
+      <text x="180" y="218" text-anchor="middle">id</text><text x="270" y="218" text-anchor="middle">id</text>
+      <text x="460" y="20" text-anchor="middle" class="t-s">Syntax tree</text>
+      <text x="460" y="70" text-anchor="middle" class="t-b">+</text>
+      <path class="sk-thin" d="M452 76 L402 116"/><path class="sk-thin" d="M468 76 L518 116"/>
+      <text x="395" y="136" text-anchor="middle">id</text><text x="525" y="136" text-anchor="middle" class="t-b">*</text>
+      <path class="sk-thin" d="M517 142 L482 182"/><path class="sk-thin" d="M533 142 L568 182"/>
+      <text x="475" y="202" text-anchor="middle">id</text><text x="572" y="202" text-anchor="middle">id</text>
+    </svg>
+    <figcaption data-n="8.2">Syntax tree and parse tree for id + id * id (Fig 3.1.2 of the notes)</figcaption>
+  </figure>
+  <table class="hand">
+    <tr><th>No.</th><th>Parse tree</th><th>Syntax tree</th></tr>
+    <tr><td>1</td><td>Interior nodes are non-terminals, leaves are terminals.</td><td>Interior nodes are "operators", leaves are operands.</td></tr>
+    <tr><td>2</td><td>Rarely constructed as a data structure.</td><td>Usually used when representing a program in a tree structure.</td></tr>
+    <tr><td>3</td><td>Represents the concrete syntax of a program.</td><td>Represents the abstract syntax of a program (the semantics).</td></tr>
+  </table>
+
+  <div class="conclusion">A parse tree shows how the start symbol of a CFG derives the input string. It is built by placing the start symbol at the root and expanding each non-terminal with the body of the production used, until every leaf is a terminal and the leaves spell the input.</div>
+</section>
+
+<!-- ============================ Q9 ============================ -->
+<section data-tag="Q9" data-title="Ambiguity in Grammar" data-group="Unit 3 · Grammar &amp; Derivation" data-src="Compiler Design - All Units Notes.pdf (p. 28); Compiler Design Handbook.pdf (pp. 41–45, 56)">
+  <h2 class="q-title"><span class="qn">Q9</span>Explain ambiguity in grammar. How is it identified using parse trees?</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Ambiguity</span></div>
+
+  <div class="def" data-label="Definition">
+    An <span class="hl">ambiguous grammar</span> is one that produces <b>more than one leftmost derivation</b> or <b>more than one rightmost derivation</b> (that is, more than one parse tree) for the <b>same sentence</b>.
+  </div>
+
+  <p><span class="ans">Ans.</span> Formally (handbook): G = (V, T, P, S) is said to be ambiguous <b>if and only if there exists a string in T* that has more than one parse tree</b>. A grammar for which every string has exactly one parse tree is <b>unambiguous</b>.</p>
+
+  <h3>How to identify ambiguity using parse trees</h3>
+  <ol>
+    <li>Pick a string that uses the "doubtful" productions (usually an operator used twice, e.g. a+a+a).</li>
+    <li>Try to derive it in <b>two different ways</b> (two LMDs or two RMDs).</li>
+    <li>Draw the <b>parse tree</b> for each derivation.</li>
+    <li>If the two trees have <b>different shapes</b> for the same string, the grammar is <span class="answer-box">ambiguous</span>.</li>
+  </ol>
+
+  <h3>Example 1 (notes): prove S → S+S | S−S | S*S | S/S | (S) | a is ambiguous</h3>
+  <p>String: <b>a+a+a</b></p>
+  <div class="grid2">
+    <div><b class="nu"><u>LMD 1</u></b><div class="calc"><div>S ⇒ S+S</div><div>⇒ a+S</div><div>⇒ a+S+S</div><div>⇒ a+a+S</div><div>⇒ a+a+a</div></div></div>
+    <div><b class="nu"><u>LMD 2</u></b><div class="calc"><div>S ⇒ S+S</div><div>⇒ S+S+S</div><div>⇒ a+S+S</div><div>⇒ a+a+S</div><div>⇒ a+a+a</div></div></div>
+  </div>
+  <figure class="fig">
+    <svg viewBox="0 0 600 250">
+      <text x="150" y="20" text-anchor="middle" class="t-s">Tree for LMD 1</text>
+      <text x="150" y="50" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M150 56 L80 88"/><path class="sk-thin" d="M150 56 L150 88"/><path class="sk-thin" d="M150 56 L220 88"/>
+      <text x="80" y="108" text-anchor="middle" class="t-b">S</text><text x="150" y="108" text-anchor="middle" class="t-b">+</text><text x="220" y="108" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M80 114 L80 146"/>
+      <path class="sk-thin" d="M220 114 L180 146"/><path class="sk-thin" d="M220 114 L220 146"/><path class="sk-thin" d="M220 114 L260 146"/>
+      <text x="80" y="166" text-anchor="middle">a</text><text x="180" y="166" text-anchor="middle" class="t-b">S</text><text x="220" y="166" text-anchor="middle" class="t-b">+</text><text x="260" y="166" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M180 172 L180 204"/><path class="sk-thin" d="M260 172 L260 204"/>
+      <text x="180" y="224" text-anchor="middle">a</text><text x="260" y="224" text-anchor="middle">a</text>
+
+      <text x="450" y="20" text-anchor="middle" class="t-s">Tree for LMD 2</text>
+      <text x="450" y="50" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M450 56 L380 88"/><path class="sk-thin" d="M450 56 L450 88"/><path class="sk-thin" d="M450 56 L520 88"/>
+      <text x="380" y="108" text-anchor="middle" class="t-b">S</text><text x="450" y="108" text-anchor="middle" class="t-b">+</text><text x="520" y="108" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M380 114 L340 146"/><path class="sk-thin" d="M380 114 L380 146"/><path class="sk-thin" d="M380 114 L420 146"/>
+      <path class="sk-thin" d="M520 114 L520 146"/>
+      <text x="340" y="166" text-anchor="middle" class="t-b">S</text><text x="380" y="166" text-anchor="middle" class="t-b">+</text><text x="420" y="166" text-anchor="middle" class="t-b">S</text><text x="520" y="166" text-anchor="middle">a</text>
+      <path class="sk-thin" d="M340 172 L340 204"/><path class="sk-thin" d="M420 172 L420 204"/>
+      <text x="340" y="224" text-anchor="middle">a</text><text x="420" y="224" text-anchor="middle">a</text>
+      <path class="sk-dash" d="M300 30 V236"/>
+    </svg>
+    <figcaption data-n="9.1">Two different parse trees for a+a+a, so the grammar is ambiguous</figcaption>
+  </figure>
+  <p>Here we have <b>two leftmost derivations</b> (two different parse trees) for the same string, hence the grammar is ambiguous.</p>
+
+  <h3>Example 2 (notes): prove S → a | Sa | bSS | SSb | SbS is ambiguous</h3>
+  <p>String: <b>baaab</b></p>
+  <div class="grid2">
+    <div><b class="nu"><u>Derivation 1</u></b><div class="calc"><div>S ⇒ bSS</div><div>⇒ baS</div><div>⇒ baSSb</div><div>⇒ baaSb</div><div>⇒ baaab</div></div></div>
+    <div><b class="nu"><u>Derivation 2</u></b><div class="calc"><div>S ⇒ SSb</div><div>⇒ bSSSb</div><div>⇒ baSSb</div><div>⇒ baaSb</div><div>⇒ baaab</div></div></div>
+  </div>
+  <p>Two leftmost derivations exist, so this grammar is also ambiguous.</p>
+
+  <h3>Example 3 (handbook): E → E+E | id with id+id+id</h3>
+  <p>Two parse trees can be created from the same grammar rules for <b>id+id+id</b>; both trees are different, hence the grammar is ambiguous.</p>
+
+  <h3>Why ambiguity is a problem</h3>
+  <ul class="dots">
+    <li>The parser cannot decide which tree (which meaning) is correct, e.g. 3*2+5 can be grouped as (3*2)+5 or 3*(2+5).</li>
+    <li>Ambiguous grammars are <b>not allowed in any parser except the operator precedence parser</b>.</li>
+  </ul>
+  <p class="small">Other ambiguous grammars (handbook): S → aS | Sa | ε; E → E+E | E*E | id; A → AA | (A) | a. Unambiguous: S → (L) | a, L → LS | S.</p>
+
+  <div class="conclusion">A grammar is ambiguous if one string has more than one leftmost derivation, rightmost derivation or parse tree. We identify it by deriving one string in two ways and showing that the two parse trees are different.</div>
+</section>
+
+<!-- ============================ Q10 ============================ -->
+<section data-tag="Q10" data-title="Top-down vs Bottom-up Parsing" data-group="Unit 3 · Parsing" data-src="Compiler Design - All Units Notes.pdf (pp. 26, 30, Fig 3.1.3; pp. 35–36, 39); Compiler Design Handbook.pdf (pp. 35–38, 52, 58–59)">
+  <h2 class="q-title"><span class="qn">Q10</span>Differentiate between top-down and bottom-up parsing</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Parsing</span></div>
+
+  <div class="def" data-label="Definition">
+    <span class="hl">Parsing</span> is a technique that takes an input string and produces either a <b>parse tree</b> (if the string is a valid sentence of the grammar) or an <b>error message</b>. Parsing methods are classified as <b>top-down</b> or <b>bottom-up</b>.
+  </div>
+
+  <p><span class="ans">Ans.</span> In <b>top-down parsing</b> the parser builds the parse tree from <b>top to bottom</b> (root to leaves). In <b>bottom-up parsing</b> the parser starts from the <b>leaves and works up to the root</b>. In both cases the input is scanned from left to right, one symbol at a time.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 330">
+      <rect class="sk-shade" x="245" y="8" width="110" height="34" rx="8"/><text x="300" y="31" text-anchor="middle" class="t-b">Parsing</text>
+      <path class="sk-thin" d="M280 42 L160 72"/><path class="sk-thin" d="M320 42 L440 72"/>
+      <rect class="sk" x="80" y="73" width="150" height="34" rx="8"/><text x="155" y="96" text-anchor="middle" class="t-b">Top down</text>
+      <rect class="sk" x="375" y="73" width="150" height="34" rx="8"/><text x="450" y="96" text-anchor="middle" class="t-b">Bottom up</text>
+      <path class="sk-thin" d="M130 107 L80 143"/><path class="sk-thin" d="M180 107 L225 143"/>
+      <rect class="sk" x="10" y="143" width="130" height="34" rx="8"/><text x="75" y="166" text-anchor="middle">Backtracking</text>
+      <rect class="sk" x="150" y="143" width="150" height="34" rx="8"/><text x="225" y="166" text-anchor="middle">Predictive parsing</text>
+      <path class="sk-thin" d="M450 107 L450 143"/>
+      <rect class="sk" x="380" y="143" width="140" height="34" rx="8"/><text x="450" y="166" text-anchor="middle">Shift reduce</text>
+      <path class="sk-thin" d="M420 177 L355 213"/><path class="sk-thin" d="M480 177 L510 213"/>
+      <rect class="sk" x="265" y="213" width="180" height="34" rx="8"/><text x="355" y="236" text-anchor="middle">Operator precedence</text>
+      <rect class="sk" x="455" y="213" width="115" height="34" rx="8"/><text x="512" y="236" text-anchor="middle">LR parsing</text>
+      <path class="sk-thin" d="M490 247 L450 283"/><path class="sk-thin" d="M512 247 L510 283"/><path class="sk-thin" d="M535 247 L570 283"/>
+      <rect class="sk" x="423" y="283" width="54" height="32" rx="8"/><text x="450" y="305" text-anchor="middle" class="t-s">SLR</text>
+      <rect class="sk" x="483" y="283" width="54" height="32" rx="8"/><text x="510" y="305" text-anchor="middle" class="t-s">CLR</text>
+      <rect class="sk" x="543" y="283" width="54" height="32" rx="8"/><text x="570" y="305" text-anchor="middle" class="t-s">LALR</text>
+      <text x="155" y="215" text-anchor="middle" class="t-xs">(recursive descent, LL(1))</text>
+    </svg>
+    <figcaption data-n="10.1">Parsing techniques (Fig 3.1.3 of the notes)</figcaption>
+  </figure>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 170">
+      <path class="sk" d="M150 20 L60 140 L240 140 Z"/><text x="150" y="70" text-anchor="middle" class="t-b">S</text>
+      <path class="sk" d="M270 30 V130" marker-end="url(#arrL)"/><text x="150" y="162" text-anchor="middle" class="t-s">Top-down: root → leaves</text>
+      <path class="sk" d="M450 20 L360 140 L540 140 Z"/><text x="450" y="130" text-anchor="middle" class="t-s">id + id * id</text>
+      <path class="sk" d="M570 130 V30" marker-end="url(#arrL)"/><text x="450" y="162" text-anchor="middle" class="t-s">Bottom-up: leaves → root</text>
+    </svg>
+    <figcaption data-n="10.2">Direction in which the tree is built</figcaption>
+  </figure>
+
+  <h3>Differences</h3>
+  <table class="hand">
+    <tr><th>Basis</th><th>Top-down parsing</th><th>Bottom-up parsing</th></tr>
+    <tr><td>Tree building</td><td>From root (start symbol) down to the leaves</td><td>From the leaves (input) up to the root</td></tr>
+    <tr><td>Starts with</td><td>The start symbol</td><td>The input sentence</td></tr>
+    <tr><td>Main step</td><td>Expand a non-terminal using a production</td><td>Reduce a handle to the left side of a production</td></tr>
+    <tr><td>Derivation</td><td>Leftmost derivation</td><td>Rightmost derivation in reverse</td></tr>
+    <tr><td>Types</td><td>Backtracking, recursive descent, predictive / LL(1)</td><td>Shift reduce, operator precedence, LR (SLR, CLR, LALR)</td></tr>
+    <tr><td>Left recursion</td><td>Not allowed: may cause an infinite loop, must be removed</td><td>Allowed (e.g. E → E+T is used directly)</td></tr>
+    <tr><td>Left factoring</td><td>Needed for predictive parsing</td><td>Not needed</td></tr>
+    <tr><td>Backtracking</td><td>Possible (if not left factored)</td><td>LR is non-backtracking</td></tr>
+    <tr><td>Grammar class</td><td>Smaller class</td><td>Larger: LR grammars are a superset of predictive grammars</td></tr>
+    <tr><td>Ease</td><td>Simple; easy to write by hand</td><td>More complex; LR is the most efficient method</td></tr>
+  </table>
+
+  <h3>Same string, both ways (id + id * id)</h3>
+  <div class="grid2">
+    <div><b class="nu"><u>Top-down (E→TE′ …)</u></b><div class="calc"><div>E ⇒ TE′ ⇒ FT′E′</div><div>⇒ idT′E′ ⇒ idE′</div><div>⇒ id+TE′ ⇒ … ⇒ id+id*id</div></div></div>
+    <div><b class="nu"><u>Bottom-up (E→E+T …)</u></b><div class="calc"><div>id+id*id → F+id*id</div><div>→ T+id*id → E+id*id</div><div>→ … → E+T → E</div></div></div>
+  </div>
+
+  <div class="conclusion">Top-down parsing starts from the start symbol and expands it to match the input using leftmost derivation. Bottom-up parsing starts from the input and reduces it to the start symbol, tracing a rightmost derivation in reverse.</div>
+</section>
+
+<!-- ============================ Q11 ============================ -->
+<section data-tag="Q11" data-title="Top-down Parsing: Concept &amp; Working" data-group="Unit 3 · Parsing" data-src="Compiler Design Handbook.pdf (pp. 35–41); Compiler Design - All Units Notes.pdf (pp. 26, 28–30)">
+  <h2 class="q-title"><span class="qn">Q11</span>Explain the concept and working of top-down parsing with an example</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Parsing</span></div>
+
+  <div class="def" data-label="Definition">
+    <span class="hl">Top-down parsing</span> parses the input and starts constructing a parse tree from the <b>root node</b> (start symbol), gradually moving <b>down to the leaf nodes</b>. It follows a <b>leftmost derivation</b> of the input string.
+  </div>
+
+  <p><span class="ans">Ans.</span> Top-down parsers start from the start symbol and match the input string against the production rules, replacing a non-terminal when a rule matches. The input is read from left to right.</p>
+
+  <h3>Working (steps)</h3>
+  <ol>
+    <li>Start with the <b>start symbol</b> as the root.</li>
+    <li>Take the leftmost non-terminal and choose one of its productions.</li>
+    <li>Compare the terminals produced with the next input symbols.</li>
+    <li>If they match, <b>advance the input pointer</b> and continue with the next non-terminal.</li>
+    <li>If they do not match, try another production (<b>backtracking</b>) or report an error.</li>
+    <li>The string is <b>accepted</b> when all input is matched and the tree is complete.</li>
+  </ol>
+
+  <h3>Example (handbook): input "read"</h3>
+  <div class="calc"><div>S → rXd | rZd</div><div>X → oa | ea</div><div>Z → ai</div></div>
+  <ol>
+    <li>Start with S. The production <b>S → rXd</b> matches the leftmost input letter <b>r</b>, so the parser advances to <b>e</b>.</li>
+    <li>It expands <b>X</b> and tries <b>X → oa</b> from the left. "o" does not match "e".</li>
+    <li>So the parser <b>backtracks</b> and tries the next production <b>X → ea</b>. Now "e" and "a" match.</li>
+    <li>Finally "d" matches. All input letters are matched in order, so the string is <span class="answer-box">accepted</span>.</li>
+  </ol>
+  <figure class="fig">
+    <svg viewBox="0 0 600 220">
+      <text x="150" y="20" text-anchor="middle" class="t-s">Try X → oa</text>
+      <text x="150" y="50" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M150 56 L85 88"/><path class="sk-thin" d="M150 56 L150 88"/><path class="sk-thin" d="M150 56 L215 88"/>
+      <text x="85" y="108" text-anchor="middle">r</text><text x="150" y="108" text-anchor="middle" class="t-b">X</text><text x="215" y="108" text-anchor="middle">d</text>
+      <path class="sk-thin" d="M150 114 L120 146"/><path class="sk-thin" d="M150 114 L180 146"/>
+      <text x="120" y="166" text-anchor="middle">o</text><text x="180" y="166" text-anchor="middle">a</text>
+      <text x="150" y="204" text-anchor="middle" class="t-b">✗ o ≠ e, backtrack</text>
+      <path class="sk" d="M268 110 H330" marker-end="url(#arrL)"/>
+      <text x="450" y="20" text-anchor="middle" class="t-s">Try X → ea</text>
+      <text x="450" y="50" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M450 56 L385 88"/><path class="sk-thin" d="M450 56 L450 88"/><path class="sk-thin" d="M450 56 L515 88"/>
+      <text x="385" y="108" text-anchor="middle">r</text><text x="450" y="108" text-anchor="middle" class="t-b">X</text><text x="515" y="108" text-anchor="middle">d</text>
+      <path class="sk-thin" d="M450 114 L420 146"/><path class="sk-thin" d="M450 114 L480 146"/>
+      <text x="420" y="166" text-anchor="middle">e</text><text x="480" y="166" text-anchor="middle">a</text>
+      <text x="450" y="204" text-anchor="middle" class="t-b">✓ read accepted</text>
+    </svg>
+    <figcaption data-n="11.1">Top-down parse of "read" with one backtrack</figcaption>
+  </figure>
+
+  <h3>Problems with top-down parsing</h3>
+  <h4>1. Backtracking</h4>
+  <p>As seen above, if the wrong production is chosen the parser has to go back and try another one. This wastes time.</p>
+  <h4>2. Left recursion</h4>
+  <p>A grammar is left recursive if it has a non-terminal A such that A ⇒ Aα. If left recursion is present, the parser may go into an <b>infinite loop</b>, because S keeps producing another S without checking any condition. It is removed as:</p>
+  <div class="calc"><div>S → Sa | Sb | c | d &nbsp;&nbsp;becomes&nbsp;&nbsp; S → cS′ | dS′,&nbsp; S′ → aS′ | bS′ | ε</div><div>E → E+T | T &nbsp;&nbsp;becomes&nbsp;&nbsp; E → TE′,&nbsp; E′ → +TE′ | ε</div></div>
+  <h4>3. Left factoring</h4>
+  <p>If A → αβ1 | αβ2 (same prefix), the parser cannot tell which production to choose on seeing α. Left factoring rewrites it as <b>A → αA′, A′ → β1 | β2</b> to defer the decision. Example: S → iEtS | iEtSeS | a becomes S → iEtSS′ | a, S′ → eS | ε.</p>
+
+  <h3>Types of top-down parsers</h3>
+  <ul class="dots">
+    <li><b>Backtracking parser</b>: tries productions one by one.</li>
+    <li><b>Recursive descent parser</b>: one procedure per non-terminal.</li>
+    <li><b>Predictive / LL(1) parser</b>: non-backtracking, table driven.</li>
+  </ul>
+
+  <div class="conclusion">Top-down parsing builds the parse tree from the root to the leaves using leftmost derivation. It is simple, but the grammar must be free of left recursion and left factored to avoid infinite loops and backtracking.</div>
+</section>
+
+<!-- ============================ Q12 ============================ -->
+<section data-tag="Q12" data-title="Recursive-Descent Parsing" data-group="Unit 3 · Parsing" data-src="Compiler Design - All Units Notes.pdf (pp. 31–32); Compiler Design Handbook.pdf (pp. 38, 45–48)">
+  <h2 class="q-title"><span class="qn">Q12</span>Explain recursive-descent parsing. Advantages and limitations</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Top-down parsing</span></div>
+
+  <div class="def" data-label="Definition">
+    A top-down parser that executes a <b>set of recursive procedures</b> to process the input <b>without backtracking</b> is called a <span class="hl">recursive-descent parser</span>. There is a procedure for <b>each non-terminal</b> in the grammar.
+  </div>
+
+  <p><span class="ans">Ans.</span> Recursive descent constructs the parse tree from the top, and the input is read from left to right. It is called "recursive" because it uses a context-free grammar, which is recursive in nature, and the procedures call each other recursively.</p>
+
+  <h3>Working</h3>
+  <ul>
+    <li>Write <b>one procedure</b> for every non-terminal (variable).</li>
+    <li>The <b>RHS of each production</b> becomes the definition (body) of the procedure.</li>
+    <li>When the procedure sees an expected input symbol, it <b>advances the input pointer</b> to the next position.</li>
+    <li>For a non-terminal in the RHS, the procedure for that non-terminal is <b>called</b>.</li>
+    <li>If an unexpected symbol is seen, the procedure reports an <b>error</b>.</li>
+  </ul>
+
+  <h3>Example 1 (notes)</h3>
+  <div class="calc"><div>E → T {+T}*</div><div>T → V {*V}*</div><div>V → id</div></div>
+  <div class="grid2">
+    <div class="calc">
+      <div><b>Procedure proc_E</b>(tree_root);</div>
+      <div>var a, b : pointer to a tree node;</div>
+      <div>begin</div>
+      <div>&nbsp; proc_T(a);</div>
+      <div>&nbsp; While (nextsymb = '+') do</div>
+      <div>&nbsp;&nbsp;&nbsp; nextsymb = next source symbol;</div>
+      <div>&nbsp;&nbsp;&nbsp; proc_T(b);</div>
+      <div>&nbsp;&nbsp;&nbsp; a = Treebuild('+', a, b);</div>
+      <div>&nbsp; tree_root = a; return;</div>
+      <div>end proc_E;</div>
+    </div>
+    <div class="calc">
+      <div><b>Procedure proc_T</b>(tree_root);</div>
+      <div>var a, b : pointer to a tree node;</div>
+      <div>begin</div>
+      <div>&nbsp; proc_V(a);</div>
+      <div>&nbsp; While (nextsymb = '*') do</div>
+      <div>&nbsp;&nbsp;&nbsp; nextsymb = next source symbol;</div>
+      <div>&nbsp;&nbsp;&nbsp; proc_V(b);</div>
+      <div>&nbsp;&nbsp;&nbsp; a = Treebuild('*', a, b);</div>
+      <div>&nbsp; tree_root = a; return;</div>
+      <div>end proc_T;</div>
+    </div>
+  </div>
+  <div class="calc">
+    <div><b>Procedure proc_V</b>(tree_root); var a : pointer to a tree node;</div>
+    <div>begin If (nextsymb = 'id') then nextsymb = next source symbol; tree_root = tree_build(id, , );</div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else print "Error"; return;</div>
+    <div>end proc_V;</div>
+  </div>
+
+  <h3>Example 2 (handbook, C style)</h3>
+  <p>Grammar: <b>E → i E′</b>, &nbsp;<b>E′ → + i E′ | ε</b> &nbsp;(l = lookahead)</p>
+  <div class="grid2">
+    <div class="calc">
+      <div>int main() {</div>
+      <div>&nbsp; E();&nbsp;&nbsp; // E is start symbol</div>
+      <div>&nbsp; if (l == '$')</div>
+      <div>&nbsp;&nbsp;&nbsp; printf("Parsing Successful");</div>
+      <div>}</div>
+      <div>E() {</div>
+      <div>&nbsp; if (l == 'i') { match('i'); E'(); }</div>
+      <div>}</div>
+    </div>
+    <div class="calc">
+      <div>E'() {</div>
+      <div>&nbsp; if (l == '+') {</div>
+      <div>&nbsp;&nbsp;&nbsp; match('+'); match('i'); E'();</div>
+      <div>&nbsp; } else return;&nbsp; // ε</div>
+      <div>}</div>
+      <div>match(char t) {</div>
+      <div>&nbsp; if (l == t) l = getchar();</div>
+      <div>&nbsp; else printf("Error");</div>
+      <div>}</div>
+    </div>
+  </div>
+  <figure class="fig">
+    <svg viewBox="0 0 600 200">
+      <text x="300" y="24" text-anchor="middle" class="t-s">Calls made for input  i + i $</text>
+      <rect class="sk-shade" x="250" y="36" width="100" height="34" rx="8"/><text x="300" y="59" text-anchor="middle" class="t-b">E()</text>
+      <path class="sk-thin" d="M280 70 L170 100"/><path class="sk-thin" d="M320 70 L420 100"/>
+      <rect class="sk" x="100" y="100" width="140" height="34" rx="8"/><text x="170" y="123" text-anchor="middle">match('i')</text>
+      <rect class="sk" x="370" y="100" width="100" height="34" rx="8"/><text x="420" y="123" text-anchor="middle" class="t-b">E′()</text>
+      <path class="sk-thin" d="M390 134 L250 160"/><path class="sk-thin" d="M410 134 L380 160"/><path class="sk-thin" d="M440 134 L510 160"/>
+      <rect class="sk" x="180" y="160" width="130" height="32" rx="8"/><text x="245" y="182" text-anchor="middle" class="t-s">match('+')</text>
+      <rect class="sk" x="320" y="160" width="120" height="32" rx="8"/><text x="380" y="182" text-anchor="middle" class="t-s">match('i')</text>
+      <rect class="sk" x="450" y="160" width="140" height="32" rx="8"/><text x="520" y="182" text-anchor="middle" class="t-s">E′() → ε, return</text>
+    </svg>
+    <figcaption data-n="12.1">Recursive calls made while parsing i + i</figcaption>
+  </figure>
+  <p>After the last E′() returns, the lookahead is $, so "Parsing Successful" is printed.</p>
+
+  <h3>Advantages (notes)</h3>
+  <ul class="dots">
+    <li>It is <b>exceptionally simple</b>.</li>
+    <li>It can be constructed from recognizers simply by doing some extra work (building the tree with Treebuild).</li>
+    <li>One procedure per non-terminal, so it is easy to write by hand.</li>
+  </ul>
+  <h3>Limitations / disadvantages</h3>
+  <ul class="dots">
+    <li>It is <b>time consuming</b> (many recursive calls).</li>
+    <li>It is <b>difficult to provide good error messages</b>.</li>
+    <li>If the grammar is <b>not left factored</b>, it cannot avoid backtracking.</li>
+    <li><b>Left recursion</b> must be removed first, otherwise a procedure calls itself forever (infinite loop). That is why the handbook rewrites E → E+T | T as E → TE′, E′ → +TE′ | ε before writing the procedures.</li>
+  </ul>
+  <p class="small">A form of recursive-descent parsing that does not require any backtracking is known as <b>predictive parsing</b>.</p>
+
+  <div class="conclusion">A recursive-descent parser is a top-down parser with one recursive procedure per non-terminal. It is very simple to build, but it is slow, gives poor error messages and needs a grammar without left recursion and with left factoring.</div>
+</section>
+
+<!-- ============================ Q13 ============================ -->
+<section data-tag="Q13" data-title="Predictive Parsing &amp; LL(1) Conditions" data-group="Unit 3 · Parsing" data-src="Compiler Design - All Units Notes.pdf (pp. 28–33, Fig 3.1.4); Compiler Design Handbook.pdf (pp. 37–41, 45, 48–52, 56)" data-srcnote="The notes list the steps for building an LL(1) parser. The conditions are written from those steps and from the notes' remarks on left recursion, left factoring and ambiguity.">
+  <h2 class="q-title"><span class="qn">Q13</span>Explain predictive parsing. Working and conditions for an LL(1) parser</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Top-down parsing</span></div>
+
+  <div class="def" data-label="Definition">
+    <span class="hl">Predictive parsing</span> is a form of top-down (recursive-descent) parsing that does <b>not require any backtracking</b>. The LL(1) parser is a <b>non-recursive, table-driven</b> predictive parser.
+  </div>
+
+  <p><span class="ans">Ans.</span> The name <b>LL(1)</b> means:</p>
+  <table class="hand">
+    <tr><th>L</th><th>L</th><th>(1)</th></tr>
+    <tr><td>Input is scanned from <b>left to right</b></td><td>Uses <b>leftmost derivation</b> for the input string</td><td>Uses only <b>one input symbol</b> (lookahead) to predict the parsing action</td></tr>
+  </table>
+
+  <h3>Model of the LL(1) parser</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 290">
+      <rect class="sk" x="200" y="10" width="200" height="36"/>
+      <path class="sk-thin" d="M250 10 V46 M300 10 V46 M350 10 V46"/>
+      <text x="225" y="35" text-anchor="middle">a</text><text x="275" y="35" text-anchor="middle">+</text><text x="325" y="35" text-anchor="middle">b</text><text x="375" y="35" text-anchor="middle">$</text>
+      <text x="420" y="34" class="t-s">INPUT</text>
+      <path class="sk" d="M225 50 L270 96" marker-end="url(#arr)"/>
+      <rect class="sk-shade" x="200" y="100" width="200" height="62" rx="10"/><text x="300" y="127" text-anchor="middle" class="t-b">Predictive parsing</text><text x="300" y="150" text-anchor="middle" class="t-b">program</text>
+      <rect class="sk" x="60" y="84" width="70" height="152"/>
+      <path class="sk-thin" d="M60 122 H130 M60 160 H130 M60 198 H130"/>
+      <text x="95" y="109" text-anchor="middle">X</text><text x="95" y="147" text-anchor="middle">Y</text><text x="95" y="185" text-anchor="middle">Z</text><text x="95" y="223" text-anchor="middle">$</text>
+      <text x="95" y="258" text-anchor="middle" class="t-s">Stack</text>
+      <path class="sk" d="M134 120 H196" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk" d="M400 131 H486" marker-end="url(#arr)"/><text x="494" y="137" class="t-s">OUTPUT</text>
+      <rect class="sk" x="200" y="214" width="200" height="50" rx="10"/><text x="300" y="245" text-anchor="middle" class="t-b">Parsing table M</text>
+      <path class="sk" d="M300 164 V210" marker-start="url(#arr)" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption data-n="13.1">Model of a non-recursive predictive parser (Fig 3.1.4 of the notes)</figcaption>
+  </figure>
+  <p>Data structures used: <b>input buffer</b> (input string followed by $), <b>stack</b> (grammar symbols, $ at the bottom) and the <b>parsing table M</b>.</p>
+
+  <h3>Working</h3>
+  <ol>
+    <li>Initially the stack holds <b>$E</b> (start symbol on top of $) and the input buffer holds the string followed by <b>$</b>.</li>
+    <li>The parsing program reads the <b>top of the stack (X)</b> and the <b>current input symbol (a)</b>. These two symbols decide the action.</li>
+    <li>If X is a non-terminal, the parser consults the table entry <b>M[X, a]</b> and replaces X on the stack by the body of that production (rightmost symbol pushed first). Because the table is consulted every time, this is called <span class="hl">table-driven parsing</span>.</li>
+    <li>If X is a terminal equal to a, X is popped and the input pointer moves to the next symbol (match).</li>
+    <li>If M[X, a] is blank, the parser reports an <b>error</b>.</li>
+    <li>The input is successfully parsed when the <b>stack is empty ($) and the next token is $</b> (halting configuration).</li>
+  </ol>
+
+  <h3>Steps to construct an LL(1) parser</h3>
+  <ol>
+    <li>Remove left recursion / perform left factoring.</li>
+    <li>Compute FIRST and FOLLOW of the non-terminals.</li>
+    <li>Construct the predictive parsing table.</li>
+    <li>Parse the input string with the help of the parsing table.</li>
+  </ol>
+
+  <h3>Conditions for a grammar to be LL(1)</h3>
+  <div class="box">
+    <ol>
+      <li><b>No left recursion:</b> A → Aα must be removed, otherwise the parser loops forever.</li>
+      <li><b>Left factored:</b> no two alternatives of a non-terminal may start with the same prefix, so one lookahead symbol is enough to choose.</li>
+      <li><b>Not ambiguous:</b> ambiguous grammars are not allowed in any parser except operator precedence.</li>
+      <li><b>One entry per cell:</b> every entry M[A, a] of the parsing table must have <b>at most one production</b>, so the action is predicted uniquely with one symbol of lookahead.</li>
+    </ol>
+  </div>
+
+  <h3>Example (notes)</h3>
+  <p>E → E+T | T, T → T*F | F, F → (E) | id is left recursive, so it is <b>not</b> LL(1). After removing left recursion it becomes:</p>
+  <div class="calc"><div>E → TE′ &nbsp;&nbsp; E′ → +TE′ | ε</div><div>T → FT′ &nbsp;&nbsp; T′ → *FT′ | ε</div><div>F → (E) | id</div></div>
+  <p>Its parsing table has only one production in every cell, so this grammar is <span class="answer-box">LL(1)</span> and parses <b>id+id*id</b> successfully (see Q14).</p>
+
+  <div class="conclusion">A predictive (LL(1)) parser is a non-backtracking, table-driven top-down parser that uses a stack, an input buffer and a parsing table, and decides each move from the top of the stack and one lookahead symbol. The grammar must be free of left recursion, left factored, unambiguous and give a table with at most one entry per cell.</div>
+</section>
+
+<!-- ============================ Q14 ============================ -->
+<section data-tag="Q14" data-title="Construction &amp; Use of an LL(1) Table" data-group="Unit 3 · Parsing" data-src="Compiler Design - All Units Notes.pdf (pp. 32–34, Tables 3.1.3–3.1.5); Compiler Design Handbook.pdf (pp. 48–52)" data-srcnote="The grammar, FIRST/FOLLOW sets, table and moves are from the notes. The short rules for FIRST, FOLLOW and filling the table are explained using that same worked table.">
+  <h2 class="q-title"><span class="qn">Q14</span>Construct and use an LL(1) parsing table for a grammar</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · LL(1)</span></div>
+
+  <div class="def" data-label="Definition">
+    An <span class="hl">LL(1) parsing table</span> M[A, a] is a 2-D table with <b>non-terminals as rows</b> and <b>terminals (and $) as columns</b>. Each cell tells the parser which production to use when A is on top of the stack and a is the current input symbol.
+  </div>
+
+  <p><span class="ans">Ans.</span> We follow the four steps from the notes on the grammar:</p>
+  <div class="formula">E → E+T | T &nbsp;&nbsp; T → T*F | F &nbsp;&nbsp; F → (E) | id</div>
+
+  <h3><span class="num">1</span>Remove left recursion</h3>
+  <div class="calc"><div>E → TE′</div><div>E′ → +TE′ | ε</div><div>T → FT′</div><div>T′ → *FT′ | ε</div><div>F → (E) | id</div></div>
+
+  <h3><span class="num">2</span>Compute FIRST and FOLLOW</h3>
+  <ul>
+    <li><b>FIRST(α):</b> the terminals that can appear first in a string derived from α (ε if α can derive empty).</li>
+    <li><b>FOLLOW(A):</b> the terminals that can appear immediately after A in some sentential form ($ for the start symbol).</li>
+  </ul>
+  <table class="hand">
+    <tr><th>Non-terminal</th><th>FIRST</th><th>FOLLOW</th></tr>
+    <tr><td>E</td><td>{ (, id }</td><td>{ $, ) }</td></tr>
+    <tr><td>E′</td><td>{ +, ε }</td><td>{ $, ) }</td></tr>
+    <tr><td>T</td><td>{ (, id }</td><td>{ +, $, ) }</td></tr>
+    <tr><td>T′</td><td>{ *, ε }</td><td>{ +, $, ) }</td></tr>
+    <tr><td>F</td><td>{ (, id }</td><td>{ *, +, $, ) }</td></tr>
+  </table>
+
+  <h3><span class="num">3</span>Construct the predictive parsing table</h3>
+  <p><b>Rule:</b> for each production A → α, put it in M[A, a] for every terminal a in FIRST(α). If α can derive ε (A → ε), put A → ε in M[A, b] for every b in FOLLOW(A).</p>
+  <table class="hand">
+    <tr><th></th><th>id</th><th>+</th><th>*</th><th>(</th><th>)</th><th>$</th></tr>
+    <tr><td><b>E</b></td><td>E→TE′</td><td></td><td></td><td>E→TE′</td><td></td><td></td></tr>
+    <tr><td><b>E′</b></td><td></td><td>E′→+TE′</td><td></td><td></td><td>E′→ε</td><td>E′→ε</td></tr>
+    <tr><td><b>T</b></td><td>T→FT′</td><td></td><td></td><td>T→FT′</td><td></td><td></td></tr>
+    <tr><td><b>T′</b></td><td></td><td>T′→ε</td><td>T′→*FT′</td><td></td><td>T′→ε</td><td>T′→ε</td></tr>
+    <tr><td><b>F</b></td><td>F→id</td><td></td><td></td><td>F→(E)</td><td></td><td></td></tr>
+  </table>
+  <p class="small">E′ → ε goes under ) and $ because FOLLOW(E′) = { $, ) }. T′ → ε goes under +, ) and $ because FOLLOW(T′) = { +, $, ) }. Blank cells mean error. No cell has two entries, so the grammar is LL(1).</p>
+
+  <h3><span class="num">4</span>Use the table: parse id + id * id</h3>
+  <table class="hand">
+    <tr><th>Stack</th><th>Input</th><th>Action</th></tr>
+    <tr><td>$E</td><td>id+id*id$</td><td>E → TE′</td></tr>
+    <tr><td>$E′T</td><td>id+id*id$</td><td>T → FT′</td></tr>
+    <tr><td>$E′T′F</td><td>id+id*id$</td><td>F → id</td></tr>
+    <tr><td>$E′T′id</td><td>id+id*id$</td><td>match id</td></tr>
+    <tr><td>$E′T′</td><td>+id*id$</td><td>T′ → ε</td></tr>
+    <tr><td>$E′</td><td>+id*id$</td><td>E′ → +TE′</td></tr>
+    <tr><td>$E′T+</td><td>+id*id$</td><td>match +</td></tr>
+    <tr><td>$E′T</td><td>id*id$</td><td>T → FT′</td></tr>
+    <tr><td>$E′T′F</td><td>id*id$</td><td>F → id</td></tr>
+    <tr><td>$E′T′id</td><td>id*id$</td><td>match id</td></tr>
+    <tr><td>$E′T′</td><td>*id$</td><td>T′ → *FT′</td></tr>
+    <tr><td>$E′T′F*</td><td>*id$</td><td>match *</td></tr>
+    <tr><td>$E′T′F</td><td>id$</td><td>F → id</td></tr>
+    <tr><td>$E′T′id</td><td>id$</td><td>match id</td></tr>
+    <tr><td>$E′T′</td><td>$</td><td>T′ → ε</td></tr>
+    <tr><td>$E′</td><td>$</td><td>E′ → ε</td></tr>
+    <tr><td>$</td><td>$</td><td><span class="answer-box">Accept</span></td></tr>
+  </table>
+  <p>The stack is empty and the next token is $, so the string <b>id+id*id</b> is successfully parsed (Table 3.1.5 of the notes).</p>
+
+  <div class="tip">Show all four steps with headings. Examiners give separate marks for FIRST/FOLLOW, the table and the moves.</div>
+  <div class="conclusion">To build an LL(1) table: remove left recursion, compute FIRST and FOLLOW, fill M[A, a] using FIRST (and FOLLOW for ε-productions), then parse with a stack. A table with one entry per cell means the grammar is LL(1).</div>
+</section>
+
+<!-- ============================ Q15 ============================ -->
+<section data-tag="Q15" data-title="Bottom-up Parsing" data-group="Unit 3 · Parsing" data-src="Compiler Design Handbook.pdf (pp. 35, 52–53); Compiler Design - All Units Notes.pdf (pp. 26, 30, 35–36)">
+  <h2 class="q-title"><span class="qn">Q15</span>Explain bottom-up parsing. How is the parse tree built from input to start symbol?</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Bottom-up parsing</span></div>
+
+  <div class="def" data-label="Definition">
+    <span class="hl">Bottom-up parsing</span> starts from the <b>leaf nodes</b> of a tree and works in the <b>upward direction</b> till it reaches the <b>root node</b>. We start from the sentence and apply production rules <b>in reverse</b> to reach the start symbol.
+  </div>
+
+  <p><span class="ans">Ans.</span> While a top-down parser expands the start symbol, a bottom-up parser does the opposite: it repeatedly finds a substring of the input that matches the right side of a production (a <b>handle</b>) and <b>reduces</b> it to the non-terminal on the left side. This traces a <span class="hl">rightmost derivation in reverse</span>.</p>
+
+  <h3>How the tree is built (steps)</h3>
+  <ol>
+    <li>Start with the input string; each token is a <b>leaf</b> of the tree.</li>
+    <li>Scan the input from left to right and find a <b>handle</b>: a substring that matches the RHS of a production.</li>
+    <li><b>Reduce</b> it: replace the handle by the LHS non-terminal. In the tree, this creates a new <b>parent node</b> above those symbols.</li>
+    <li>Repeat until only the <b>start symbol</b> remains. That symbol is the <b>root</b> and the tree is complete.</li>
+    <li>If no handle can be found and the start symbol is not reached, an <b>error</b> is reported.</li>
+  </ol>
+
+  <h3>Example: id + id * id</h3>
+  <p>Grammar (notes): <b>E → E+T | T, &nbsp;T → T*F | F, &nbsp;F → id</b></p>
+  <table class="hand">
+    <tr><th>Step</th><th>String (sentential form)</th><th>Reduction used</th></tr>
+    <tr><td>0</td><td>id + id * id</td><td>input</td></tr>
+    <tr><td>1</td><td>F + id * id</td><td>F → id</td></tr>
+    <tr><td>2</td><td>T + id * id</td><td>T → F</td></tr>
+    <tr><td>3</td><td>E + id * id</td><td>E → T</td></tr>
+    <tr><td>4</td><td>E + F * id</td><td>F → id</td></tr>
+    <tr><td>5</td><td>E + T * id</td><td>T → F</td></tr>
+    <tr><td>6</td><td>E + T * F</td><td>F → id</td></tr>
+    <tr><td>7</td><td>E + T</td><td>T → T*F</td></tr>
+    <tr><td>8</td><td>E</td><td>E → E+T &nbsp;<span class="answer-box">start symbol reached</span></td></tr>
+  </table>
+  <figure class="fig">
+    <svg viewBox="0 0 600 280">
+      <text x="300" y="30" text-anchor="middle" class="t-b">E</text><text x="322" y="20" class="t-xs">(8)</text>
+      <path class="sk-thin" d="M300 36 L150 69"/><path class="sk-thin" d="M300 36 L300 69"/><path class="sk-thin" d="M300 36 L450 69"/>
+      <text x="150" y="85" text-anchor="middle" class="t-b">E</text><text x="166" y="75" class="t-xs">(3)</text>
+      <text x="300" y="85" text-anchor="middle">+</text>
+      <text x="450" y="85" text-anchor="middle" class="t-b">T</text><text x="466" y="75" class="t-xs">(7)</text>
+      <path class="sk-thin" d="M150 91 L150 124"/>
+      <text x="150" y="140" text-anchor="middle" class="t-b">T</text><text x="166" y="130" class="t-xs">(2)</text>
+      <path class="sk-thin" d="M450 91 L380 124"/><path class="sk-thin" d="M450 91 L450 124"/><path class="sk-thin" d="M450 91 L520 124"/>
+      <text x="380" y="140" text-anchor="middle" class="t-b">T</text><text x="396" y="130" class="t-xs">(5)</text>
+      <text x="450" y="140" text-anchor="middle">*</text>
+      <text x="520" y="140" text-anchor="middle" class="t-b">F</text><text x="536" y="130" class="t-xs">(6)</text>
+      <path class="sk-thin" d="M150 146 L150 179"/>
+      <text x="150" y="195" text-anchor="middle" class="t-b">F</text><text x="166" y="185" class="t-xs">(1)</text>
+      <path class="sk-thin" d="M380 146 L380 179"/>
+      <text x="380" y="195" text-anchor="middle" class="t-b">F</text><text x="396" y="185" class="t-xs">(4)</text>
+      <path class="sk-thin" d="M150 201 L150 234"/><path class="sk-thin" d="M380 201 L380 234"/><path class="sk-thin" d="M520 146 L520 234"/>
+      <text x="150" y="252" text-anchor="middle">id</text><text x="380" y="252" text-anchor="middle">id</text><text x="520" y="252" text-anchor="middle">id</text>
+      <path class="sk" d="M40 250 V40" marker-end="url(#arrL)"/><text x="54" y="150" class="t-xs">built</text><text x="54" y="166" class="t-xs">upward</text>
+    </svg>
+    <figcaption data-n="15.1">Parse tree built from the leaves (input) to the root. Numbers show the order in which nodes were created.</figcaption>
+  </figure>
+  <p>Reading the reductions from bottom to top gives the <b>rightmost derivation</b>: E ⇒ E+T ⇒ E+T*F ⇒ E+T*id ⇒ E+F*id ⇒ E+id*id ⇒ T+id*id ⇒ F+id*id ⇒ id+id*id.</p>
+
+  <h3>Types of bottom-up parsers</h3>
+  <ul class="dots">
+    <li><b>Shift-reduce parser</b>: the general method, using a stack and input buffer.</li>
+    <li><b>Operator precedence parser</b>: for operator grammars (no ε and no two adjacent non-terminals).</li>
+    <li><b>LR parsers</b>: SLR, CLR, LALR (the most efficient bottom-up methods).</li>
+  </ul>
+
+  <div class="conclusion">Bottom-up parsing builds the parse tree from the input symbols (leaves) up to the start symbol (root) by repeatedly reducing handles. The sequence of reductions is a rightmost derivation traced in reverse.</div>
+</section>
+
+<!-- ============================ Q16 ============================ -->
+<section data-tag="Q16" data-title="Shift-Reduce Parsing" data-group="Unit 3 · Parsing" data-src="Compiler Design - All Units Notes.pdf (pp. 35–36, Table 3.1.10); Compiler Design Handbook.pdf (pp. 52–54)">
+  <h2 class="q-title"><span class="qn">Q16</span>Explain shift-reduce parsing: shift, reduce, accept and error actions</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Bottom-up parsing</span></div>
+
+  <div class="def" data-label="Definition">
+    A <span class="hl">shift-reduce parser</span> constructs the parse tree in a bottom-up manner, from the leaves (bottom) to the root (up), using a <b>stack</b> and an <b>input buffer</b>. A more general form of shift-reduce parser is the <b>LR parser</b>.
+  </div>
+
+  <p><span class="ans">Ans.</span> The parser needs two data structures:</p>
+  <ul>
+    <li>An <b>input buffer</b> for storing the input string (ending with $).</li>
+    <li>A <b>stack</b> for storing and accessing grammar symbols (starting with $ at the bottom).</li>
+  </ul>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 250">
+      <rect class="sk" x="70" y="60" width="80" height="168"/>
+      <path class="sk-thin" d="M70 102 H150 M70 144 H150 M70 186 H150"/>
+      <text x="110" y="88" text-anchor="middle">*</text><text x="110" y="130" text-anchor="middle">T</text><text x="110" y="172" text-anchor="middle">+</text><text x="110" y="214" text-anchor="middle">$E</text>
+      <text x="110" y="246" text-anchor="middle" class="t-s">Stack</text>
+      <rect class="sk" x="330" y="40" width="210" height="40"/>
+      <path class="sk-thin" d="M400 40 V80 M470 40 V80"/>
+      <text x="365" y="67" text-anchor="middle">id</text><text x="435" y="67" text-anchor="middle">$</text>
+      <text x="435" y="106" text-anchor="middle" class="t-s">Input buffer</text>
+      <path class="sk" d="M335 60 Q240 20 156 70" marker-end="url(#arrL)"/><text x="240" y="30" text-anchor="middle" class="t-b">shift</text>
+      <path class="sk-dash" d="M160 62 Q200 120 160 140"/>
+      <text x="190" y="140" class="t-s">reduce: if the top of the stack</text>
+      <text x="190" y="162" class="t-s">is a handle, pop the RHS and</text>
+      <text x="190" y="184" class="t-s">push the LHS non-terminal</text>
+    </svg>
+    <figcaption data-n="16.1">The two data structures of a shift-reduce parser</figcaption>
+  </figure>
+
+  <h3>The four actions</h3>
+  <table class="hand">
+    <tr><th>Action</th><th>Meaning</th></tr>
+    <tr><td><b>1. Shift</b></td><td>Moving symbols from the input buffer onto the stack.</td></tr>
+    <tr><td><b>2. Reduce</b></td><td>If a <b>handle</b> appears on the top of the stack, it is reduced using the appropriate production: the <b>RHS is popped</b> from the stack and the <b>LHS is pushed</b>.</td></tr>
+    <tr><td><b>3. Accept</b></td><td>If the stack contains <b>only the start symbol</b> and the <b>input buffer is empty</b> at the same time. It means successful parsing.</td></tr>
+    <tr><td><b>4. Error</b></td><td>The parser can neither shift, nor reduce, nor accept.</td></tr>
+  </table>
+
+  <h3>Example 1 (notes): id + id * id</h3>
+  <p>Grammar: <b>E → E+T | T, &nbsp;T → T*F | F, &nbsp;F → id</b></p>
+  <table class="hand">
+    <tr><th>Stack</th><th>Input buffer</th><th>Action</th></tr>
+    <tr><td>$</td><td>id+id*id$</td><td>Shift</td></tr>
+    <tr><td>$id</td><td>+id*id$</td><td>Reduce F → id</td></tr>
+    <tr><td>$F</td><td>+id*id$</td><td>Reduce T → F</td></tr>
+    <tr><td>$T</td><td>+id*id$</td><td>Reduce E → T</td></tr>
+    <tr><td>$E</td><td>+id*id$</td><td>Shift</td></tr>
+    <tr><td>$E+</td><td>id*id$</td><td>Shift</td></tr>
+    <tr><td>$E+id</td><td>*id$</td><td>Reduce F → id</td></tr>
+    <tr><td>$E+F</td><td>*id$</td><td>Reduce T → F</td></tr>
+    <tr><td>$E+T</td><td>*id$</td><td>Shift</td></tr>
+    <tr><td>$E+T*</td><td>id$</td><td>Shift</td></tr>
+    <tr><td>$E+T*id</td><td>$</td><td>Reduce F → id</td></tr>
+    <tr><td>$E+T*F</td><td>$</td><td>Reduce T → T*F</td></tr>
+    <tr><td>$E+T</td><td>$</td><td>Reduce E → E+T</td></tr>
+    <tr><td>$E</td><td>$</td><td><span class="answer-box">Accept</span></td></tr>
+  </table>
+  <p class="small">At $E+T with input *id$, the parser shifts * instead of reducing E+T, because T*F must be reduced first (* has higher precedence).</p>
+
+  <h3>Example 2 (handbook): 32423</h3>
+  <p>Grammar: <b>E → 2E2 | 3E3 | 4</b></p>
+  <table class="hand">
+    <tr><th>Stack</th><th>Input</th><th>Action</th></tr>
+    <tr><td>$</td><td>32423$</td><td>Shift</td></tr>
+    <tr><td>$3</td><td>2423$</td><td>Shift</td></tr>
+    <tr><td>$32</td><td>423$</td><td>Shift</td></tr>
+    <tr><td>$324</td><td>23$</td><td>Reduce E → 4</td></tr>
+    <tr><td>$32E</td><td>23$</td><td>Shift</td></tr>
+    <tr><td>$32E2</td><td>3$</td><td>Reduce E → 2E2</td></tr>
+    <tr><td>$3E</td><td>3$</td><td>Shift</td></tr>
+    <tr><td>$3E3</td><td>$</td><td>Reduce E → 3E3</td></tr>
+    <tr><td>$E</td><td>$</td><td><span class="answer-box">Accept</span></td></tr>
+  </table>
+  <p><b>Error example:</b> for input <b>324</b> with this grammar, after reducing to $32E the input is empty: no handle on the stack, nothing to shift and the stack is not just E, so the parser reports an <b>error</b>.</p>
+
+  <div class="conclusion">A shift-reduce parser uses a stack and an input buffer. It shifts input symbols onto the stack, reduces handles on the top of the stack, accepts when only the start symbol is left with empty input, and reports an error when no action is possible.</div>
+</section>
+
+<!-- ============================ Q17 ============================ -->
+<section data-tag="Q17" data-title="Handle Pruning" data-group="Unit 3 · Parsing" data-src="Compiler Design - All Units Notes.pdf (p. 35, Table 3.1.9; p. 37); Compiler Design Handbook.pdf (pp. 52–53)">
+  <h2 class="q-title"><span class="qn">Q17</span>What is handle pruning? Explain its role in bottom-up parsing</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Bottom-up parsing</span></div>
+
+  <div class="def" data-label="Definitions">
+    <b>Handle:</b> a <span class="hl">handle</span> of a string is a substring that <b>matches the right side of a production</b>, and whose reduction to the non-terminal of that production is <b>one step along the reverse of a rightmost derivation</b>.<br/>
+    <b>Handle pruning:</b> the process of <b>discovering a handle and reducing it</b> to the appropriate left-hand-side non-terminal is known as <span class="hl">handle pruning</span>.
+  </div>
+
+  <p><span class="ans">Ans.</span> A bottom-up parser must decide, at each step, <b>which</b> substring to reduce. Not every substring that matches a right side is correct; only the <b>handle</b> leads back to the start symbol. Repeated handle pruning gives the rightmost derivation in reverse.</p>
+
+  <h3>Example (notes): id1 + id2 * id3</h3>
+  <p>Grammar: <b>E → E+E | E*E | id</b></p>
+  <table class="hand">
+    <tr><th>Right sentential form</th><th>Handle</th><th>Reducing production</th></tr>
+    <tr><td>id1 + id2 * id3</td><td>id1</td><td>E → id</td></tr>
+    <tr><td>E + id2 * id3</td><td>id2</td><td>E → id</td></tr>
+    <tr><td>E + E * id3</td><td>id3</td><td>E → id</td></tr>
+    <tr><td>E + E * E</td><td>E * E</td><td>E → E*E</td></tr>
+    <tr><td>E + E</td><td>E + E</td><td>E → E+E</td></tr>
+    <tr><td>E</td><td></td><td><span class="answer-box">start symbol</span></td></tr>
+  </table>
+  <figure class="fig">
+    <svg viewBox="0 0 600 310">
+      <text x="120" y="34" text-anchor="middle">id1</text><text x="170" y="34" text-anchor="middle">+</text><text x="220" y="34" text-anchor="middle">id2</text><text x="270" y="34" text-anchor="middle">*</text><text x="320" y="34" text-anchor="middle">id3</text>
+      <rect class="sk-dash" x="98" y="12" width="44" height="32" rx="6"/>
+      <text x="120" y="84" text-anchor="middle">E</text><text x="170" y="84" text-anchor="middle">+</text><text x="220" y="84" text-anchor="middle">id2</text><text x="270" y="84" text-anchor="middle">*</text><text x="320" y="84" text-anchor="middle">id3</text>
+      <rect class="sk-dash" x="198" y="62" width="44" height="32" rx="6"/>
+      <text x="120" y="134" text-anchor="middle">E</text><text x="170" y="134" text-anchor="middle">+</text><text x="220" y="134" text-anchor="middle">E</text><text x="270" y="134" text-anchor="middle">*</text><text x="320" y="134" text-anchor="middle">id3</text>
+      <rect class="sk-dash" x="298" y="112" width="44" height="32" rx="6"/>
+      <text x="120" y="184" text-anchor="middle">E</text><text x="170" y="184" text-anchor="middle">+</text><text x="220" y="184" text-anchor="middle">E</text><text x="270" y="184" text-anchor="middle">*</text><text x="320" y="184" text-anchor="middle">E</text>
+      <rect class="sk-dash" x="200" y="162" width="140" height="32" rx="6"/>
+      <text x="120" y="234" text-anchor="middle">E</text><text x="170" y="234" text-anchor="middle">+</text><text x="220" y="234" text-anchor="middle">E</text>
+      <rect class="sk-dash" x="100" y="212" width="140" height="32" rx="6"/>
+      <text x="120" y="284" text-anchor="middle" class="t-b">E</text>
+      <path class="sk" d="M60 24 V280" marker-end="url(#arrL)"/><text x="30" y="160" class="t-xs" transform="rotate(-90 30 160)">pruning</text>
+      <text x="380" y="34" class="t-s">reduce id1 by E → id</text>
+      <text x="380" y="84" class="t-s">reduce id2 by E → id</text>
+      <text x="380" y="134" class="t-s">reduce id3 by E → id</text>
+      <text x="380" y="184" class="t-s">reduce E*E by E → E*E</text>
+      <text x="380" y="234" class="t-s">reduce E+E by E → E+E</text>
+      <text x="380" y="284" class="t-s">start symbol: accept</text>
+    </svg>
+    <figcaption data-n="17.1">Handle pruning: the dashed box in every row is the handle</figcaption>
+  </figure>
+
+  <h3>Link with rightmost derivation</h3>
+  <p>Reading the table from the bottom to the top gives a rightmost derivation:</p>
+  <div class="calc"><div>E ⇒ E+E ⇒ E+E*E ⇒ E+E*id3 ⇒ E+id2*id3 ⇒ id1+id2*id3</div></div>
+  <p>So handle pruning = <span class="hl">rightmost derivation in reverse</span>.</p>
+
+  <h3>Role in bottom-up parsing</h3>
+  <ul>
+    <li>Every bottom-up parser is a <b>handle-pruning</b> parser: at each step it finds the handle and reduces it.</li>
+    <li>In a <b>shift-reduce parser</b>, symbols are shifted until the handle appears on the <b>top of the stack</b>, then the reduce action prunes it (see Q16).</li>
+    <li>In an <b>operator precedence parser</b>, the handle is the string between <b>&lt;·</b> and <b>·&gt;</b>, e.g. in $ &lt;· id ·&gt; + …, the handle id is reduced by F → id.</li>
+    <li>In <b>LR parsers</b>, the parsing table tells exactly when a handle is on the stack.</li>
+    <li>Choosing the correct handle decides whether the parse succeeds or wrongly gets stuck.</li>
+  </ul>
+
+  <div class="conclusion">A handle is the right side of a production whose reduction is one step of the reverse rightmost derivation. Handle pruning, finding and reducing handles again and again, is the basic operation of every bottom-up parser and leads the input back to the start symbol.</div>
+</section>
+
+<!-- ============================ Q18 ============================ -->
+<section data-tag="Q18" data-title="Recursive-Descent vs Predictive vs Shift-Reduce" data-group="Unit 3 · Parsing" data-src="Compiler Design - All Units Notes.pdf (pp. 30–36); Compiler Design Handbook.pdf (pp. 36–54, 56–59)" data-srcnote="Each parser is described separately in the notes. The comparison table is built from those descriptions.">
+  <h2 class="q-title"><span class="qn">Q18</span>Compare recursive-descent, predictive and shift-reduce parsing</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Parsing</span></div>
+
+  <div class="def" data-label="In one line each">
+    <b>Recursive descent:</b> top-down, a set of recursive procedures, one per non-terminal.<br/>
+    <b>Predictive (LL(1)):</b> top-down, non-recursive, table-driven with a stack, no backtracking.<br/>
+    <b>Shift-reduce:</b> bottom-up, uses a stack and shift / reduce / accept / error actions.
+  </div>
+
+  <p><span class="ans">Ans.</span> All three parsers check whether a string of tokens is a valid sentence of the grammar and build a parse tree, but they differ in direction and technique.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 150">
+      <rect class="sk" x="10" y="20" width="180" height="70" rx="12"/><text x="100" y="48" text-anchor="middle" class="t-b">Recursive</text><text x="100" y="72" text-anchor="middle" class="t-b">descent</text>
+      <rect class="sk" x="210" y="20" width="180" height="70" rx="12"/><text x="300" y="48" text-anchor="middle" class="t-b">Predictive</text><text x="300" y="72" text-anchor="middle" class="t-b">LL(1)</text>
+      <rect class="sk-shade" x="410" y="20" width="180" height="70" rx="12"/><text x="500" y="48" text-anchor="middle" class="t-b">Shift</text><text x="500" y="72" text-anchor="middle" class="t-b">reduce</text>
+      <path class="sk" d="M30 112 H370" marker-end="url(#arr)"/><text x="200" y="134" text-anchor="middle" class="t-s">top-down (root → leaves)</text>
+      <path class="sk" d="M570 112 H430" marker-end="url(#arr)"/><text x="500" y="134" text-anchor="middle" class="t-s">bottom-up</text>
+    </svg>
+    <figcaption data-n="18.1">Two top-down parsers and one bottom-up parser</figcaption>
+  </figure>
+
+  <h3>Comparison of approach</h3>
+  <table class="hand">
+    <tr><th>Basis</th><th>Recursive descent</th><th>Predictive (LL(1))</th><th>Shift-reduce</th></tr>
+    <tr><td>Type</td><td>Top-down</td><td>Top-down</td><td>Bottom-up</td></tr>
+    <tr><td>Technique</td><td>Recursive procedures, one per non-terminal</td><td>Non-recursive; stack + parsing table M[A,a]</td><td>Stack + input buffer; shift and reduce</td></tr>
+    <tr><td>Derivation</td><td>Leftmost</td><td>Leftmost</td><td>Rightmost in reverse</td></tr>
+    <tr><td>Backtracking</td><td>May be needed if grammar is not left factored</td><td>Never (decides with 1 lookahead)</td><td>Not needed (reduces handles)</td></tr>
+    <tr><td>Grammar needs</td><td>No left recursion; left factored to avoid backtracking</td><td>No left recursion, left factored, one entry per table cell</td><td>Left recursion allowed</td></tr>
+    <tr><td>Main operations</td><td>Call procedure, match token</td><td>Expand by M[X,a], match, accept</td><td>Shift, reduce, accept, error</td></tr>
+    <tr><td>Error messages</td><td>Difficult to give good messages</td><td>Error when table cell is blank</td><td>Error when no action is possible</td></tr>
+    <tr><td>Speed</td><td>Time consuming</td><td>Efficient (table lookup)</td><td>Efficient; LR form is the most efficient</td></tr>
+    <tr><td>Ease of building</td><td>Exceptionally simple, by hand</td><td>Needs FIRST, FOLLOW and table</td><td>Needs handle detection (LR tables)</td></tr>
+    <tr><td>Example in notes</td><td>proc_E, proc_T, proc_V for E → T{+T}*</td><td>Table for E → TE′ … parsing id+id*id</td><td>id+id*id with E → E+T | T …</td></tr>
+  </table>
+
+  <h3>Applications (where each is used)</h3>
+  <ul>
+    <li><b>Recursive descent:</b> small grammars and hand-written parsers, where simplicity matters more than speed; the procedures can also build the tree (Treebuild).</li>
+    <li><b>Predictive / LL(1):</b> table-driven parsers for grammars that are LL(1), e.g. arithmetic expressions after removing left recursion.</li>
+    <li><b>Shift-reduce:</b> the base for operator precedence and <b>LR parsers</b> (SLR, CLR, LALR), which can recognize most programming-language constructs for which a CFG can be written.</li>
+  </ul>
+
+  <div class="conclusion">Recursive descent and predictive parsing are top-down methods; recursive descent is simple but slow, while predictive parsing is table-driven and never backtracks. Shift-reduce parsing is bottom-up, handles left-recursive grammars and is the basis of powerful LR parsers.</div>
+</section>
+
+<!-- ============================ Q19 ============================ -->
+<section data-tag="Q19" data-title="LR Parsing: Basic Idea" data-group="Unit 3 · Parsing" data-src="Compiler Design - All Units Notes.pdf (pp. 39–40); Compiler Design Handbook.pdf (pp. 58–66)">
+  <h2 class="q-title"><span class="qn">Q19</span>Explain the basic idea of LR parsing. How is it different from top-down parsing?</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · LR parsing</span></div>
+
+  <div class="def" data-label="Definition">
+    <span class="hl">LR parsing</span> is the <b>most efficient method of bottom-up parsing</b>, which can be used to parse a large class of context-free grammars. The technique is called <b>LR(k)</b> parsing.
+  </div>
+
+  <p><span class="ans">Ans.</span> The name LR(k) means:</p>
+  <table class="hand">
+    <tr><th>L</th><th>R</th><th>k</th></tr>
+    <tr><td><b>Left to right</b> scanning of the input</td><td>Constructing a <b>rightmost derivation in reverse</b></td><td>Number of input symbols of <b>lookahead</b> used to make parsing decisions</td></tr>
+  </table>
+
+  <h3>Types of LR parsers</h3>
+  <ul class="dots">
+    <li><b>LR(0)</b></li>
+    <li><b>SLR</b> (Simple LR): small tables, simple generator</li>
+    <li><b>CLR</b> (Canonical LR)</li>
+    <li><b>LALR</b> (Lookahead LR)</li>
+  </ul>
+
+  <h3>Model of an LR parser</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 300">
+      <rect class="sk" x="160" y="10" width="300" height="36"/>
+      <path class="sk-thin" d="M210 10 V46 M260 10 V46 M310 10 V46 M360 10 V46 M410 10 V46"/>
+      <text x="185" y="35" text-anchor="middle">a1</text><text x="235" y="35" text-anchor="middle">…</text><text x="285" y="35" text-anchor="middle">ai</text><text x="335" y="35" text-anchor="middle">…</text><text x="385" y="35" text-anchor="middle">an</text><text x="435" y="35" text-anchor="middle">$</text>
+      <text x="476" y="34" class="t-s">INPUT</text>
+      <path class="sk" d="M285 50 L295 96" marker-end="url(#arr)"/>
+      <rect class="sk-shade" x="200" y="100" width="200" height="60" rx="10"/><text x="300" y="126" text-anchor="middle" class="t-b">LR parsing</text><text x="300" y="150" text-anchor="middle" class="t-b">program</text>
+      <rect class="sk" x="40" y="70" width="90" height="190"/>
+      <path class="sk-thin" d="M40 108 H130 M40 146 H130 M40 184 H130 M40 222 H130"/>
+      <text x="85" y="95" text-anchor="middle">Sm</text><text x="85" y="133" text-anchor="middle">Xm</text><text x="85" y="171" text-anchor="middle">Sm-1</text><text x="85" y="209" text-anchor="middle">…</text><text x="85" y="247" text-anchor="middle">S0</text>
+      <text x="85" y="282" text-anchor="middle" class="t-s">Stack</text>
+      <path class="sk" d="M134 120 H196" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk" d="M400 130 H486" marker-end="url(#arr)"/><text x="494" y="136" class="t-s">OUTPUT</text>
+      <rect class="sk" x="170" y="216" width="130" height="50" rx="8"/><text x="235" y="247" text-anchor="middle" class="t-b">action</text>
+      <rect class="sk" x="300" y="216" width="130" height="50" rx="8"/><text x="365" y="247" text-anchor="middle" class="t-b">goto</text>
+      <path class="sk" d="M300 162 V212" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <text x="300" y="288" text-anchor="middle" class="t-xs">parsing table</text>
+    </svg>
+    <figcaption data-n="19.1">Model of an LR parser (schematic form, Fig 3.1.6 of the notes)</figcaption>
+  </figure>
+  <p>It has an <b>input buffer</b> for the input string, a <b>stack</b> for grammar symbols and states, an <b>output</b>, and a <b>parsing table</b> with two parts: <b>action</b> and <b>goto</b>.</p>
+  <ul>
+    <li><b>ACTION[i, a]</b> (state i, terminal a or $) has one of four values: <b>shift j</b>, <b>reduce A → β</b>, <b>accept</b>, <b>error</b>.</li>
+    <li><b>GOTO[i, A]</b> gives the next state after a reduction to non-terminal A.</li>
+  </ul>
+
+  <h3>Basic idea of construction (LR(0))</h3>
+  <ul>
+    <li><b>Augmented grammar:</b> add S′ → S, so the parser knows when to stop and accept. E.g. S → AA, A → aA | b becomes S′ → S, S → AA, A → aA | b.</li>
+    <li><b>LR(0) item:</b> a production with a dot at some position, e.g. S → ABC gives S → .ABC, S → A.BC, S → AB.C, S → ABC.</li>
+    <li><b>Closure() and Goto()</b> build the sets of items (states of a DFA), which are converted into the action/goto table.</li>
+    <li>If a state has both a shift and a reduce (<b>SR conflict</b>) or two reduces (<b>RR conflict</b>), the grammar is not LR(0).</li>
+  </ul>
+
+  <h3>Properties of LR parsers</h3>
+  <ul class="dots">
+    <li>Can be constructed to recognize most programming languages for which a CFG can be written.</li>
+    <li>The class of grammars parsed by LR is a <b>superset</b> of those parsed by predictive parsers.</li>
+    <li>Works using a <b>non-backtracking shift-reduce</b> technique.</li>
+    <li>Can detect a syntactic error <b>as soon as possible</b>.</li>
+  </ul>
+
+  <h3>LR parsing vs top-down parsing</h3>
+  <table class="hand">
+    <tr><th>Basis</th><th>LR parsing</th><th>Top-down parsing</th></tr>
+    <tr><td>Direction</td><td>Bottom-up: input (leaves) → start symbol (root)</td><td>Root (start symbol) → leaves</td></tr>
+    <tr><td>Derivation</td><td>Rightmost derivation in reverse</td><td>Leftmost derivation</td></tr>
+    <tr><td>Basic actions</td><td>Shift, reduce, accept, error</td><td>Expand non-terminal, match terminal</td></tr>
+    <tr><td>Table</td><td>Action + goto table, with states</td><td>M[A, a] (LL(1)) or procedures</td></tr>
+    <tr><td>Left recursion</td><td>Allowed</td><td>Must be removed</td></tr>
+    <tr><td>Backtracking</td><td>Never</td><td>May be needed (unless predictive)</td></tr>
+    <tr><td>Grammar class</td><td>Larger (superset of LL)</td><td>Smaller</td></tr>
+    <tr><td>Construction</td><td>Complex (items, closure, goto)</td><td>Simple</td></tr>
+  </table>
+
+  <div class="conclusion">LR(k) parsing scans the input left to right, builds a rightmost derivation in reverse using k lookahead symbols, and is driven by an action/goto table. Unlike top-down parsing, it is bottom-up, never backtracks, accepts left-recursive grammars and handles a larger class of grammars.</div>
+</section>
+
+<!-- ============================ Q20 ============================ -->
+<section data-tag="Q20" data-title="Source Program to Parse Tree: Full Process" data-group="Unit 3 · Parsing" data-src="Compiler Design - All Units Notes.pdf (pp. 2–5, 9–10, 26–27); Compiler Design Handbook.pdf (pp. 3–4, 13–14, 35, 42)" data-srcnote="Each step is from the notes. The statement a := a + b * c * 2 and its syntax tree are from Unit 1; the derivation and parse tree for it are worked out with the notes' grammar style E → E+E | E*E | id.">
+  <h2 class="q-title"><span class="qn">Q20</span>Process from source program to parse tree / syntax tree</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 1–3 · Full picture</span></div>
+
+  <div class="def" data-label="In short">
+    The <b>source program</b> is turned into <b>tokens</b> by the <b>lexical analyzer</b>. The <b>parser</b> takes these tokens, checks them against the <b>grammar</b> by finding a <b>derivation</b>, and outputs a <b>parse tree</b> (or syntax tree), which goes on to semantic analysis.
+  </div>
+
+  <p><span class="ans">Ans.</span> We trace the statement <mark>a := a + b * c * 2</mark> through the front part of the compiler.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 420">
+      <text x="300" y="22" text-anchor="middle" class="t-b">Source program: a := a + b * c * 2</text>
+      <path class="sk" d="M300 30 V50" marker-end="url(#arr)"/>
+      <rect class="sk" x="190" y="54" width="220" height="44" rx="10"/><text x="300" y="82" text-anchor="middle" class="t-b">Lexical analyzer</text>
+      <rect class="sk-shade" x="455" y="54" width="135" height="44" rx="10"/><text x="522" y="82" text-anchor="middle">Symbol table</text>
+      <path class="sk-dash" d="M410 76 H451" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk" d="M280 100 V150" marker-end="url(#arr)"/><text x="268" y="130" text-anchor="end" class="t-xs">token</text>
+      <path class="sk" d="M320 150 V102" marker-end="url(#arr)"/><text x="332" y="130" class="t-xs">get next token</text>
+      <text x="470" y="128" text-anchor="middle" class="t-s">id1 := id1 + id2 * id3 * 2</text>
+      <rect class="sk" x="190" y="154" width="220" height="56" rx="10"/><text x="300" y="178" text-anchor="middle" class="t-b">Parser</text><text x="300" y="200" text-anchor="middle" class="t-xs">finds a derivation</text>
+      <rect class="sk" x="10" y="160" width="140" height="44" rx="10"/><text x="80" y="188" text-anchor="middle">Grammar (CFG)</text>
+      <path class="sk" d="M150 182 H186" marker-end="url(#arr)"/>
+      <path class="sk-dash" d="M455 98 L380 152" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <path class="sk" d="M300 212 V236" marker-end="url(#arr)"/>
+      <rect class="sk" x="210" y="240" width="180" height="44" rx="10"/><text x="300" y="268" text-anchor="middle" class="t-b">Parse tree</text>
+      <path class="sk" d="M300 286 V310" marker-end="url(#arr)"/>
+      <rect class="sk" x="210" y="314" width="180" height="44" rx="10"/><text x="300" y="342" text-anchor="middle" class="t-b">Syntax tree</text>
+      <path class="sk" d="M300 360 V384" marker-end="url(#arr)"/>
+      <text x="300" y="406" text-anchor="middle" class="t-s">semantic analysis → intermediate code → …</text>
+      <rect class="sk" x="455" y="160" width="135" height="44" rx="10"/><text x="522" y="188" text-anchor="middle">Error handler</text>
+      <path class="sk-dash" d="M410 182 H451" marker-start="url(#arr)" marker-end="url(#arr)"/>
+    </svg>
+    <figcaption data-n="20.1">Interaction of lexical analysis, grammar, derivation and parsing</figcaption>
+  </figure>
+
+  <h3><span class="num">1</span>Lexical analysis: characters → tokens</h3>
+  <ul>
+    <li>The lexical analyzer reads the characters left to right and groups them into <b>lexemes</b>.</li>
+    <li>Each lexeme is matched with a <b>pattern</b> and returned as a <b>token</b>: a → id1, := → assignment sign, + → plus sign, b → id2, * → multiplication sign, c → id3, 2 → number.</li>
+    <li>Identifiers a, b, c are entered into the <b>symbol table</b>. White space and comments are removed.</li>
+    <li>It works as a subroutine: each time the parser says <b>"get next token"</b>, it returns the next token.</li>
+  </ul>
+
+  <h3><span class="num">2</span>Grammar: the rules of the language</h3>
+  <p>The parser checks the tokens against a context-free grammar G = (V, T, P, S). In the notes' style:</p>
+  <div class="calc"><div>S → id := E</div><div>E → E + E | E * E | id | num</div></div>
+
+  <h3><span class="num">3</span>Derivation: is the token string a valid sentence?</h3>
+  <p>The parser finds a derivation from S to the token string (leftmost here, as a top-down parser would):</p>
+  <div class="calc">
+    <div>S ⇒ id := E</div>
+    <div>&nbsp;&nbsp;⇒ id := E + E</div>
+    <div>&nbsp;&nbsp;⇒ id := id + E</div>
+    <div>&nbsp;&nbsp;⇒ id := id + E * E</div>
+    <div>&nbsp;&nbsp;⇒ id := id + id * E</div>
+    <div>&nbsp;&nbsp;⇒ id := id + id * E * E</div>
+    <div>&nbsp;&nbsp;⇒ id := id + id * id * E</div>
+    <div>&nbsp;&nbsp;⇒ <span class="answer-box">id := id + id * id * num</span></div>
+  </div>
+
+  <h3><span class="num">4</span>Parsing: building the parse tree</h3>
+  <p>Each derivation step adds children under a non-terminal. A <b>top-down</b> parser builds it from the root; a <b>bottom-up</b> parser builds the same tree from the leaves by reducing handles.</p>
+  <figure class="fig">
+    <svg viewBox="0 0 600 330">
+      <text x="300" y="30" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M300 36 L150 69"/><path class="sk-thin" d="M300 36 L225 69"/><path class="sk-thin" d="M300 36 L370 69"/>
+      <text x="150" y="85" text-anchor="middle">id1</text><text x="225" y="85" text-anchor="middle">:=</text><text x="370" y="85" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M370 91 L290 124"/><path class="sk-thin" d="M370 91 L370 124"/><path class="sk-thin" d="M370 91 L450 124"/>
+      <text x="290" y="140" text-anchor="middle" class="t-b">E</text><text x="370" y="140" text-anchor="middle">+</text><text x="450" y="140" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M290 146 L290 179"/><text x="290" y="195" text-anchor="middle">id1</text>
+      <path class="sk-thin" d="M450 146 L390 179"/><path class="sk-thin" d="M450 146 L450 179"/><path class="sk-thin" d="M450 146 L510 179"/>
+      <text x="390" y="195" text-anchor="middle" class="t-b">E</text><text x="450" y="195" text-anchor="middle">*</text><text x="510" y="195" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M390 201 L390 234"/><text x="390" y="250" text-anchor="middle">id2</text>
+      <path class="sk-thin" d="M510 201 L470 234"/><path class="sk-thin" d="M510 201 L510 234"/><path class="sk-thin" d="M510 201 L550 234"/>
+      <text x="470" y="250" text-anchor="middle" class="t-b">E</text><text x="510" y="250" text-anchor="middle">*</text><text x="550" y="250" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M470 256 L470 289"/><path class="sk-thin" d="M550 256 L550 289"/>
+      <text x="470" y="305" text-anchor="middle">id3</text><text x="550" y="305" text-anchor="middle">num</text>
+    </svg>
+    <figcaption data-n="20.2">Parse tree for a := a + b * c * 2 (leaves read left to right give the token string)</figcaption>
+  </figure>
+
+  <h3><span class="num">5</span>Syntax tree</h3>
+  <p>Removing the non-terminals and keeping operators as interior nodes gives the <b>syntax tree</b> from the notes: <b>:=</b> at the root with children <b>a</b> and <b>+</b>; + has children <b>a</b> and <b>*</b>; * has children <b>b</b> and another <b>*</b>, whose children are <b>c</b> and <b>2</b> (see Fig 1.2 in Q1). The semantic analyzer then adds <b>int to float</b> for 2.</p>
+
+  <table class="hand">
+    <tr><th>Stage</th><th>Input</th><th>Output</th></tr>
+    <tr><td>Lexical analysis</td><td>a := a + b * c * 2</td><td>id1 := id1 + id2 * id3 * 2</td></tr>
+    <tr><td>Grammar</td><td>tokens</td><td>rules to check against</td></tr>
+    <tr><td>Derivation</td><td>start symbol S</td><td>proof that the tokens form a sentence</td></tr>
+    <tr><td>Parsing</td><td>tokens + grammar</td><td>parse tree / syntax tree, or an error</td></tr>
+  </table>
+
+  <div class="conclusion">The lexical analyzer converts characters into tokens and fills the symbol table; the parser, guided by the grammar, finds a derivation for the token string and builds the parse tree, which is simplified into a syntax tree for the next phases.</div>
+</section>
+
+<!-- ============================ Q21 ============================ -->
+<section data-tag="Q21" data-title="Find the Ambiguities (3 Grammars)" data-group="Unit 3 · Grammar &amp; Derivation" data-src="Compiler Design - All Units Notes.pdf (p. 28, method for proving ambiguity); Compiler Design Handbook.pdf (pp. 42–45)" data-srcnote="The method (two leftmost derivations / two parse trees for one string) is from the notes. These three grammars are solved with that method. '/' in the question means '|' (or).">
+  <h2 class="q-title"><span class="qn">Q21</span>Find the ambiguities in the given grammars</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Ambiguity</span></div>
+
+  <div class="def" data-label="Rule to use">
+    A grammar is <span class="hl">ambiguous</span> if some string has <b>more than one leftmost derivation</b> (or more than one rightmost derivation / parse tree). To prove it, show <b>one string with two different parse trees</b>.
+  </div>
+
+  <p><span class="ans">Ans.</span> In the question, "/" separates alternatives (the same as "|").</p>
+
+  <h3><span class="num">1</span>R → R+R | R.R | a | b | c</h3>
+  <p>Take the string <b>a+b.c</b></p>
+  <div class="grid2">
+    <div><b class="nu"><u>LMD 1 (+ at the root)</u></b><div class="calc"><div>R ⇒ R+R</div><div>⇒ a+R</div><div>⇒ a+R.R</div><div>⇒ a+b.R</div><div>⇒ a+b.c</div></div></div>
+    <div><b class="nu"><u>LMD 2 (. at the root)</u></b><div class="calc"><div>R ⇒ R.R</div><div>⇒ R+R.R</div><div>⇒ a+R.R</div><div>⇒ a+b.R</div><div>⇒ a+b.c</div></div></div>
+  </div>
+  <figure class="fig">
+    <svg viewBox="0 0 600 250">
+      <text x="150" y="20" text-anchor="middle" class="t-s">a + (b . c)</text>
+      <text x="150" y="50" text-anchor="middle" class="t-b">R</text>
+      <path class="sk-thin" d="M150 56 L80 88"/><path class="sk-thin" d="M150 56 L150 88"/><path class="sk-thin" d="M150 56 L220 88"/>
+      <text x="80" y="108" text-anchor="middle" class="t-b">R</text><text x="150" y="108" text-anchor="middle" class="t-b">+</text><text x="220" y="108" text-anchor="middle" class="t-b">R</text>
+      <path class="sk-thin" d="M80 114 L80 146"/>
+      <path class="sk-thin" d="M220 114 L180 146"/><path class="sk-thin" d="M220 114 L220 146"/><path class="sk-thin" d="M220 114 L260 146"/>
+      <text x="80" y="166" text-anchor="middle">a</text><text x="180" y="166" text-anchor="middle" class="t-b">R</text><text x="220" y="166" text-anchor="middle" class="t-b">.</text><text x="260" y="166" text-anchor="middle" class="t-b">R</text>
+      <path class="sk-thin" d="M180 172 L180 204"/><path class="sk-thin" d="M260 172 L260 204"/>
+      <text x="180" y="224" text-anchor="middle">b</text><text x="260" y="224" text-anchor="middle">c</text>
+      <path class="sk-dash" d="M300 30 V236"/>
+      <text x="450" y="20" text-anchor="middle" class="t-s">(a + b) . c</text>
+      <text x="450" y="50" text-anchor="middle" class="t-b">R</text>
+      <path class="sk-thin" d="M450 56 L380 88"/><path class="sk-thin" d="M450 56 L450 88"/><path class="sk-thin" d="M450 56 L520 88"/>
+      <text x="380" y="108" text-anchor="middle" class="t-b">R</text><text x="450" y="108" text-anchor="middle" class="t-b">.</text><text x="520" y="108" text-anchor="middle" class="t-b">R</text>
+      <path class="sk-thin" d="M380 114 L340 146"/><path class="sk-thin" d="M380 114 L380 146"/><path class="sk-thin" d="M380 114 L420 146"/>
+      <path class="sk-thin" d="M520 114 L520 146"/>
+      <text x="340" y="166" text-anchor="middle" class="t-b">R</text><text x="380" y="166" text-anchor="middle" class="t-b">+</text><text x="420" y="166" text-anchor="middle" class="t-b">R</text><text x="520" y="166" text-anchor="middle">c</text>
+      <path class="sk-thin" d="M340 172 L340 204"/><path class="sk-thin" d="M420 172 L420 204"/>
+      <text x="340" y="224" text-anchor="middle">a</text><text x="420" y="224" text-anchor="middle">b</text>
+    </svg>
+    <figcaption data-n="21.1">Two parse trees for a+b.c</figcaption>
+  </figure>
+  <p><b>Ambiguity:</b> there is no precedence between + and . (it is not decided which is done first). Associativity is also not fixed: a+b+c also has two trees.</p>
+  <p>Result: <span class="answer-box">Grammar (1) is ambiguous</span></p>
+
+  <h3><span class="num">2</span>S → SS | 0 | 1</h3>
+  <p>Take the string <b>010</b></p>
+  <div class="grid2">
+    <div><b class="nu"><u>LMD 1</u></b><div class="calc"><div>S ⇒ SS</div><div>⇒ 0S</div><div>⇒ 0SS</div><div>⇒ 01S</div><div>⇒ 010</div></div></div>
+    <div><b class="nu"><u>LMD 2</u></b><div class="calc"><div>S ⇒ SS</div><div>⇒ SSS</div><div>⇒ 0SS</div><div>⇒ 01S</div><div>⇒ 010</div></div></div>
+  </div>
+  <figure class="fig">
+    <svg viewBox="0 0 600 220">
+      <text x="150" y="20" text-anchor="middle" class="t-s">0 (1 0)</text>
+      <text x="150" y="50" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M150 56 L90 88"/><path class="sk-thin" d="M150 56 L210 88"/>
+      <text x="90" y="108" text-anchor="middle" class="t-b">S</text><text x="210" y="108" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M90 114 L90 146"/>
+      <path class="sk-thin" d="M210 114 L170 146"/><path class="sk-thin" d="M210 114 L250 146"/>
+      <text x="90" y="166" text-anchor="middle">0</text><text x="170" y="166" text-anchor="middle" class="t-b">S</text><text x="250" y="166" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M170 172 L170 192"/><path class="sk-thin" d="M250 172 L250 192"/>
+      <text x="170" y="212" text-anchor="middle">1</text><text x="250" y="212" text-anchor="middle">0</text>
+      <path class="sk-dash" d="M300 30 V210"/>
+      <text x="450" y="20" text-anchor="middle" class="t-s">(0 1) 0</text>
+      <text x="450" y="50" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M450 56 L390 88"/><path class="sk-thin" d="M450 56 L510 88"/>
+      <text x="390" y="108" text-anchor="middle" class="t-b">S</text><text x="510" y="108" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M390 114 L350 146"/><path class="sk-thin" d="M390 114 L430 146"/>
+      <path class="sk-thin" d="M510 114 L510 146"/>
+      <text x="350" y="166" text-anchor="middle" class="t-b">S</text><text x="430" y="166" text-anchor="middle" class="t-b">S</text><text x="510" y="166" text-anchor="middle">0</text>
+      <path class="sk-thin" d="M350 172 L350 192"/><path class="sk-thin" d="M430 172 L430 192"/>
+      <text x="350" y="212" text-anchor="middle">0</text><text x="430" y="212" text-anchor="middle">1</text>
+    </svg>
+    <figcaption data-n="21.2">Two parse trees for 010</figcaption>
+  </figure>
+  <p><b>Ambiguity:</b> S → SS does not say how three or more symbols should be grouped: (01)0 or 0(10). Any string of length ≥ 3 has more than one tree.</p>
+  <p>Result: <span class="answer-box">Grammar (2) is ambiguous</span></p>
+
+  <h3><span class="num">3</span>S → aSa | bSb | ε</h3>
+  <p>This grammar generates <b>even-length palindromes</b> over {a, b}, e.g. ε, aa, bb, abba, baab, aabbaa.</p>
+  <p>Take the string <b>abba</b>:</p>
+  <div class="calc"><div>S ⇒ aSa &nbsp;&nbsp;(first symbol is a, so only S → aSa can be used)</div><div>&nbsp;&nbsp;⇒ abSba &nbsp;&nbsp;(next symbol is b, so only S → bSb)</div><div>&nbsp;&nbsp;⇒ abba &nbsp;&nbsp;(middle reached, so only S → ε)</div></div>
+  <figure class="fig">
+    <svg viewBox="0 0 600 200">
+      <text x="300" y="30" text-anchor="middle" class="t-b">S</text>
+      <path class="sk-thin" d="M300 36 L220 70"/><path class="sk-thin" d="M300 36 L300 70"/><path class="sk-thin" d="M300 36 L380 70"/>
+      <text x="220" y="88" text-anchor="middle">a</text><text x="300" y="88" text-anchor="middle" class="t-b">S</text><text x="380" y="88" text-anchor="middle">a</text>
+      <path class="sk-thin" d="M300 94 L250 128"/><path class="sk-thin" d="M300 94 L300 128"/><path class="sk-thin" d="M300 94 L350 128"/>
+      <text x="250" y="146" text-anchor="middle">b</text><text x="300" y="146" text-anchor="middle" class="t-b">S</text><text x="350" y="146" text-anchor="middle">b</text>
+      <path class="sk-thin" d="M300 152 L300 172"/><text x="300" y="192" text-anchor="middle">ε</text>
+    </svg>
+    <figcaption data-n="21.3">The only parse tree for abba</figcaption>
+  </figure>
+  <ul>
+    <li>Every sentential form has <b>exactly one S</b>, always in the middle, so there is only one non-terminal to replace at each step.</li>
+    <li>The choice of production is <b>forced</b> by the next pair of outer symbols: a…a means aSa, b…b means bSb, and the middle of the string means ε.</li>
+    <li>So no string can have two leftmost derivations or two parse trees.</li>
+  </ul>
+  <p>Result: <span class="answer-box">Grammar (3) is NOT ambiguous</span></p>
+
+  <table class="hand">
+    <tr><th>Grammar</th><th>Test string</th><th>Parse trees</th><th>Result</th></tr>
+    <tr><td>R → R+R | R.R | a | b | c</td><td>a+b.c</td><td>2</td><td>Ambiguous</td></tr>
+    <tr><td>S → SS | 0 | 1</td><td>010</td><td>2</td><td>Ambiguous</td></tr>
+    <tr><td>S → aSa | bSb | ε</td><td>abba</td><td>1 (always)</td><td>Unambiguous</td></tr>
+  </table>
+
+  <div class="conclusion">Grammars (1) and (2) are ambiguous because a+b.c and 010 each have two leftmost derivations and two parse trees. Grammar (3) is unambiguous because every step of every derivation is forced, so each palindrome has exactly one parse tree.</div>
+</section>
+
+<!-- ============================ Q22 ============================ -->
+<section data-tag="Q22" data-title="LMD &amp; RMD with a Suitable Grammar" data-group="Unit 3 · Grammar &amp; Derivation" data-src="Compiler Design - All Units Notes.pdf (pp. 27, 33, 36); Compiler Design Handbook.pdf (pp. 42–44, 50)" data-srcnote="The grammar E → E+T | T, T → T*F | F, F → id and the string id+id*id are from the notes (LL(1) and shift-reduce examples). The two derivations are written using the notes' definitions.">
+  <h2 class="q-title"><span class="qn">Q22</span>Leftmost and rightmost derivations with a suitable grammar and example</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 3 · Derivation</span></div>
+
+  <div class="def" data-label="Definitions">
+    <b>Leftmost derivation (LMD):</b> at every step the <span class="hl">leftmost non-terminal</span> is replaced.<br/>
+    <b>Rightmost derivation (RMD):</b> at every step the <span class="hl">rightmost non-terminal</span> is replaced.
+  </div>
+
+  <p><span class="ans">Ans.</span> A derivation shows how the start symbol of a grammar produces a string. We use the expression grammar from the notes:</p>
+  <div class="formula">E → E + T | T &nbsp;&nbsp; T → T * F | F &nbsp;&nbsp; F → id</div>
+  <p>String: <mark>id + id * id</mark></p>
+
+  <div class="grid2">
+    <div>
+      <h3>Leftmost derivation</h3>
+      <div class="calc">
+        <div>E ⇒ <u>E</u> + T</div>
+        <div>&nbsp;&nbsp;⇒ <u>T</u> + T</div>
+        <div>&nbsp;&nbsp;⇒ <u>F</u> + T</div>
+        <div>&nbsp;&nbsp;⇒ id + <u>T</u></div>
+        <div>&nbsp;&nbsp;⇒ id + <u>T</u> * F</div>
+        <div>&nbsp;&nbsp;⇒ id + <u>F</u> * F</div>
+        <div>&nbsp;&nbsp;⇒ id + id * <u>F</u></div>
+        <div>&nbsp;&nbsp;⇒ id + id * id</div>
+      </div>
+    </div>
+    <div>
+      <h3>Rightmost derivation</h3>
+      <div class="calc">
+        <div>E ⇒ E + <u>T</u></div>
+        <div>&nbsp;&nbsp;⇒ E + T * <u>F</u></div>
+        <div>&nbsp;&nbsp;⇒ E + <u>T</u> * id</div>
+        <div>&nbsp;&nbsp;⇒ E + <u>F</u> * id</div>
+        <div>&nbsp;&nbsp;⇒ <u>E</u> + id * id</div>
+        <div>&nbsp;&nbsp;⇒ <u>T</u> + id * id</div>
+        <div>&nbsp;&nbsp;⇒ <u>F</u> + id * id</div>
+        <div>&nbsp;&nbsp;⇒ id + id * id</div>
+      </div>
+    </div>
+  </div>
+  <p class="small">The underlined symbol is the non-terminal replaced in the next step.</p>
+
+  <h3>Derivation tree (same for both)</h3>
+  <figure class="fig">
+    <svg viewBox="0 0 600 270">
+      <text x="300" y="30" text-anchor="middle" class="t-b">E</text>
+      <path class="sk-thin" d="M300 36 L150 69"/><path class="sk-thin" d="M300 36 L300 69"/><path class="sk-thin" d="M300 36 L450 69"/>
+      <text x="150" y="85" text-anchor="middle" class="t-b">E</text><text x="300" y="85" text-anchor="middle">+</text><text x="450" y="85" text-anchor="middle" class="t-b">T</text>
+      <path class="sk-thin" d="M150 91 L150 124"/><text x="150" y="140" text-anchor="middle" class="t-b">T</text>
+      <path class="sk-thin" d="M450 91 L380 124"/><path class="sk-thin" d="M450 91 L450 124"/><path class="sk-thin" d="M450 91 L520 124"/>
+      <text x="380" y="140" text-anchor="middle" class="t-b">T</text><text x="450" y="140" text-anchor="middle">*</text><text x="520" y="140" text-anchor="middle" class="t-b">F</text>
+      <path class="sk-thin" d="M150 146 L150 179"/><text x="150" y="195" text-anchor="middle" class="t-b">F</text>
+      <path class="sk-thin" d="M380 146 L380 179"/><text x="380" y="195" text-anchor="middle" class="t-b">F</text>
+      <path class="sk-thin" d="M150 201 L150 234"/><path class="sk-thin" d="M380 201 L380 234"/><path class="sk-thin" d="M520 146 L520 234"/>
+      <text x="150" y="252" text-anchor="middle">id</text><text x="380" y="252" text-anchor="middle">id</text><text x="520" y="252" text-anchor="middle">id</text>
+    </svg>
+    <figcaption data-n="22.1">Parse tree of id + id * id. The grammar is unambiguous, so LMD and RMD give the same tree.</figcaption>
+  </figure>
+
+  <h3>Comparison</h3>
+  <table class="hand">
+    <tr><th>Leftmost derivation</th><th>Rightmost derivation</th></tr>
+    <tr><td>Expands the leftmost non-terminal first.</td><td>Expands the rightmost non-terminal first.</td></tr>
+    <tr><td>The left part of the string (id + …) appears first.</td><td>The right part of the string (… * id) appears first.</td></tr>
+    <tr><td>Followed by top-down parsers (LL(1), recursive descent). The LL(1) moves in Q14 follow this order.</td><td>Followed in reverse by bottom-up parsers (shift-reduce, LR). The reductions in Q16 are exactly this RMD read backwards.</td></tr>
+  </table>
+
+  <div class="remember">If a grammar is ambiguous, one string can have two LMDs (two trees). For an unambiguous grammar, LMD and RMD differ only in order, not in the tree.</div>
+  <div class="conclusion">For id + id * id, the leftmost derivation always replaces the first non-terminal and the rightmost derivation always replaces the last one. Both reach the same string and the same parse tree because the grammar is unambiguous.</div>
+</section>
+
+<!-- ============================ Q23 ============================ -->
+<section data-tag="Q23" data-title="Compiler vs Interpreter" data-group="Unit 1 · Translators" data-src="Compiler Design Handbook.pdf (pp. 2, 10–11, Table 1.1); Compiler Design - All Units Notes.pdf (pp. 1, 4, 7)">
+  <h2 class="q-title"><span class="qn">Q23</span>Difference between compiler and interpreter</h2>
+  <div class="q-meta"><span class="marks">5 marks</span><span>Unit 1 · Introduction</span></div>
+
+  <div class="def" data-label="Definitions">
+    A <span class="hl">translator</span> takes one form of program as input and converts it into another form. There are three types: <b>compiler, interpreter and assembler</b>.<br/>
+    <b>Compiler:</b> reads a program written in one language and translates it into an equivalent program in another language.<br/>
+    <b>Interpreter:</b> a translator that takes a <b>single instruction</b> as input at a time and executes it.
+  </div>
+
+  <p><span class="ans">Ans.</span> The input of a translator is the <b>source program</b> and the output is the <b>target program</b>. The source language can be assembly language or a higher-level language like C, C++, FORTRAN etc.</p>
+
+  <figure class="fig">
+    <svg viewBox="0 0 600 260">
+      <text x="300" y="22" text-anchor="middle" class="t-b">Compiler</text>
+      <text x="60" y="76" text-anchor="middle" class="t-s">Source</text><text x="60" y="96" text-anchor="middle" class="t-s">program</text>
+      <path class="sk" d="M100 86 H210" marker-end="url(#arrL)"/><text x="155" y="76" text-anchor="middle" class="t-xs">whole program</text>
+      <rect class="sk-shade" x="214" y="56" width="172" height="60" rx="12"/><text x="300" y="92" text-anchor="middle" class="t-b">Compiler</text>
+      <path class="sk" d="M386 86 H476" marker-end="url(#arrL)"/>
+      <text x="530" y="76" text-anchor="middle" class="t-s">Target</text><text x="530" y="96" text-anchor="middle" class="t-s">program</text>
+      <path class="sk-thin" d="M300 116 V136" marker-end="url(#arr)"/><text x="300" y="152" text-anchor="middle" class="t-xs">error messages (after the whole program)</text>
+      <text x="300" y="184" text-anchor="middle" class="t-b">Interpreter</text>
+      <text x="60" y="226" text-anchor="middle" class="t-s">Source</text><text x="60" y="246" text-anchor="middle" class="t-s">program</text>
+      <path class="sk" d="M100 234 H210" marker-end="url(#arrL)"/><text x="155" y="224" text-anchor="middle" class="t-xs">one instruction</text>
+      <rect class="sk" x="214" y="204" width="172" height="56" rx="12"/><text x="300" y="238" text-anchor="middle" class="t-b">Interpreter</text>
+      <path class="sk" d="M386 234 H476" marker-end="url(#arrL)"/>
+      <text x="530" y="230" text-anchor="middle" class="t-s">Result</text><text x="530" y="250" text-anchor="middle" class="t-xs">(error per instruction)</text>
+    </svg>
+    <figcaption data-n="23.1">A compiler translates the whole program; an interpreter takes one instruction at a time</figcaption>
+  </figure>
+
+  <h3>Compiler vs interpreter (Table 1.1 of the notes)</h3>
+  <table class="hand">
+    <tr><th>No.</th><th>Compiler</th><th>Interpreter</th></tr>
+    <tr><td>1</td><td>Takes the <b>entire program</b> as input.</td><td>Takes a <b>single instruction</b> as input.</td></tr>
+    <tr><td>2</td><td><b>Intermediate code</b> is generated.</td><td><b>No intermediate code</b> is generated.</td></tr>
+    <tr><td>3</td><td>Memory requirement is <b>more</b>.</td><td>Memory requirement is <b>less</b>.</td></tr>
+    <tr><td>4</td><td>Errors are displayed <b>after the entire program</b> is checked.</td><td>Errors are displayed <b>for every instruction</b> interpreted.</td></tr>
+    <tr><td>5</td><td>Example: <b>C compiler</b></td><td>Example: <b>BASIC</b></td></tr>
+  </table>
+
+  <h3>Explanation of each point</h3>
+  <ol>
+    <li><b>Input:</b> a compiler reads and analyses the whole source program through all its phases; an interpreter picks up one instruction, processes it, then moves to the next.</li>
+    <li><b>Intermediate code:</b> a compiler produces intermediate code (e.g. three-address code t1 = id3 * 2.0 …) and then target code; an interpreter does not create intermediate code.</li>
+    <li><b>Memory:</b> a compiler keeps the whole program, intermediate code, symbol table and target code, so it needs more memory; an interpreter holds only the current instruction.</li>
+    <li><b>Errors:</b> a compiler reports errors after checking the complete program; an interpreter stops and reports an error at the instruction where it occurs.</li>
+    <li><b>Examples:</b> C is compiled (C compiler); BASIC is interpreted.</li>
+  </ol>
+
+  <h3>What a compiler must do (major functions)</h3>
+  <ul class="dots">
+    <li>Convert the source program to target machine code that is easy to understand.</li>
+    <li>Preserve the meaning of the source code.</li>
+    <li>Report errors that occur during compilation.</li>
+    <li>Do the compilation efficiently.</li>
+  </ul>
+
+  <div class="conclusion">Both are translators. A compiler translates the entire program, generates intermediate code, needs more memory and reports errors after the whole program (e.g. C). An interpreter takes one instruction at a time, has no intermediate code, needs less memory and reports errors per instruction (e.g. BASIC).</div>
+</section>
+
+<!-- ============================ REVISION ============================ -->
+<section data-tag="★" data-title="Quick Revision Sheet" data-group="Revision" data-src="Both PDFs (summary of every answer in this book)">
+  <h2 class="q-title"><span class="qn">★</span>Quick Revision Sheet</h2>
+  <div class="q-meta"><span class="marks">revise 5 min before exam</span></div>
+  <table class="hand">
+    <tr><th>Topic</th><th>Key line to write</th></tr>
+    <tr><td>Phases</td><td>Lexical → Syntax → Semantic → Intermediate code → Optimization → Code generation (+ symbol table, error handler)</td></tr>
+    <tr><td>Front / back end</td><td>Front end = source dependent (analysis + ICG); back end = machine dependent (optimization + code gen)</td></tr>
+    <tr><td>Symbol table</td><td>Data structure storing names + attributes: &lt;salary, int, static&gt;; insert(), lookup(); hash table</td></tr>
+    <tr><td>Errors</td><td>Lexical (illegal char), syntax (missing ")"), semantic (type mismatch); panic mode, phrase level, error production, global correction</td></tr>
+    <tr><td>Token / lexeme / pattern</td><td>class / actual text / rule. total = sum + 12.5 → id, relation, id, operator, num</td></tr>
+    <tr><td>Lexical analyzer</td><td>"get next token"; strips comments + white space; buffer pair + sentinels</td></tr>
+    <tr><td>CFG</td><td>G = (V, T, P, S)</td></tr>
+    <tr><td>LMD / RMD</td><td>Replace leftmost / rightmost non-terminal each step</td></tr>
+    <tr><td>Ambiguous</td><td>One string, two LMDs / two parse trees (a+a+a)</td></tr>
+    <tr><td>Parse vs syntax tree</td><td>Non-terminals inside vs operators inside; concrete vs abstract syntax</td></tr>
+    <tr><td>Top-down</td><td>Root → leaves, LMD; problems: backtracking, left recursion, left factoring</td></tr>
+    <tr><td>Left recursion fix</td><td>A → Aα | β ⇒ A → βA′, A′ → αA′ | ε</td></tr>
+    <tr><td>Recursive descent</td><td>One procedure per non-terminal; simple but slow, poor error messages</td></tr>
+    <tr><td>LL(1)</td><td>Left-to-right, Leftmost, 1 lookahead; stack + input + table M[A,a]</td></tr>
+    <tr><td>LL(1) steps</td><td>Remove left recursion → FIRST/FOLLOW → table → parse</td></tr>
+    <tr><td>Bottom-up</td><td>Leaves → root; reduce handles; RMD in reverse</td></tr>
+    <tr><td>Shift-reduce</td><td>Shift, Reduce, Accept, Error</td></tr>
+    <tr><td>Handle</td><td>RHS whose reduction = one step of reverse RMD; handle pruning</td></tr>
+    <tr><td>LR(k)</td><td>Left-to-right, Rightmost in reverse, k lookahead; action + goto; SLR, CLR, LALR</td></tr>
+    <tr><td>Compiler vs interpreter</td><td>Whole program vs one instruction; IC vs no IC; more vs less memory; C vs BASIC</td></tr>
+  </table>
+  <h3>Must-draw diagrams</h3>
+  <ul>
+    <li>Phases of compiler with symbol table and error box (Q1).</li>
+    <li>Lexical analyzer ⇄ parser with "get next token" (Q4).</li>
+    <li>Parsing techniques tree (Q10).</li>
+    <li>LL(1) model: input, stack, program, table, output (Q13).</li>
+    <li>LR model with action and goto (Q19).</li>
+  </ul>
+</section>
+
+<!-- ============================ SOURCE INDEX ============================ -->
+<section data-tag="§" data-title="Source Notes Index" data-group="Revision">
+  <h2 class="q-title"><span class="qn">§</span>Source Notes Index</h2>
+  <div class="q-meta"><span class="marks">where every answer came from</span></div>
+  <p>Every answer in this notebook is written from the two PDFs in your <b>Compiler Design</b> folder. Nothing was taken from the internet. Use this table to open the original note when you want to revise from the source.</p>
+  <table class="hand">
+    <tr><th>Note (PDF)</th><th>What it covers</th><th>Used in</th></tr>
+    <tr><td>Compiler Design - All Units Notes.pdf (Unit 1, pp. 1–8)</td><td>Translator, compiler, analysis &amp; synthesis, phases with a := a + b * c * 2, Fig 1.2, symbol table, cousins of compiler, front end / back end, passes</td><td>Q1, Q2, Q20, Q23</td></tr>
+    <tr><td>Compiler Design - All Units Notes.pdf (Unit 2, pp. 9–11)</td><td>Role of lexical analyzer, Fig 2.1, token / pattern / lexeme, Table 2.1, input buffering</td><td>Q3, Q4, Q5, Q20</td></tr>
+    <tr><td>Compiler Design - All Units Notes.pdf (Unit 3, pp. 26–40)</td><td>Role of parser, parse vs syntax tree, LMD / RMD, ambiguity, left recursion, left factoring, parsing types, recursive descent, LL(1), handle pruning, shift-reduce, operator precedence, LR</td><td>Q5–Q22</td></tr>
+    <tr><td>Compiler Design - All Units Notes.pdf (Unit 4, pp. 51–52)</td><td>Lexical, syntax, semantic errors; panic mode, phrase level, error production, global correction</td><td>Q2, Q4, Q5</td></tr>
+    <tr><td>Compiler Design Handbook.pdf (Unit 1, pp. 2–12)</td><td>Translator types, compiler functions, phases, front / back end, pass, compiler vs interpreter (Table 1.1)</td><td>Q1, Q2, Q23</td></tr>
+    <tr><td>Compiler Design Handbook.pdf (Unit 2, pp. 13–34)</td><td>Lexical analyzer role, issues, tokens / patterns / lexemes, buffer pair, sentinels</td><td>Q3, Q4, Q5</td></tr>
+    <tr><td>Compiler Design Handbook.pdf (Unit 3, pp. 35–72)</td><td>Top-down problems ("read" backtracking), left recursion, left factoring, ambiguous grammar G = (V,T,P,S), recursive descent C code, LL(1), bottom-up, shift-reduce (32423), LR, LR(0), SLR</td><td>Q6–Q19, Q21, Q22</td></tr>
+    <tr><td>Compiler Design Handbook.pdf (pp. 96–105)</td><td>Error types with examples, symbol table purposes, format, insert / lookup, implementation, scope</td><td>Q2, Q4</td></tr>
+  </table>
+  <h3>Answers that needed a little working out</h3>
+  <p>The notes give the theory and method, and these answers apply it to the exact question asked. Each is flagged in its "From notes" tag:</p>
+  <ul>
+    <li><b>Q5 and Q18, comparisons:</b> the notes describe each item separately; the tables put those points side by side.</li>
+    <li><b>Q8, construction steps:</b> written by following the notes' derivation and parse tree example.</li>
+    <li><b>Q13 and Q14, LL(1) conditions and table rule:</b> built from the notes' steps and worked table.</li>
+    <li><b>Q20, full process:</b> each step is from the notes; the derivation of a := a + b * c * 2 uses the notes' grammar style.</li>
+    <li><b>Q21, the three grammars:</b> solved with the notes' method of two leftmost derivations / two parse trees.</li>
+  </ul>
+</section>
+
+<!-- ============================ BACK COVER ============================ -->
+<section data-kind="raw" data-title="The End">
+<div class="page endcover">
+  <div class="cover-inner end-inner">
+    <img class="csk csk-e1" alt="" />
+    <img class="csk csk-e2" alt="" />
+    <img class="csk csk-e3" alt="" />
+    <img class="csk csk-e4" alt="" />
+    <img class="csk csk-e5" alt="" />
+
+    <div class="end-center">
+      <div class="end-title">All the <span>best!</span></div>
+      <div class="end-sub">Define → Explain → Draw → Example → Conclude.</div>
+    </div>
+
+    <div class="brand"><span class="by">Created by</span><span class="name">Ronit Kaushal</span><img class="cover-logo" src="assets/img/RonitLogodark.webp" alt="Ronit Kaushal logo" width="112" height="46" /></div>
+  </div>
+</div>
+</section>
+
+</div>
+
+<script src="assets/lib/jquery.min.js"></script>
+<script src="assets/lib/turn.min.js?v=4"></script>
+<script src="assets/js/book.js?v=24"></script>
+</body>
+</html>

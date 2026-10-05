@@ -95,6 +95,7 @@ button { font: inherit; color: inherit; }
   display: inline-flex; align-items: center; gap: 6px;
   transition: background .15s, border-color .15s, color .15s;
 }
+a.btn { color: var(--fg); text-decoration: none; }
 .btn:hover { background: #111; border-color: #444; }
 .btn.primary { background: var(--fg); color: #000; border-color: var(--fg); }
 .btn.primary:hover { background: #ccc; border-color: #ccc; }
@@ -129,9 +130,34 @@ kbd {
 
 .book-wrap {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   transform-origin: center center;
 }
+
+/* sticker cut-outs scattered around the book (placed by book.js) */
+.sticker-bg {
+  position: fixed;
+  inset: 44px 0 0 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  /* same ellipse as the grid's vignette (.stage::after): 25% in the middle, fading to 0 at the edges */
+  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.25) 35%, rgba(0,0,0,0.1) 60%, transparent 85%);
+  mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.25) 35%, rgba(0,0,0,0.1) 60%, transparent 85%);
+}
+.sticker-bg img {
+  position: absolute;
+  display: block;
+  user-select: none;
+  -webkit-user-select: none;
+  filter: grayscale(1) contrast(1.05) drop-shadow(0 6px 10px rgba(0,0,0,0.55));
+  animation: stickerIn .5s cubic-bezier(.2,.9,.3,1.3) both;
+}
+@keyframes stickerIn {
+  from { opacity: 0; scale: .6; }
+  to { opacity: 1; scale: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .sticker-bg img { animation: none; } }
 
 /* ---------- Wire-bound notebook (single page, binding on the left, flips sideways) ---------- */
 
@@ -803,98 +829,74 @@ svg text.t-xs { font-size: 13.5px; fill: var(--ink-2); }
   font-weight: 700;
 }
 .cover h1 span { display: block; }
-.cover .sub { font-size: 27px; color: #cfcfcf; max-width: 520px; line-height: 1.35; }
-.cover .tri { width: 120px; height: 104px; margin-top: auto; }
-.cover .meta { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; font-size: 19px; color: #9a9a9a; }
-.cover .sticker {
-  position: absolute; right: 10px; bottom: 200px;
-  transform: rotate(8deg);
-  border: 2.5px solid #f2f2f2;
-  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-  padding: 10px 18px;
-  font-family: var(--hand-title); font-size: 30px; font-weight: 700; text-align: center; line-height: 1;
-}
-.cover .sticker small { display: block; font-family: var(--hand); font-size: 17px; font-weight: 400; margin-top: 4px; color: #bbb; }
+.cover .sub { font-size: 25px; color: #9a9a9a; max-width: 480px; line-height: 1.35; }
 
-/* colour stickers (cover only) */
-.cover .stk {
-  position: absolute;
-  z-index: 2;
-  font-family: var(--hand-title);
-  font-weight: 700;
-  line-height: 1;
-  color: #111;
-  border: 4px solid #fff;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.55), inset 0 -3px 0 rgba(0,0,0,0.12);
-  white-space: nowrap;
+/* cover polish: soft light, fine linen texture, inner frame, accent marker */
+.page.cover, .page.endcover {
+  background:
+    radial-gradient(ellipse 90% 60% at 18% 0%, rgba(255,255,255,0.09), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 100% 100%, rgba(28,156,246,0.10), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.018) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.014) 0 1px, transparent 1px 3px),
+    #0b0b0b;
 }
-/* little lifted corner, like a real sticker */
-.cover .stk::after {
+.cover-inner::before {
   content: "";
   position: absolute;
-  right: -4px; bottom: -4px;
-  width: 18px; height: 18px;
-  background: linear-gradient(135deg, transparent 50%, #e9e9e9 50%, #bdbdbd);
-  border-radius: 0 0 6px 0;
-  box-shadow: -2px -2px 3px rgba(0,0,0,0.25);
+  inset: -34px -36px -30px -38px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  pointer-events: none;
 }
-.cover .stk-star {
-  top: 6px; right: 6px;
-  width: 132px; height: 132px;
-  border: 0; box-shadow: none;
-  transform: rotate(14deg);
-  display: grid; place-items: center;
-  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.6));
-}
-.cover .stk-star::after { display: none; }
-.cover .stk-star svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.cover .stk-star svg path { fill: #ffd43b; stroke: #fff; stroke-width: 5; stroke-linejoin: round; }
-.cover .stk-star span { position: relative; font-size: 46px; color: #c92a2a; transform: translateY(4px); }
-.cover .stk-pink {
-  top: 470px; right: -6px;
-  background: #ff8cc6;
-  padding: 10px 20px 12px;
-  font-size: 30px;
+.cover .eyebrow {
+  align-self: flex-start;
+  padding: 6px 12px;
+  border: 1px solid rgba(255,255,255,0.16);
   border-radius: 999px;
-  transform: rotate(-7deg);
+  color: #a1a1a1;
 }
-.cover .stk-blue {
-  top: 556px; right: 200px;
-  width: 116px; height: 116px;
-  border-radius: 50%;
-  background: #4dabf7;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  transform: rotate(-10deg);
+.cover h1 { color: #f5f5f5; text-shadow: 0 2px 0 rgba(0,0,0,0.5); }
+.cover h1 span:last-child, .end-title span {
+  display: inline-block;
+  background: linear-gradient(100deg, transparent 0 1%, rgba(28,156,246,0.55) 2% 97%, transparent 98%) 0 88% / 100% 30% no-repeat;
+  padding: 0 8px;
+  margin-left: -8px;
 }
-.cover .stk-blue span { font-size: 36px; }
-.cover .stk-blue small { font-family: var(--hand); font-weight: 400; font-size: 15px; margin-top: 4px; }
-.cover .stk-blue::after { right: 6px; bottom: 6px; border-radius: 0 0 50% 0; }
-.cover .stk-purple {
-  top: 604px; right: 10px;
-  background: #b197fc;
-  padding: 10px 18px 12px;
-  font-size: 30px;
-  border-radius: 14px 6px 16px 8px;
-  transform: rotate(6deg);
+.cover .sub {
+  border-left: 3px solid #1c9cf6;
+  padding-left: 14px;
 }
-.cover .stk-green {
-  top: 500px; left: 0;
-  background: #69db7c;
-  padding: 12px 22px 14px;
-  font-size: 34px;
-  border-radius: 10px;
-  transform: rotate(-5deg);
-}
-.cover .stk-orange {
-  top: 624px; left: 0;
-  background: #ffa94d;
-  padding: 12px 22px 14px;
-  font-size: 30px;
-  border-radius: 22px 22px 22px 4px;
-  transform: rotate(4deg);
-}
+.end-sub { letter-spacing: .01em; }
 
-.page.endcover { background: #0b0b0b; color: #eee; }
+/* cut-out stickers on the front and end covers (picked at random by book.js) */
+.cover .csk, .endcover .csk {
+  position: absolute;
+  z-index: 2;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 14px rgba(0,0,0,0.6));
+  pointer-events: none;
+}
+.csk:not([src]) { display: none; }
+.csk-f1 { top: -24px; right: -10px; width: 140px; height: 150px; transform: rotate(9deg); }
+.csk-f2 { top: 420px; right: 0;     width: 200px; height: 130px; transform: rotate(-8deg); }
+.csk-f3 { top: 470px; left: 10px;   width: 160px; height: 200px; transform: rotate(-6deg); }
+.csk-f4 { top: 610px; left: 230px;  width: 150px; height: 150px; transform: rotate(7deg); }
+.csk-f5 { top: 640px; right: 0;     width: 200px; height: 140px; transform: rotate(-10deg); }
+
+.csk-e1 { top: 0;     left: 0;      width: 170px; height: 160px; transform: rotate(-8deg); }
+.csk-e2 { top: 30px;  right: 0;     width: 180px; height: 150px; transform: rotate(10deg); }
+.csk-e3 { top: 200px; left: 220px;  width: 150px; height: 120px; transform: rotate(4deg); }
+.csk-e4 { top: 600px; left: 0;      width: 180px; height: 170px; transform: rotate(6deg); }
+.csk-e5 { top: 620px; right: 0;     width: 190px; height: 160px; transform: rotate(-7deg); }
+
+.page.endcover { color: #eee; padding: 80px 80px 70px 100px; }
+.end-center {
+  margin: auto 0;
+  text-align: center;
+  position: relative; z-index: 1;
+}
+.end-title { font-family: var(--hand-title); font-weight: 700; font-size: 96px; line-height: 1; color: #f2f2f2; }
+.end-sub { margin-top: 18px; font-size: 24px; color: #9a9a9a; }
 .page.endcover::before { background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1.3px); }
 .page.endcover::after { background: rgba(255,255,255,0.12); }
 
@@ -1003,24 +1005,19 @@ svg text.t-xs { font-size: 13.5px; fill: var(--ink-2); }
 /* ---------------- Branding ---------------- */
 
 .page-foot .brand-sig { font-family: var(--hand-title); font-weight: 700; font-size: 18px; color: var(--pen-blue); }
-.cover .brand {
-  margin-top: 26px;
+.cover .brand, .endcover .brand {
+  margin-top: auto;
   padding-top: 18px;
   border-top: 1.5px dashed rgba(255,255,255,0.18);
   display: flex; align-items: baseline; gap: 12px;
   font-size: 19px; color: #9a9a9a;
 }
-.cover .brand .cover-logo { margin-left: auto; height: 46px; width: auto; align-self: center; }
-.cover .brand .by { font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: #777; }
-.cover .brand .name {
+.cover .brand .cover-logo, .endcover .brand .cover-logo { margin-left: auto; height: 46px; width: auto; align-self: center; }
+.cover .brand .by, .endcover .brand .by { font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: #777; }
+.cover .brand .name, .endcover .brand .name {
   font-family: var(--hand-title); font-weight: 700; font-size: 40px; line-height: 1; color: #fff;
   background: linear-gradient(100deg, transparent 0 1%, rgba(255, 221, 0, 0.42) 2% 98%, transparent 99%) 0 80% / 100% 45% no-repeat;
   padding: 0 6px;
-}
-.endcover .brand-end { margin-top: 40px; font-size: 20px; color: #9a9a9a; }
-.endcover .brand-end .name {
-  display: block; margin-top: 6px;
-  font-family: var(--hand-title); font-weight: 700; font-size: 46px; color: #fff;
 }
 
 /* ---------------- Measuring + print ---------------- */

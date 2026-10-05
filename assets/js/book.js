@@ -13,7 +13,6 @@
   const measure = $("#measure");
   const book = $("#book");
   const wrap = $("#bookWrap");
-
   /** @type {{el: HTMLElement, tag: string, title: string}[]} */
   const pages = [];
   /** @type {{tag: string, title: string, group: string, page: number}[]} */
@@ -22,13 +21,16 @@
   const escapeHtml = (s) =>
     s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
+  const FOOT = escapeHtml(document.body.dataset.footer || "Project Management · Exam Prep Notes");
+  const STORE = document.body.dataset.store || "pm-book-page";
+
   function makePage(tag, title, extraClass = "") {
     const el = document.createElement("div");
     el.className = "page " + extraClass;
     el.innerHTML =
       `<div class="page-head"><span class="qtag">${escapeHtml(tag)}</span><span>${escapeHtml(title)}</span></div>` +
       `<div class="page-body"></div>` +
-      `<div class="page-foot"><span>Project Management · Exam Prep Notes · <span class="brand-sig">by Ronit Kaushal</span></span><span class="pno"></span></div>`;
+      `<div class="page-foot"><span>${FOOT} · <span class="brand-sig">by Ronit Kaushal</span></span><span class="pno"></span></div>`;
     measure.appendChild(el);
     pages.push({ el, tag, title });
     return el.querySelector(".page-body");
@@ -497,6 +499,75 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Sticker cut-outs scattered on the background around the book        */
+  /* ------------------------------------------------------------------ */
+
+  // natural [width, height] of assets/img/stickers/sNN.webp
+  const STICKERS = [[235, 121], [227, 92], [189, 239], [260, 101], [204, 151], [211, 236], [178, 195], [150, 177], [218, 218], [197, 143], [134, 148], [260, 189], [97, 224], [216, 166], [260, 183], [242, 141], [216, 101], [151, 228], [210, 223], [160, 232], [175, 176], [239, 250], [260, 214], [157, 232], [260, 116], [184, 231], [230, 70], [205, 122], [224, 225], [202, 202], [260, 133], [224, 210], [253, 210], [152, 170], [260, 123], [260, 99]];
+  const stickerLayer = document.createElement("div");
+  stickerLayer.className = "sticker-bg";
+  stickerLayer.setAttribute("aria-hidden", "true");
+  stage.prepend(stickerLayer);
+
+  const stickerSrc = (i) => `assets/img/stickers/s${String(i + 1).padStart(2, "0")}.webp`;
+
+  /** Fill the sticker spots on the front and end covers with different random stickers. */
+  function randomCoverStickers() {
+    const pool = STICKERS.map((_, i) => i).sort(() => Math.random() - 0.5);
+    $$("#src .csk").forEach((img, k) => { img.src = stickerSrc(pool[k % pool.length]); });
+  }
+
+  const overlaps = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+
+  function scatterStickers() {
+    const sr = stickerLayer.getBoundingClientRect();
+    const W = sr.width;
+    const H = sr.height;
+    const rel = (r, pad) => ({ x: r.left - sr.left - pad, y: r.top - sr.top - pad, w: r.width + pad * 2, h: r.height + pad * 2 });
+    const avoid = [rel(wrap.getBoundingClientRect(), 26), rel($(".controls").getBoundingClientRect(), 10)];
+    const hint = $(".hint");
+    if (hint && hint.offsetParent) avoid.push(rel(hint.getBoundingClientRect(), 8));
+
+    const base = Math.max(110, Math.min(190, Math.min(W, H) * 0.22));
+    const order = STICKERS.map((_, i) => i).sort(() => Math.random() - 0.5);
+    const want = 10 + Math.floor(Math.random() * 6); // 10–15 stickers
+    const placed = [];
+    const frag = document.createDocumentFragment();
+    for (const i of order) {
+      if (placed.length >= want) break;
+      const [sw, sh] = STICKERS[i];
+      const k = (base * (0.8 + Math.random() * 0.45)) / Math.max(sw, sh);
+      const w = sw * k;
+      const h = sh * k;
+      if (w > W || h > H) continue;
+      for (let t = 0; t < 50; t++) {
+        const x = Math.random() * (W - w);
+        const y = Math.random() * (H - h);
+        const r = { x: x - 8, y: y - 8, w: w + 16, h: h + 16 };
+        if (avoid.some((a) => overlaps(a, r)) || placed.some((p) => overlaps(p, r))) continue;
+        placed.push(r);
+        const img = document.createElement("img");
+        img.src = stickerSrc(i);
+        img.alt = "";
+        img.decoding = "async";
+        img.draggable = false;
+        img.style.cssText =
+          `left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;width:${w.toFixed(1)}px;height:${h.toFixed(1)}px;` +
+          `transform:rotate(${(Math.random() * 36 - 18).toFixed(1)}deg)`;
+        frag.appendChild(img);
+        break;
+      }
+    }
+    stickerLayer.replaceChildren(frag);
+  }
+
+  let scatterTimer = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(scatterTimer);
+    scatterTimer = setTimeout(scatterStickers, 250);
+  });
+
+  /* ------------------------------------------------------------------ */
   /* UI                                                                  */
   /* ------------------------------------------------------------------ */
 
@@ -525,7 +596,7 @@
     nextBtn.disabled = cur === last;
     $$(".toc-item").forEach((b) => b.classList.toggle("active", e && b.dataset.tag === e.tag && cur !== 0));
     history.replaceState(null, "", `#p${cur}`);
-    try { localStorage.setItem("pm-book-page", String(cur)); } catch (_) {}
+    try { localStorage.setItem(STORE, String(cur)); } catch (_) {}
   }
 
   function buildDrawer() {
@@ -595,6 +666,13 @@
         if (e.key === "Escape") closeDrawer();
         return;
       }
+      if (zoomIdx > 0 && ["ArrowDown", "ArrowUp", "PageDown", "PageUp"].includes(e.key)) {
+        // zoomed in: up / down move over the page, left / right still turn it
+        e.preventDefault();
+        const step = stage.clientHeight * (e.key.startsWith("Page") ? 0.85 : 0.3);
+        stage.scrollBy({ top: e.key === "ArrowDown" || e.key === "PageDown" ? step : -step, behavior: "smooth" });
+        return;
+      }
       if (["ArrowRight", "ArrowDown", "PageDown", " "].includes(e.key)) { e.preventDefault(); next(); }
       else if (["ArrowLeft", "ArrowUp", "PageUp"].includes(e.key)) { e.preventDefault(); prev(); }
       else if (e.key === "Home") go(0);
@@ -650,6 +728,7 @@
       await document.fonts.ready;
     } catch (_) {}
     await new Promise((r) => setTimeout(r, 120));
+    randomCoverStickers();
     paginate();
     buildBook();
     buildDrawer();
@@ -658,11 +737,12 @@
 
     const fromHash = parseInt((location.hash.match(/^#p(\d+)/) || [])[1], 10);
     let stored = NaN;
-    try { stored = parseInt(localStorage.getItem("pm-book-page"), 10); } catch (_) {}
+    try { stored = parseInt(localStorage.getItem(STORE), 10); } catch (_) {}
     const start = Number.isFinite(fromHash) ? fromHash : Number.isFinite(stored) ? stored : 0;
     cur = Math.max(0, Math.min(total - 1, Number.isFinite(start) ? start : 0));
     initTurn(cur);
     updateUI();
+    scatterStickers();
     $("#loader").classList.add("hide");
   }
 
